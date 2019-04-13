@@ -18,7 +18,7 @@
             </p>
 
             <div class="tight-listing">
-                <p v-for="item in error_imports">{{ item }}</p>
+                <p v-for="item in errorMessage.items">{{ item }}</p>
             </div>
         </div>
 
@@ -34,7 +34,7 @@
             </p>
 
             <div class="tight-listing">
-                <p v-for="item in imported_folders">{{ item }}</p>
+                <p v-for="item in warnMessage.items">{{ item }}</p>
             </div>
         </div>
 
@@ -50,29 +50,39 @@
             </p>
 
             <div class="tight-listing">
-                <p v-for="item in failed_imports">{{ item }}</p>
+                <p v-for="item in failMessage.items">{{ item }}</p>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import AudioTS    from './components/Toolset/AudioTS.vue'
-    import AudioSTS   from './components/Toolset/AudioSTS.vue'
-    import Search     from './components/Search/SearchBar.vue'
-    import Sidepane   from './components/Sidepane/Sidepane.vue'
-    import Trackspane from './components/Trackspane/Trackspane.vue'
+    import AudioTS              from './components/Toolset/AudioTS.vue'
+    import AudioSTS             from './components/Toolset/AudioSTS.vue'
+    import Search               from './components/Search/SearchBar.vue'
+    import Sidepane             from './components/Sidepane/Sidepane.vue'
+    import Trackspane           from './components/Trackspane/Trackspane.vue'
 
-    import FS         from './utils/dirwalker'
+    import {
+            mapActions,
+            mapGetters }        from 'vuex'
 
-    import { Id, QuerySelectorAll }     from './utils/htmlQuery'
+    import FS                   from './utils/dirwalker'
 
-    import { mapActions, mapGetters } from 'vuex'
+    import {
+            Id,
+            QuerySelectorAll }  from './utils/htmlQuery'
 
-    const jsm     = require('jsmediatags')
 
-    const fs      = require('fs')
-    const path    = require('path')
+    const {
+            remote,
+            dialog,
+            ipcRenderer }      = require('electron')
+
+    const jsm             = require('jsmediatags')
+
+    const fs              = require('fs')
+    const path            = require('path')
 
     export default {
         components: {
@@ -100,6 +110,40 @@
             window.addEventListener('resize', () => {
                 vm.resizeThead()
             })
+
+            // Handle events thrown from main renderer (App Menu)
+            ipcRenderer.on('import-tracks', (event, arg) => {
+                let objs = remote.dialog.showOpenDialog({
+                    properties: ['openFile', 'multiSelections']
+                })
+
+                if (objs.length > 0) {
+                    for (var i = 0;i < objs.length;i++) {
+                        this.deref(objs[i])
+                    }
+                }
+            })
+
+            // Check fn for infinte loops
+            ipcRenderer.on('import-folder', (event, arg) => {
+                let objs = remote.dialog.showOpenDialog({
+                    properties: ['openDirectory', 'multiSelections']
+                })
+
+                if (objs.length > 0) {
+                    for (var i = 0;i < objs.length;i++) {
+                        let tracks = this.crawl(objs[i])
+
+                        for (var j = 0;j < tracks.length;j++) {
+                            this.deref(tracks[j])
+                        }
+                    }
+                }
+            })
+
+            ipcRenderer.on('delete-all', (event, arg) => {
+                this.deleteAllTracks()
+            })
         },
         watch: {
             all_imports: function () {
@@ -126,6 +170,7 @@
         methods: {
             ...mapActions([
                 'addTrack',
+                'deleteAllTracks',
                 'updateErrorMessage',
                 'updateWarnMessage',
                 'updateFailMessage',
@@ -167,6 +212,7 @@
                     let format = file.split('.')
                     format = format[format.length-1]
 
+                    // All supported formats
                     if (['mp3', 'ogg', 'wav'].includes(format)) {
                         tracks.push(file)
                     }
@@ -179,7 +225,7 @@
 
                 // We extract the 'tags' and 'filepath'
                 var tag = obj.tag
-                var fp = obj.tn
+                var fp = obj.track_name
 
                 // We build our track template here
                 var meta = {
@@ -299,6 +345,13 @@
                 'warnMessage',
                 'failMessage'
             ])
+        },
+        beforeDestroy() {
+            // Clear all error messages when app is closed
+            // ... To avoid persisted error messages between sessions
+            this.clearErrorMessage()
+            this.clearWarnMessage()
+            this.clearFailMessage()
         }
     }
 </script>

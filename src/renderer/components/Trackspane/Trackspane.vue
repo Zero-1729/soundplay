@@ -43,11 +43,6 @@
                 </td>
                 </tr>
             </tbody>
-
-            <div class="playlist-modal" :class="{open: openModal, closed: !openModal}">
-                <h4>New Playlist</h4>
-                <input id="playlist-modal" placeholder="Enter Playlist name..."/>
-            </div>
         </table>
 </template>
 
@@ -67,7 +62,6 @@
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
                 index: -1,
                 selectedTracks: [],
-                openModal: false,
                 hoveredElm: null
             }
         },
@@ -377,7 +371,7 @@
                 this.filterPool()
             },
 
-            deleteAllTracks() {
+            deleteSelectedTracks() {
                 // Only trigger if 'search-input' is blurred
                 // We don't want the tracks disappearing randomly while typing
                 if (!(Id('search-input') == document.activeElement)) {
@@ -430,7 +424,7 @@
                     this.setCurrentTrack,
                     this.selectTracksB,
                     this.selectTracksF,
-                    this.deleteAllTracks,
+                    this.deleteSelectedTracks,
                     this.toggleFavouriteTrack
                 ])
             }

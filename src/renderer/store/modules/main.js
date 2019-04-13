@@ -153,6 +153,17 @@ const mutations = {
         }
     },
 
+    DELETE_ALL_TRACKS (state) {
+        state.music = []
+        state.albums = []
+        state.genres = []
+        state.artists = []
+
+        for (var i = 0;i < state.playlists;i++) {
+            state.playlists[i] = []
+        }
+    },
+
     TOGGLE_FAVOURITE_TRACK (state, track) {
         let index = state.music.indexOf(track)
 
@@ -220,6 +231,10 @@ const actions = {
 
     deleteTrack: ({ commit }, track) => {
         commit('DELETE_TRACK', track)
+    },
+
+    deleteAllTracks: ({ commit }) => {
+        commit('DELETE_ALL_TRACKS')
     },
 
     toggleFavourite: ({ commit }, track) => {

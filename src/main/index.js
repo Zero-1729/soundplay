@@ -1,8 +1,20 @@
-import { app, BrowserWindow, nativeImage, Menu, shell, Tray } from 'electron'
+import {
+        app,
+        BrowserWindow,
+        nativeImage,
+        Menu,
+        shell,
+        Tray,
+        ipcMain
+    } from 'electron'
 
 import '../renderer/store'
 
 const path = require('path')
+
+// App version
+// Note: Should match 'package.json'
+const APP_VERSION = 'v.0.0.6'
 
 /**
  * Set `__static` path to static files in production
@@ -51,8 +63,6 @@ function createWindow () {
 
     mainWindow.loadURL(winURL)
 
-    let tray = null
-
     mainWindow.on('closed', () => {
         mainWindow = null
     })
@@ -77,9 +87,15 @@ const template = [
         label: 'File',
         submenu: [
             {
-                label: 'Import Tracks',
+                label: 'Import Tracks...',
                 click() {
-                    return true
+                    mainWindow.webContents.send('import-tracks', null)
+                }
+            },
+            {
+                label: 'Import Folder...',
+                click() {
+                    mainWindow.webContents.send('import-folder', null)
                 }
             },
             {
@@ -88,7 +104,7 @@ const template = [
             {
                 label: 'Delete All Tracks',
                 click() {
-                    return true
+                    mainWindow.webContents.send('delete-all', null)
                 }
             }
         ]
@@ -134,10 +150,14 @@ const template = [
         role: 'help',
         submenu: [
             {
-                label: 'Learn More',
+                label: 'About Soundplay',
                 click() {
                     shell.openExternal('https://github.com/zero-1729/soundplay')
                 }
+            },
+            {
+                label: `Version ${APP_VERSION} (64-bit)`,
+                enabled: false
             }
         ]
     }
