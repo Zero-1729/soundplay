@@ -14,7 +14,7 @@ const path = require('path')
 
 // App version
 // Note: Should match 'package.json'
-const APP_VERSION = 'v.0.0.6'
+const APP_VERSION = 'v.0.1.0'
 
 /**
  * Set `__static` path to static files in production
@@ -87,6 +87,15 @@ const template = [
         label: 'File',
         submenu: [
             {
+                label: 'Create Playlist',
+                click() {
+                    mainWindow.webContents.send('create-playlist', null)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
                 label: 'Import Tracks...',
                 click() {
                     mainWindow.webContents.send('import-tracks', null)
@@ -102,7 +111,7 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Delete All Tracks',
+                label: 'Delete All Sound',
                 click() {
                     mainWindow.webContents.send('delete-all', null)
                 }

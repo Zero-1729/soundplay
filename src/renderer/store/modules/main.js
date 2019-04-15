@@ -1,49 +1,13 @@
 // Some helper functions
 
-// Helper for Adding unique items to arrays
-const add = (list, item, basic=false) => {
-    let isDup = false
+const {
+        removeObject,
+        getIndexFromKey } = require('./../../utils/object')
 
-    for (var i = 0;i < list.length;i++) {
-    	if (!basic) {
-            if (list[i].source == item.source) {
-                isDup = true
-            }
-        } else {
-            if (list[i] == item) {
-                isDup = true
-            }
-        }
-    }
-
-    // If we do find a duplicate we simply return an unaltered list
-    if (isDup) {
-    	return list
-    } else {
-        // otherwise, we return an altered list with the new item
-        return list.concat(item)
-    }
-}
-
-// Obtain tracks related to a given category; i.e genre
-const related = (list, category, name) => {
-    // Returns all tracks with the category (i.e genre) 'name'
-    return list.filter((track) => {
-        return track[category] == name
-    }).length
-}
-
-// Remove an item from an array
-const remove = (list, item) => {
-    let index = list.indexOf(item)
-
-    if (index) {
-        list = list.slice(0, index).concat(list.slice(index+1))
-        return list
-    } else {
-        return list
-    }
-}
+const {
+        add,
+        remove,
+        related }         = require('./../../utils/list')
 
 const state = {
     music: [],
@@ -71,11 +35,16 @@ const state = {
             items: null,
             isEmpty: true
         }
+    },
+    vars: {
+        lock: {
+            'backspace': false,
+            'enter': false
+        }
     }
 }
 
 const mutations = {
-    // Muts
     ADD_TRACK(state, meta) {
         let track = {
             title: meta.title,
@@ -101,10 +70,9 @@ const mutations = {
             state.music = result
 
             if (meta.activePlaylist) {
-                let pindex = state.playlists[meta.activePlaylist]
-
+                let pindex = getIndexFromKey(state.playlists, meta.activePlaylist.name, 'name')
                 // If we are in a playlist and add a track we also include it in the playlist
-                state.playlists[pindex].push(track)
+                state.playlists[pindex].tracks.push(track)
             }
         }
     },
@@ -119,25 +87,6 @@ const mutations = {
         }
 
         state.music = state.music.slice(0, index).concat(state.music.slice(index + 1))
-
-        // Obtain possible info on playlists that include the track
-        let meta = {indexes: [], pindexes: []}
-
-        state.playlists.forEach((playlist) => {
-            playlist.tracks.forEach((ptrack) => {
-                if (ptrack.source == track.source) {
-                    meta.indexes.push(playlist.indexOf(ptrack))
-                    meta.pindexs = state.playlists.indexOf(playlist)
-                }
-            })
-        })
-
-        if (meta.indexes.length > 0) {
-            // Scrub all traces in playlists
-            for (var i = 0;i < meta.names.length;i++) {
-                state.playlists[meta.pindexes[i]] = state.playlists[meta.pindexes[i]].slice(0, meta.indexes[i]).concat(state.playlists[meta.pindexes]).slice(meta.indexes[i]+1)
-            }
-        }
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are deleted
         if (!related(state.music, 'artist', track.artist)) {
@@ -154,13 +103,15 @@ const mutations = {
     },
 
     DELETE_ALL_TRACKS (state) {
-        state.music = []
-        state.albums = []
-        state.genres = []
-        state.artists = []
+        if (state.music.length > 0) {
+            state.music = []
+            state.albums = []
+            state.genres = []
+            state.artists = []
 
-        for (var i = 0;i < state.playlists;i++) {
-            state.playlists[i] = []
+            for (var i = 0;i < state.playlists;i++) {
+                state.playlists[i] = []
+            }
         }
     },
 
@@ -172,6 +123,42 @@ const mutations = {
         } else {
             state.music[index].favourite = true
         }
+    },
+
+    CREATE_PLAYLIST (state, name) {
+        state.playlists.push({
+            name: name,
+            tracks: []
+        })
+    },
+
+    RENAME_PLAYLIST (state, obj) {
+        let index = getIndexFromKey(state.playlists, obj.old, 'name')
+        let tracks = state.playlists[index].tracks
+
+        // Rename it from the core
+        state.playlists[index].name = obj.current
+
+        // Update each related tracks playlist name
+        for (var i = 0;i < state.music;i++) {
+            if (state.music[i].playlists.includes(obj.old)) {
+                state.music[i].playlists = replaceItem(state.music[i].playlists, obj.old, obj.current)
+            }
+        }
+    },
+
+    REMOVE_PLAYLIST (state, name) {
+        state.playlists = removeObject(state.playlists, name, 'name')
+    },
+
+    ADD_TRACK_TO_PLAYLIST (state, obj) {
+        let index = getIndexFromKey(state.playlists, obj.playlist, 'name')
+        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.track)
+    },
+
+    REMOVE_FROM_PLAYLIST (state, obj) {
+        let index = getIndexFromKey(state.playlists, obj.playlist, 'name')
+        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, obj.track.source, 'source')
     },
 
     UPDATE_ERROR_MESSAGE (state, meta) {
@@ -220,11 +207,19 @@ const mutations = {
         state.reporter.failure.items   = null
 
         state.reporter.failure.isEmpty = true
+    },
+
+    LOCK_HOTKEY (state, hotkey) {
+        // So we can override the global hotkeys
+        state.vars.lock[hotkey] = true
+    },
+
+    UNLOCK_HOTKEY (state, hotkey) {
+        state.vars.lock[hotkey] = false
     }
 }
 
 const actions = {
-    // Acts
     addTrack: ({ commit }, info) => {
         commit('ADD_TRACK', info)
     },
@@ -239,6 +234,26 @@ const actions = {
 
     toggleFavourite: ({ commit }, track) => {
         commit('TOGGLE_FAVOURITE_TRACK', track)
+    },
+
+    createPlaylist: ({ commit }, name) => {
+        commit('CREATE_PLAYLIST', name)
+    },
+
+    renamePlaylist: ({ commit }, obj) => {
+        commit('RENAME_PLAYLIST', obj)
+    },
+
+    removePlaylist: ({ commit }, name) => {
+        commit('REMOVE_PLAYLIST', name)
+    },
+
+    addTrackToPlaylist: ({ commit }, obj) => {
+        commit('ADD_TRACK_TO_PLAYLIST', obj)
+    },
+
+    removeFromPlaylist: ({ commit }, obj) => {
+        commit('REMOVE_FROM_PLAYLIST', obj)
     },
 
     updateErrorMessage: ({ commit }, meta) => {
@@ -263,6 +278,14 @@ const actions = {
 
     clearFailMessage: ({ commit }) => {
         commit('CLEAR_FAILURE_MESSAGE')
+    },
+
+    lockHotKeys: ({ commit }, hotkeys) => {
+        commit('LOCK_HOTKEY', hotkeys)
+    },
+
+    unlockHotKeys: ({ commit }, hotkeys) => {
+        commit('UNLOCK_HOTKEY', hotkeys)
     }
 }
 
@@ -297,6 +320,14 @@ const getters = {
 
     failMessage (state) {
         return state.reporter.failure
+    },
+
+    backspaceLock (state) {
+        return state.vars.lock['backspace']
+    },
+
+    enterLock (state) {
+        return state.vars.lock['enter']
     }
 }
 

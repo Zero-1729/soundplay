@@ -20,18 +20,18 @@
             }
         },
         mounted() {
-            this.cachedPool = this.currentPool
+            this.cachedPool = this.filteredPool
         },
         watch: {
             currentCriteria: function () {
-                this.cachedPool = this.currentPool
+                this.cachedPool = this.filteredPool
             },
             currentTarget: function () {
-                this.cachedPool = this.currentPool
+                this.cachedPool = this.filtreredPool
             },
-            currentPool: function () {
+            filteredPool: function () {
                 if (Id('search-input') != document.activeElement) {
-                    this.cachedPool = this.currentPool
+                    this.cachedPool = this.filteredPool
                 }
             }
         },
@@ -39,12 +39,16 @@
             ...mapActions([
                 'updateSearchText',
                 'updatePool',
+                'lockHotKeys',
+                'unlockHotKeys'
             ]),
             highlight() {
                 Id('search-input').select()
+                this.lockHotKeys('backspace')
             },
             blur() {
                 Id('search-input').blur()
+                this.unlockHotKeys('backspace')
             },
             focus() {
                 Id('search-input').focus()
@@ -52,12 +56,11 @@
             },
             mutateST() {
                 this.updateSearchText(event.target.value)
-
                 this.updatePool(this.searchTracks())
             },
             searchTracks() {
                 return this.cachedPool.filter((track) => {
-                        return track.title.includes(this.searchText) || track.artist.includes(this.searchText) || track.album.includes(this.searchText) || track.genre.toLowerCase().includes(this.searchText.toLowerCase())
+                        return track.title.toLowerCase().includes(this.searchText) || track.artist.toLowerCase().includes(this.searchText) || track.album.toLowerCase().includes(this.searchText) || track.genre.toLowerCase().includes(this.searchText.toLowerCase())
                 })
             },
             deletePrevText() {
@@ -74,7 +77,7 @@
             ...mapGetters([
                 'searchText',
                 'currentCriteria',
-                'currentPool',
+                'filteredPool',
                 'currentTarget'
             ]),
         }

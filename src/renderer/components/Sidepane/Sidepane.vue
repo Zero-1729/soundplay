@@ -1,7 +1,12 @@
 <template>
     <div class="virtical-div">
         <div v-for="item in listingOptions" class="entity" @click="changeTarget(item)" :class="{activeTarget: typeof currentTarget == 'object' ? currentTarget.name == item.name : currentTarget == item, greyedText: item == playingTarget}">
-            <p>
+            <p
+                @contextmenu.prevent @mousedown.right.capture="showPlaylistOptions(typeof item.name == 'object' ? item.name : item)"
+                @dblclick="cachePlaylistName"
+                @keydown.enter.prevent="handlePlaylistRename"
+                @blur="clearEditable"
+                contenteditable=false>
                 {{ typeof item == 'object' ? item.name : item }}
             </p>
         </div>
@@ -16,12 +21,118 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
+    const { remote } = require('electron')
+
     export default {
         name: 'sidepane',
+        data() {
+            return {
+                hoveredElm: null,
+                cachedText: ''
+            }
+        },
         methods: {
             ...mapActions([
-                'changeTarget'
+                'changeTarget',
+                'renamePlaylist',
+                'removePlaylist',
+                'lockHotKeys',
+                'unlockHotKeys'
             ]),
+
+            cachePlaylistName(forcedEvent=false) {
+                // We don't the user to be able to change the name of enities
+                // ... Changing 'All Tracks', etc
+                if (this.currentCriteria == 'playlist') {
+                    if (forcedEvent) {
+                        // If it was triggered by contextmenu
+                        forcedEvent.target.contentEditable = true
+                        this.cachedText = forcedEvent.target.innerText
+
+                        // We focus it here only since 'dblclick' would auto-focus
+                        forcedEvent.target.focus()
+                    } else {
+                        event.target.contentEditable = true
+                        this.cachedText = event.target.innerText
+                    }
+
+                    // Fake a Mutex type global lock on backspace
+                    this.lockHotKeys('backspace')
+                }
+            },
+
+            handlePlaylistRename() {
+                if (event.target.innerText.length > 0) {
+                    this.renamePlaylist({
+                        old: this.cachedText,
+                        current: event.target.innerText
+                    })
+                } else {
+                    // Revert playlist name
+                    // ... and clear cached Name for later
+                    event.target.innerText = this.cachedText
+                    this.cachedText = ''
+                }
+
+                // Revert 'p' to an uneditable elm
+                event.target.contentEditable = false
+
+                // Fake a Mutex type global unlock on backspace
+                this.unlockHotKeys('backspace')
+
+                // Lock the enter hotkeys to avoid reseting the 'currentTrack'
+                this.lockHotKeys('enter')
+            },
+
+            clearEditable() {
+                // In case the user blurs before hitting enter
+                // ... We assume they changed their mind about renaming
+                if (this.currentCriteria == 'playlist') {
+                    event.target.innerText = this.cachedText
+                    this.cachedText = ''
+                }
+
+                event.target.contentEditable = false
+            },
+
+            showPlaylistOptions(playlist) {
+                // Only show menu if the criteria is on 'playlist'
+                if (this.currentCriteria == 'playlist') {
+                    let vm = this
+                    let forcedEvent = event
+
+                    // We need the whole row highlighted not just the 'td'
+                    this.hoveredElm = event.target
+
+                    this.hoveredElm.classList.add('hovered-text')
+
+                    let contextmenu = remote.Menu.buildFromTemplate([
+                        {
+                            label: 'Rename',
+                            click() {
+                                vm.cachePlaylistName(forcedEvent)
+                            }
+                        },
+                        {
+                            type: 'separator'
+                        },
+                        {
+                            label: 'Remove',
+                            click() {
+                                vm.removePlaylist(playlist.name)
+                            }
+                        }
+                    ])
+
+                    contextmenu.popup({callback: vm.unhighlight})
+                }
+            },
+
+            unhighlight() {
+                // Remove 'hover' class on current hovered track
+                this.hoveredElm.classList.remove('hovered-text')
+                this.hoveredElm = null
+            },
         },
         computed: {
             ...mapGetters([
@@ -46,7 +157,7 @@
     }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
     .virtical-div
         position absolute
         top 0
@@ -65,6 +176,10 @@
                 font-weight bold
                 transition all 0.4s ease
                 user-select none
+            p:hover
+                color rgba(30, 144, 255, 0.51)
+            p:focus
+                outline none
 
         .empty-listing
             padding-top 100px
@@ -81,4 +196,7 @@
 
     .activeTarget
         color dodgerblue
+
+    .hovered-text
+        color rgba(30, 144, 255, 0.51)
 </style>

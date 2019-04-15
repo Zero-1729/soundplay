@@ -55,10 +55,6 @@ const getters = {
         return state.currentTrack
     },
 
-    currentPool(state) {
-        return state.pool
-    },
-
     playingCriteria(state) {
         return state.playingCriteria
     },

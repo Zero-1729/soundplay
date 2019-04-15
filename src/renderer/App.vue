@@ -1,5 +1,5 @@
 <template>
-    <div id="app" @dragover.prevent @drop.prevent="addFiles">
+    <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
@@ -77,7 +77,7 @@
     const {
             remote,
             dialog,
-            ipcRenderer }      = require('electron')
+            ipcRenderer } = require('electron')
 
     const jsm             = require('jsmediatags')
 
@@ -178,6 +178,13 @@
                 'clearWarnMessage',
                 'clearFailMessage'
             ]),
+            closeModals() {
+                // Trigger modal close here
+                // ... but only if it was open
+                if (this.$children[4].openModal && !(Id('playlist-input') == document.activeElement)) {
+                    this.$children[4].openModal = false
+                }
+            },
             clearAllErrorMessage() {
                 this.error_imports = []
 
@@ -376,6 +383,9 @@
     body
         font-family Lato
         font-size 13px
+
+    input:focus
+        outline none
 
     .cancel-btn
         cursor pointer

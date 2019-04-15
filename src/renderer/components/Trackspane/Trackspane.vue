@@ -22,7 +22,7 @@
             </div>
 
             <tbody>
-            <tr v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: currentTrack == track && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
+            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: currentTrack.source == track.source && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
             @keydown.40="mutateIndex(1)"
             @keydown.38="mutateIndex(-1)"
             @click="setIndex(track)"
@@ -43,6 +43,13 @@
                 </td>
                 </tr>
             </tbody>
+
+            <div class="playlist-modal" :class="{open: openModal, closed: !openModal}">
+                <h4>New Playlist</h4>
+                <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
+                @focus="focused = true"
+                @blur="focused = false"/>
+            </div>
         </table>
 </template>
 
@@ -54,7 +61,9 @@
     const { buildMap } = require('./../../utils/object')
     const { generateMenu } = require('./../../utils/menuGenerator')
 
-    const { remote } = require('electron')
+    const {
+            remote,
+            ipcRenderer } = require('electron')
 
     export default {
         data() {
@@ -62,7 +71,10 @@
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
                 index: -1,
                 selectedTracks: [],
-                hoveredElm: null
+                openModal: false,
+                focused: false,
+                hoveredElm: null,
+                pendingTrack: null
             }
         },
         mounted() {
@@ -71,6 +83,12 @@
             if (this.allTracks.length > 0) {
                 this.filterPool()
             }
+
+            // We process the playlist creation App menu action here
+            ipcRenderer.on('create-playlist', (event, arg) => {
+                this.openModal = true
+                this.lockHotKeys('backspace')
+            })
         },
         watch: {
             currentTarget: function () {
@@ -99,14 +117,58 @@
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
                 'toggleFavourite',
-                'addPlaylist',
+                'createPlaylist',
                 'addTrack',
                 'addTrackToPlaylist',
                 'removeFromPlaylist',
                 'deleteTrack',
                 'setSortBy',
-                'setCurrentDirec'
+                'setCurrentDirec',
+                'lockHotKeys',
+                'unlockHotKeys'
             ]),
+
+            addNewPlaylist() {
+                this.openModal = false
+                this.unlockHotKeys('backspace')
+
+                this.createPlaylist(event.target.value)
+
+                if (this.selectedTracks.length > 0) {
+                    for (var i = 0;i < this.selectedTracks.length;i++) {
+                        this.addTrackToPlaylist({
+                            playlist: event.target.value,
+                            track: this.selectedTracks[i]
+                        })
+                    }
+                } else {
+                    // We need to keep track of the track
+                    // ... that initiated the modal's opening
+                    if (this.pendingTrack) {
+                        this.addTrackToPlaylist({
+                            playlist: event.target.value,
+                            track: this.pendingTrack
+                        })
+
+                        // We subsequently release said track
+                        // ... for later use
+                        this.pendingTrack = null
+                    }
+                }
+
+                // Clear the input
+                event.target.value = ''
+            },
+
+            closePlaylistModal() {
+                // Clear the input's value and close the modal
+                Id('playlist-input').value = ''
+                this.openModal = false
+
+                // Since we are bluring the modal
+                // ... we should unlock the hotkey
+                this.unlockHotKeys('backspace')
+            },
 
             sort(kind) {
                 this.setSortBy(kind)
@@ -117,6 +179,7 @@
                     this.setCurrentDirec('a-z')
                 }
             },
+
             filterTracks () {
             	// Returns tracks that match a criteria under some target
             	// Eg: filterTrack('Genre', 'Rap', tracks) -> Returns all Rap tracks
@@ -191,13 +254,23 @@
 
                 this.hoveredElm.classList.add('hover')
 
-                let fn = (playlistName) => {
+                let fn = (playlist) => {
                     return function () {
-                        vm.addTrackToPlaylist({
-                            playlist: playlistName,
-                            track: track
-                        })
+                        if (vm.selectedTracks.length > 0) {
+                            for (var i = 0;i < vm.selectedTracks.length;i++) {
+                                vm.addTrackToPlaylist({
+                                    playlist: playlist.name,
+                                    track: vm.selectedTracks[i]
+                                })
+                            }
+                        } else {
+                            vm.addTrackToPlaylist({
+                                playlist: playlist.name,
+                                track: track
+                            })
+                        }
 
+                        // We update the pool to reflect the change
                         vm.filterPool()
                     }
                 }
@@ -222,28 +295,40 @@
                         click() {
                             // get name from modal interaction
                             let name // Name to use for playlist
-                            let tracks = [] // tracks to be added to the playlist
 
-                            if (vm.selectedTracks.length > 0) {
-                                // Code for multi track addition
-                                this.tracks = vm.selectedTracks
-                            } else {
-                                // Code for single track addition
-                                this.tracks.push(track)
+                            if (!(vm.selectedTracks.length > 0)) {
+                                // Cache the calling track
+                                // ... to include in the new playlist
+                                vm.pendingTrack = track
                             }
 
-                            // Call code for adding playlists
+                            // We then open the modal and
+                            // ... lock the global hotkey
+                            // ... to avoid random track deletions on backspacing
+                            vm.openModal = true
+                            this.lockHotKeys('backspace')
                         }
                     },
                     {
                         label: vm.selectedTracks.length > 0 ? `Add (${vm.selectedTracks.length}) Tracks to playlist...` : 'Add Track to playlist...',
                         submenu: generateMenu(this.allPlaylists, fn),
-                        enabled: !vm.allPlaylists
+                        enabled: vm.allPlaylists.length > 0
                         // Update pool afterward
                     },
                     {
                         type: 'separator'
                     },
+                    vm.currentCriteria == 'playlist' ? {
+                        label: 'Remove Track',
+                        click() {
+                            vm.removeFromPlaylist({
+                                playlist: vm.currentTarget.name,
+                                track: track
+                            })
+
+                            vm.filterPool()
+                        }
+                    } :
                     {
                         label: vm.selectedTracks.length > 0 ? `Delete (${vm.selectedTracks.length}) Tracks` : 'Delete Track',
                         click() {
@@ -289,10 +374,12 @@
 
                 let index = this.index + i
 
-                if (this.index == -1 && this.currentPool.length > 0) {
+                // We are dealing with the rendered pool not the one in the store
+                // ... hence the use of 'filteredPool' and not 'currentPool'
+                if (this.index == -1 && this.filteredPool.length > 0) {
                     this.index = 0
                 } else {
-                    if (index <= this.currentPool.length - 1 && index >= 0) {
+                    if (index <= this.filteredPool.length - 1 && index >= 0) {
                         this.index = index
                     }
                 }
@@ -308,52 +395,62 @@
                         this.selectedTracks = this.selectedTracks.slice(0, index).concat(this.selectedTracks.slice(index + 1))
                     } else {
                         // To avoid adding duplicates to the list
-                        if (!this.selectedTracks.includes(this.currentPool[this.index])) {
-                            this.selectedTracks.push(this.currentPool[this.index])
+                        if (!this.selectedTracks.includes(this.filteredPool[this.index])) {
+                            this.selectedTracks.push(this.filteredPool[this.index])
                         }
 
                         this.selectedTracks.push(track)
                     }
                 } else {
-                    this.index = this.currentPool.indexOf(track)
+                    this.index = this.filteredPool.indexOf(track)
                     this.selectedTracks = []
                 }
             },
 
             setCurrentTrack() {
-                // Reset selectedTracks when track is changed
-                this.selectedTracks = []
+                if (!(this.enterLock)) {
+                    // Only trigger global (enter) hotkey action
+                    // ... when the hotkey is unlocked
 
-                this.updateCurrentTrack(this.currentPool[this.index])
+                    // Reset selectedTracks when track is changed
+                    this.selectedTracks = []
+
+                    if (this.filteredPool.length > 0) {
+                        this.updateCurrentTrack(this.filteredPool[this.index])
+                    }
+                } else {
+                    // Unlock it if locked
+                    this.unlockHotKeys('enter')
+                }
             },
 
             selectTracksF() {
                 // Add first highlighted track
                 // To avoid duplicating previously added tracks
-                if (!this.selectedTracks.includes(this.currentPool[this.index])) {
-                    this.selectedTracks.push(this.currentPool[this.index])
+                if (!this.selectedTracks.includes(this.filteredPool[this.index])) {
+                    this.selectedTracks.push(this.filteredPool[this.index])
                 }
 
                 // Move index
                 this.mutateIndexF(false)
 
                 // Add new selected Track
-                this.selectedTracks.push(this.currentPool[this.index])
+                this.selectedTracks.push(this.filteredPool[this.index])
             },
 
             selectTracksB() {
                 // Add first highlighted track
                 // To avoid duplicating previously added tracks
-                if (!this.selectedTracks.includes(this.currentPool[this.index]))
+                if (!this.selectedTracks.includes(this.filteredPool[this.index]))
                 {
-                    this.selectedTracks.push(this.currentPool[this.index])
+                    this.selectedTracks.push(this.filteredPool[this.index])
                 }
 
                 // Move index
                 this.mutateIndexB(false)
 
                 // Add new selected Track
-                this.selectedTracks.push(this.currentPool[this.index])
+                this.selectedTracks.push(this.filteredPool[this.index])
             },
 
             deleteTracks() {
@@ -372,23 +469,34 @@
             },
 
             deleteSelectedTracks() {
-                // Only trigger if 'search-input' is blurred
-                // We don't want the tracks disappearing randomly while typing
-                if (!(Id('search-input') == document.activeElement)) {
-                    if (this.selectedTracks.length > 0) {
-                        this.deleteTracks()
-                    } else {
-                        // This.currentTrack isn't set yet
-                        // So we improvise and call out the current highlighted track
-                        this.deleteTrack(this.currentPool[this.index])
-                        // Reset the previous index to the track above the deleted ones below
-                        this.index = this.index - 1
+                // We want to only remove the track from the playlist
+                // ... instead of deleting it entirely
+                if (this.currentCriteria == 'playlist' && !this.backspaceLock) {
+                    this.removeFromPlaylist({
+                        playlist: this.currentTarget.name,
+                        track: this.filteredPool[this.index]
+                    })
+
+                    this.filterPool()
+                } else {
+                    // Only trigger if 'search-input' is blurred
+                    // We don't want the tracks disappearing randomly while typing
+                    if (!this.backspaceLock) {
+                        if (this.selectedTracks.length > 0) {
+                            this.deleteTracks()
+                        } else {
+                            // This.currentTrack isn't set yet
+                            // So we improvise and call out the current highlighted track
+                            this.deleteTrack(this.filteredPool[this.index])
+                            // Reset the previous index to the track above the deleted ones below
+                            this.index = this.index - 1
+                        }
                     }
                 }
             },
 
             toggleFavouriteTrack() {
-                this.toggleFavourite(this.currentPool[this.index])
+                this.toggleFavourite(this.filteredPool[this.index])
 
                 // Lets update the pool if we are in the favourites listing
                 if (this.currentTarget == 'Favourites') {
@@ -404,10 +512,11 @@
                 'currentCriteria',
                 'currentTarget',
                 'currentTrack',
-                'currentPool',
                 'filteredPool',
                 'sortBy',
-                'currentDirec'
+                'currentDirec',
+                'backspaceLock',
+                'enterLock'
             ]),
             keymap() {
                 return buildMap([
@@ -495,30 +604,30 @@
     td, th
         text-align left
         padding 0.2rem 0.1rem
-        transition background 0.2s ease-in
+        transition background 0.125s ease-in
         color #a0a0a0
         height 18px
         word-break break-all
 
-    tbody tr:hover, tbody tr:hover div
+    tbody tr:hover td, tbody tr:hover div
         background rgba(30, 144, 255, 0.51)
 
     tbody tr:hover *
-        color white !important
+        color white
         cursor pointer
 
     tbody tr:hover span
-            background transaparent !important
+            background transaparent
 
-    .hover, .hover div
-            background rgba(30, 144, 255, 0.51) !important
+    .hover td, .hover div
+            background rgba(30, 144, 255, 0.51)
 
     .hover span
             background transparent
 
     .hover *
         cursor pointer
-        color white !important
+        color white
 
     tr:nth-child(odd)
         background rgb(247, 247, 247)
@@ -564,6 +673,30 @@
             user-select none
             -webkit-user-drag none
 
+    .playlist-modal
+        position absolute
+        width 360px
+        height 110px
+        background white
+        top 25vh
+        left 22vw
+        border 2px solid lightgrey
+        border-radius 5px
+        color grey
+
+    .playlist-modal *
+        margin-left 30px
+
+    .playlist-input
+        width 280px
+        padding 6px
+        border 2px solid lightgrey
+        border-radius 5px
+        color grey
+
+    .playlist-input-focus
+        border 2px solid dodgerblue
+
     .open
         animation slide 0.3s ease-in
 
@@ -582,14 +715,14 @@
     .fav
         background deeppink
 
-    .activeTrack
-        background dodgerblue !important
+    .activeTrack#track-item
         td
+            background dodgerblue
             color white
 
     .playingTrack
-        background #d8d8d8 !important
         td
+            background #d8d8d8
             color grey
 
     @keyframes slide
