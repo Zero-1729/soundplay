@@ -29,7 +29,7 @@ const actions = {
         commit('CHANGE_CRITERIA', value)
     },
 
-    updateAO: ({ commit }, value) => {
+    updateActiveOption: ({ commit }, value) => {
         // Update 'activeAltOption'
         commit('CHANGE_ACTIVE_OPTION', value)
     },

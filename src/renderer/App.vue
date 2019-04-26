@@ -3,12 +3,13 @@
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
-        <Sidepane></Sidepane>
-        <Trackspane></Trackspane>
+        <span :class="{'fade-pane': loading}">
+            <router-view></router-view>
+        </span>
 
         <div class="error-message" :class="{rise: !errorMessage.isEmpty}" v-show="!errorMessage.isEmpty">
             <div class="cancel-btn" @click="clearAllErrorMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" fill="rgb(70,70,70)"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
             </div>
             <h4>
                 {{ errorMessage.heading }}
@@ -24,7 +25,7 @@
 
         <div class="warn-message" :class="{rise: !warnMessage.isEmpty}" v-show="!warnMessage.isEmpty">
             <div class="cancel-btn" @click="clearAllWarnMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" fill="rgb(70,70,70)"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
             </div>
             <h4>
                 {{ warnMessage.heading }}
@@ -40,7 +41,7 @@
 
         <div class="fail-message" :class="{rise: !failMessage.isEmpty}" v-show="!failMessage.isEmpty">
             <div class="cancel-btn" @click="clearAllFailMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" fill="rgb(70,70,70)"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
             </div>
             <h4>
                 {{ failMessage.heading }}
@@ -69,9 +70,7 @@
 
     import FS                   from './utils/dirwalker'
 
-    import {
-            Id,
-            QuerySelectorAll }  from './utils/htmlQuery'
+    import { Id }               from './utils/htmlQuery'
 
 
     const {
@@ -88,28 +87,27 @@
         components: {
             Search,
             AudioTS,
-            AudioSTS,
-            Sidepane,
-            Trackspane
+            AudioSTS
         },
         data() {
             return {
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
-                all_imports: 0
+                all_imports: 0,
+                loading: false
             }
         },
+        created() {
+            // Load style files
+            this.loadStyle()
+
+            // Resume last route
+            this.$router.push(this.cachedRoute)
+
+        },
         mounted() {
-            // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
-            var vm = this
-
-            // Lets resisze it if the scrollbars are visible on landing
-            this.resizeThead()
-
-            window.addEventListener('resize', () => {
-                vm.resizeThead()
-            })
+            window.addEventListener('resize', this.windowUpdated)
 
             // Handle events thrown from main renderer (App Menu)
             ipcRenderer.on('import-tracks', (event, arg) => {
@@ -144,8 +142,27 @@
             ipcRenderer.on('delete-all', (event, arg) => {
                 this.deleteAllTracks()
             })
+
+
+            // If the 'musicFolder' is set we should update the store
+            if (this.appMusicFolder) {
+                // Load tracks from 'musicFolder'
+                new FS(this.appMusicFolder).forEachFile((file) => {
+                    let format = file.split('.')
+                    format = format[format.length-1]
+
+                    // All supported formats
+                    if (['mp3', 'ogg', 'wav'].includes(format)) {
+                        this.deref(file)
+                    }
+                }, this.appExcludedFolders)
+            }
         },
         watch: {
+            theme: function () {
+                // reload theme after every theme change
+                this.loadStyle()
+            },
             all_imports: function () {
                 // Because failed imports need to trigger the change
                 if (this.all_imports < 0) {
@@ -164,6 +181,10 @@
                         // And problematic sound files
                         this.updateErrorMessage({heading: 'Error during sound scan', message: 'Could not retrieve media tag from (' + this.error_imports.length + ') sound file(s): ', items: this.error_imports})
                     }
+
+                    this.loading = false
+                } else {
+                    this.loading = true
                 }
             }
         },
@@ -176,13 +197,45 @@
                 'updateFailMessage',
                 'clearErrorMessage',
                 'clearWarnMessage',
-                'clearFailMessage'
+                'clearFailMessage',
+                'setPlaylistModal',
+                'clearCurrentTrack'
             ]),
+            windowUpdated() {
+                // Resize width to allow ellipses
+                if (window.innerWidth > 1310) {
+                    let length = document.getElementsByClassName('short').length
+
+                    for (var i = 0;i < length;i++) {
+                        document.getElementsByClassName('short')[i].style.width = "200%"
+                    }
+                } else {
+                    let length = document.getElementsByClassName('short').length
+
+                    for (var i = 0;i < length;i++) {
+                        document.getElementsByClassName('short')[i].style.width = "100%"
+                    }
+                }
+
+                // Redraw waveform here
+            },
+            loadStyle() {
+                let head = document.getElementsByTagName('head')[0]
+                let link = document.createElement('link')
+
+                link.rel = 'stylesheet'
+                link.type = 'text/css'
+                link.href = path.join('/', 'static', 'theme', this.appTheme + '.css')
+                link.media = 'all'
+
+                head.appendChild(link)
+            },
             closeModals() {
                 // Trigger modal close here
                 // ... but only if it was open
-                if (this.$children[4].openModal && !(Id('playlist-input') == document.activeElement)) {
-                    this.$children[4].openModal = false
+                if (this.openPlaylistModal && !(Id('playlist-input') == document.activeElement)) {
+                    //this.$children[4].openModal = false
+                    this.setPlaylistModal(false)
                 }
             },
             clearAllErrorMessage() {
@@ -215,7 +268,7 @@
 
                 let tracks = []
 
-                new FS(dir).forAllFiles(dir, (file) => {
+                new FS(dir).forEachFile((file) => {
                     let format = file.split('.')
                     format = format[format.length-1]
 
@@ -223,7 +276,7 @@
                     if (['mp3', 'ogg', 'wav'].includes(format)) {
                         tracks.push(file)
                     }
-                })
+                }, this.appExcludedFolders)
 
                 return tracks
             },
@@ -329,20 +382,6 @@
                     }
                 }
             },
-            resizeThead() {
-                var thead = QuerySelectorAll('thead')[0]
-                var tbody = QuerySelectorAll('tbody')[0]
-
-                if (tbody.scrollHeight > tbody.clientHeight) {
-                    // We use the static width of the window not the table
-                    // ... To avoid mutating both thead and tbody
-                    thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
-                } else {
-                    // If no scollbars are detected the width is automatically
-                    // ... the window's minus the sidpane's width
-                    thead.style.width = String(window.innerWidth - 250) + "px"
-                }
-            }
         },
         computed: {
             ...mapGetters([
@@ -350,7 +389,12 @@
                 'currentTarget',
                 'errorMessage',
                 'warnMessage',
-                'failMessage'
+                'failMessage',
+                'cachedRoute',
+                'openPlaylistModal',
+                'appMusicFolder',
+                'appExcludedFolders',
+                'appTheme'
             ])
         },
         beforeDestroy() {
@@ -359,6 +403,9 @@
             this.clearErrorMessage()
             this.clearWarnMessage()
             this.clearFailMessage()
+
+            // Clear playing track
+            this.clearCurrentTrack()
         }
     }
 </script>
@@ -384,9 +431,6 @@
         font-family Lato
         font-size 13px
 
-    input:focus
-        outline none
-
     .cancel-btn
         cursor pointer
         position absolute
@@ -407,32 +451,9 @@
     .rise
         animation rise 0.6s ease-in
 
-    .error-message
-        color red
-        border 2.5px solid red
-        background white
-        .cancel-btn
-            svg
-                path
-                    fill red
-
-    .warn-message
-        color #ffc107
-        border 2.5px solid #ffc107
-        background white
-        .cancel-btn
-            svg
-                path
-                    fill #ffc107
-
-    .fail-message
-        color orange
-        border 2.5px solid orange
-        background white
-        .cancel-btn
-            svg
-                path
-                    fill orange
+    .error-message, .warn-message, .fail-message
+        border-width 2.5px
+        border-style solid
 
     .tight-listing
         height 30px
@@ -440,6 +461,9 @@
         p
             margin-top 0
             margin-bottom 0
+
+    .fade-pane
+        opacity 0.4
 
     @keyframes rise
         0%
@@ -453,10 +477,7 @@
 
     ::-webkit-scrollbar
         width 3px
-        background #b7b8b9
-
-    ::-webkit-scrollbar-thumb
-        background  #808088
+        height 2px
 
     ::-webkit-scrollbar-thumb:hover
         width 4px

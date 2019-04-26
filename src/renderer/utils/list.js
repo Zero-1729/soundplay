@@ -34,8 +34,10 @@ const add = (list, item, basic=false) => {
 const remove = (list, item) => {
     let index = list.indexOf(item)
 
-    if (index) {
-        list = list.slice(0, index).concat(list.slice(index+1))
+    if (index != -1) {
+        // If the index is the first item then we slice
+        // ... ahead of it
+        list = index == 0 ? list.slice(1) : list.slice(0, index).concat(list.slice(index+1))
         return list
     } else {
         return list
@@ -57,7 +59,9 @@ const related = (list, category, name) => {
 const replaceItem = (arr, old, current) => {
     let index = arr[old]
 
-    return arr.slice(0, index).concat(current).concat(arr.slice(index+1))
+    // If the index is the first item then we slice
+    // ... ahead of it
+    return index == 0 ? arr.slice(1) : arr.slice(0, index).concat(current).concat(arr.slice(index+1))
 }
 
 module.exports = { add, remove, related, replaceItem }

@@ -2,7 +2,9 @@
 
 const {
         removeObject,
-        getIndexFromKey } = require('./../../utils/object')
+        removeObjects,
+        getIndexFromKey,
+        getRelatedItems } = require('./../../utils/object')
 
 const {
         add,
@@ -36,11 +38,28 @@ const state = {
             isEmpty: true
         }
     },
+    settings: {
+        general: {
+            excludedFolders: [],
+            musicFolder: null
+        },
+        ui: {
+            theme: 'light', // or dark or night
+            nightTheme: 'night'
+        },
+        audio: {},
+        isOpen: false,
+        currentSetting: 'general'
+    },
     vars: {
         lock: {
             'backspace': false,
             'enter': false
-        }
+        },
+        modals: {
+            playlist: false
+        },
+        cachedRoute: '/'
     }
 }
 
@@ -53,7 +72,6 @@ const mutations = {
             genre: meta.genre,
             source: meta.source,
             favourite: false,
-            playlists: [],
             plays: 0,
             peaks: null,
             duration: null
@@ -86,7 +104,7 @@ const mutations = {
             }
         }
 
-        state.music = state.music.slice(0, index).concat(state.music.slice(index + 1))
+        state.music = removeObject(state.music, track.source, 'source')
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are deleted
         if (!related(state.music, 'artist', track.artist)) {
@@ -100,18 +118,50 @@ const mutations = {
         if (!related(state.music, 'genre', track.genre)) {
             state.genres = remove(state.genres, track.genre)
         }
+
+        // Purge playlists of the track
+        for (var i = 0;i < state.playlists.length;i++) {
+            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, track.source, 'source')
+        }
+
+        // If the music store has been emptied
+        // ... then we empty all tracks in the playlists aswell
+        if (state.music.length == 0) {
+            for (var i = 0;i < state.platlists;i++) {
+                state.playlists[i].tracks = []
+            }
+        }
     },
 
     DELETE_ALL_TRACKS (state) {
+        state.albums = []
+        state.artists = []
+
         if (state.music.length > 0) {
             state.music = []
-            state.albums = []
-            state.genres = []
-            state.artists = []
+        }
+    },
 
-            for (var i = 0;i < state.playlists;i++) {
-                state.playlists[i] = []
+    DELETE_ALL (state, obj) {
+        // Remove's album, artist, etc from store
+        state[obj.category] = remove(state[obj.category], obj.name)
+
+        // If its an artist we need to also scrub all thei albums
+        if (obj.target == 'artist') {
+            let relatedAlbums = getRelatedItems(state.music, obj.name, obj.target, 'album')
+
+            for (var i = 0;i < relatedAlbums.length;i++) {
+                if (relatedAlbums[i] != 'Unknown') {
+                    state.albums = remove(state.albums, relatedAlbums[i])
+                }
             }
+        }
+
+        state.music = removeObjects(state.music, obj.name, obj.target)
+
+        // Scrap it from all playlists
+        for (var i = 0;i < state.playlists.length;i++) {
+            state.playlists[i].tracks = removeObjects(state.playlists[i], obj.name, obj.target)
         }
     },
 
@@ -216,6 +266,78 @@ const mutations = {
 
     UNLOCK_HOTKEY (state, hotkey) {
         state.vars.lock[hotkey] = false
+    },
+
+    CACHE_ROUTE (state, route) {
+        state.vars.cachedRoute = route
+    },
+
+    // Settings mutations
+    // UI
+    CHANGE_THEME (state, name) {
+        // We are assuming that 'name' is one of three options:-
+        // - Dark,
+        // - Night
+        // - Light
+        state.settings.ui.theme = name
+    },
+
+    SET_NIGHT_THEME (state, name) {
+        // We are assuming that `name` is one of two options:-
+        // - Dark
+        // - Night
+        state.settings.ui.nightTheme = name
+    },
+
+    TOGGLE_NIGHT_MODE (state) {
+        // We only change the current theme to the dark mode
+        // ... if the current theme is 'light' or
+        // ... not the night mode already
+        if (state.settings.ui.theme == 'light' && !(state.settings.ui.theme == state.settings.ui.nightTheme)) {
+            state.settings.ui.theme = state.settings.ui.nightTheme
+        } else {
+            // Otherwise we change it to the lightTheme
+            state.settings.ui.theme = 'light'
+        }
+    },
+
+    // Audio
+    UPDATE_EXCLUDED_FOLDER (state, name) {
+        // Avoid adding duplicates
+        if (!(state.settings.general.excludedFolders.indexOf(name) != -1)) {
+            state.settings.general.excludedFolders.push(name)
+        }
+    },
+
+    REMOVE_EXCLUDED_FOLDER (state, name) {
+        state.settings.general.excludedFolders = remove(state.settings.general.excludedFolders, name)
+    },
+
+    CLEAR_EXCLUDED_FOLDER (state) {
+        state.settings.general.excludedFolders = []
+    },
+
+    // General
+    TOGGLE_SETTINGS (state) {
+        state.settings.isOpen = !state.settings.isOpen
+    },
+
+    SET_CURRENT_SETTING (state, name) {
+        state.settings.currentSetting = name
+    },
+
+    SET_MUSIC_FOLDER (state, name) {
+        state.settings.general.musicFolder = name
+    },
+
+    REMOVE_MUSIC_FOLDER (state) {
+        state.settings.general.musicFolder = null
+    },
+
+    // Modal dialogs
+    // Playlist
+    SET_PLAYLIST_MODAL (state, value) {
+        state.vars.modals.playlist = value
     }
 }
 
@@ -230,6 +352,10 @@ const actions = {
 
     deleteAllTracks: ({ commit }) => {
         commit('DELETE_ALL_TRACKS')
+    },
+
+    deleteAll: ({ commit }, obj) => {
+        commit('DELETE_ALL', obj)
     },
 
     toggleFavourite: ({ commit }, track) => {
@@ -280,12 +406,53 @@ const actions = {
         commit('CLEAR_FAILURE_MESSAGE')
     },
 
-    lockHotKeys: ({ commit }, hotkeys) => {
-        commit('LOCK_HOTKEY', hotkeys)
+    lockHotKey: ({ commit }, hotkey) => {
+        commit('LOCK_HOTKEY', hotkey)
     },
 
-    unlockHotKeys: ({ commit }, hotkeys) => {
-        commit('UNLOCK_HOTKEY', hotkeys)
+    unlockHotKey: ({ commit }, hotkey) => {
+        commit('UNLOCK_HOTKEY', hotkey)
+    },
+
+    cacheRoute: ({ commit }, route) => {
+        commit('CACHE_ROUTE', route)
+    },
+
+    // Settings Actions
+    setCurrentSetting: ({ commit }, name) => {
+        commit('SET_CURRENT_SETTING', name)
+    },
+
+    setMusicFolder: ({ commit }, name) => {
+        commit('SET_MUSIC_FOLDER', name)
+    },
+
+    removeMusicFolder: ({ commit }) => {
+        commit('REMOVE_MUSIC_FOLDER')
+    },
+
+    // Audio
+    updateExcludedFolder: ({ commit }, name) => {
+        commit('UPDATE_EXCLUDED_FOLDER', name)
+    },
+
+    removeExcludedFolder: ({ commit }, name) => {
+        commit('REMOVE_EXCLUDED_FOLDER', name)
+    },
+
+    clearExcludedFolder: ({ commit }) => {
+        commit('CLEAR_EXCLUDED_FOLDER')
+    },
+
+    // Settings Open var action
+    toggleSettings: ({ commit }) => {
+        commit('TOGGLE_SETTINGS')
+    },
+
+    // Modals
+    // Playlist
+    setPlaylistModal: ({ commit }, value) => {
+        commit('SET_PLAYLIST_MODAL', value)
     }
 }
 
@@ -328,6 +495,39 @@ const getters = {
 
     enterLock (state) {
         return state.vars.lock['enter']
+    },
+
+    cachedRoute (state) {
+        return state.vars.cachedRoute
+    },
+
+    // Settings getters
+    currentSetting (state) {
+        return state.settings.currentSetting
+    },
+
+    // General
+    appMusicFolder (state) {
+        return state.settings.general.musicFolder
+    },
+
+    appExcludedFolders (state) {
+        return state.settings.general.excludedFolders
+    },
+
+    // UI
+    appTheme (state) {
+        return state.settings.ui.theme
+    },
+
+    settingsOpen (state) {
+        return state.settings.isOpen
+    },
+
+    // Modals
+    // Playlist
+    openPlaylistModal (state) {
+        return state.vars.modals.playlist
     }
 }
 

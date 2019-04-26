@@ -17,12 +17,14 @@
             </tr>
             </thead>
             <div class="empty-pool-info" v-if="filteredPool.length == 0">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="578 291 86 86" width="86" height="86"><path d=" M 578 334 C 578 310.268 597.268 291 621 291 C 644.732 291 664 310.268 664 334 C 664 357.732 644.732 377 621 377 C 597.268 377 578 357.732 578 334 Z  M 612.042 334 C 612.042 329.056 616.056 325.042 621 325.042 C 625.944 325.042 629.958 329.056 629.958 334 C 629.958 338.944 625.944 342.958 621 342.958 C 616.056 342.958 612.042 338.944 612.042 334 Z " fill-rule="evenodd" fill="rgb(222,222,222)"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="578 291 86 86" width="86" height="86">
+                    <path d=" M 578 334 C 578 310.268 597.268 291 621 291 C 644.732 291 664 310.268 664 334 C 664 357.732 644.732 377 621 377 C 597.268 377 578 357.732 578 334 Z  M 612.042 334 C 612.042 329.056 616.056 325.042 621 325.042 C 625.944 325.042 629.958 329.056 629.958 334 C 629.958 338.944 625.944 342.958 621 342.958 C 616.056 342.958 612.042 338.944 612.042 334 Z " fill-rule="evenodd" />
+                </svg>
                 <h4>{{ allTracks.length > 0 ? 'No Tracks found' : 'Drag and Drop sound files here to add sound' }}</h4>
             </div>
 
             <tbody>
-            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: currentTrack.source == track.source && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
+            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
             @keydown.40="mutateIndex(1)"
             @keydown.38="mutateIndex(-1)"
             @click="setIndex(track)"
@@ -44,7 +46,7 @@
                 </tr>
             </tbody>
 
-            <div class="playlist-modal" :class="{open: openModal, closed: !openModal}">
+            <div class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
                 <h4>New Playlist</h4>
                 <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
                 @focus="focused = true"
@@ -71,7 +73,6 @@
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
                 index: -1,
                 selectedTracks: [],
-                openModal: false,
                 focused: false,
                 hoveredElm: null,
                 pendingTrack: null
@@ -80,14 +81,17 @@
         mounted() {
             // Without this we can't index the tracks properly for
             // ... the state mutations like 'toggleFavourite'
-            if (this.allTracks.length > 0) {
+            /*if (this.allTracks.length > 0) {
                 this.filterPool()
-            }
+            }*/
+            // In cases of route changing
+            this.filterPool()
 
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
-                this.openModal = true
-                this.lockHotKeys('backspace')
+                //this.openModal = true
+                this.setPlaylistModal(true)
+                this.lockHotkey('backspace')
             })
         },
         watch: {
@@ -124,13 +128,21 @@
                 'deleteTrack',
                 'setSortBy',
                 'setCurrentDirec',
-                'lockHotKeys',
-                'unlockHotKeys'
+                'lockHotKey',
+                'unlockHotKey',
+                'setPlaylistModal'
             ]),
-
+            isSameSource(track) {
+                if (this.currentTrack) {
+                    return this.currentTrack.source == track.source
+                } else {
+                    return false
+                }
+            },
             addNewPlaylist() {
-                this.openModal = false
-                this.unlockHotKeys('backspace')
+                //this.openModal = false
+                this.setPlaylistModal(false)
+                this.unlockHotKey('backspace')
 
                 this.createPlaylist(event.target.value)
 
@@ -163,11 +175,12 @@
             closePlaylistModal() {
                 // Clear the input's value and close the modal
                 Id('playlist-input').value = ''
-                this.openModal = false
+                //this.openModal = false
+                this.setPlaylistModal(false)
 
                 // Since we are bluring the modal
                 // ... we should unlock the hotkey
-                this.unlockHotKeys('backspace')
+                this.unlockHotKey('backspace')
             },
 
             sort(kind) {
@@ -305,8 +318,9 @@
                             // We then open the modal and
                             // ... lock the global hotkey
                             // ... to avoid random track deletions on backspacing
-                            vm.openModal = true
-                            this.lockHotKeys('backspace')
+                            //vm.openModal = true
+                            vm.setPlaylistModal(true)
+                            this.lockHotKey('backspace')
                         }
                     },
                     {
@@ -420,7 +434,7 @@
                     }
                 } else {
                     // Unlock it if locked
-                    this.unlockHotKeys('enter')
+                    this.unlockHotKey('enter')
                 }
             },
 
@@ -451,6 +465,10 @@
 
                 // Add new selected Track
                 this.selectedTracks.push(this.filteredPool[this.index])
+            },
+
+            selectAll() {
+                this.selectedTracks = this.filteredPool.slice(0)
             },
 
             deleteTracks() {
@@ -516,7 +534,8 @@
                 'sortBy',
                 'currentDirec',
                 'backspaceLock',
-                'enterLock'
+                'enterLock',
+                'openPlaylistModal'
             ]),
             keymap() {
                 return buildMap([
@@ -526,7 +545,8 @@
                     'shift+up',
                     'shift+down',
                     'backspace',
-                    'ctrl+alt+f'
+                    'ctrl+alt+f',
+                    'ctrl+a'
                 ], [
                     this.mutateIndexF,
                     this.mutateIndexB,
@@ -534,7 +554,8 @@
                     this.selectTracksB,
                     this.selectTracksF,
                     this.deleteSelectedTracks,
-                    this.toggleFavouriteTrack
+                    this.toggleFavouriteTrack,
+                    this.selectAll
                 ])
             }
         },
@@ -595,42 +616,22 @@
             padding-right 12px
 
     th
-        background #f2f2f2
         padding-bottom 20px
         cursor pointer
-        color grey
         font-weight bold
 
     td, th
         text-align left
         padding 0.2rem 0.1rem
         transition background 0.125s ease-in
-        color #a0a0a0
         height 18px
         word-break break-all
 
-    tbody tr:hover td, tbody tr:hover div
-        background rgba(30, 144, 255, 0.51)
-
     tbody tr:hover *
-        color white
         cursor pointer
-
-    tbody tr:hover span
-            background transaparent
-
-    .hover td, .hover div
-            background rgba(30, 144, 255, 0.51)
-
-    .hover span
-            background transparent
 
     .hover *
         cursor pointer
-        color white
-
-    tr:nth-child(odd)
-        background rgb(247, 247, 247)
 
     td, th
         user-select none
@@ -655,7 +656,6 @@
         overflow hidden
         text-overflow ellipsis
         white-space nowrap
-        background transparent
         width 100%
 
     .empty-pool-info
@@ -668,7 +668,6 @@
         height 80vh
         animation slide 0.2s ease-in
         h4
-            color grey
             text-align center
             user-select none
             -webkit-user-drag none
@@ -677,12 +676,11 @@
         position absolute
         width 360px
         height 110px
-        background white
         top 25vh
         left 22vw
-        border 2px solid lightgrey
+        border-width 2px
+        border-style solid
         border-radius 5px
-        color grey
 
     .playlist-modal *
         margin-left 30px
@@ -690,12 +688,13 @@
     .playlist-input
         width 280px
         padding 6px
-        border 2px solid lightgrey
+        border-width 2px
+        border-style solid
         border-radius 5px
-        color grey
 
     .playlist-input-focus
-        border 2px solid dodgerblue
+        border-width 2px
+        border-style solid
 
     .open
         animation slide 0.3s ease-in
@@ -705,25 +704,11 @@
 
     .fav-bar
         position absolute
-        background transparent
         height 20px
         width 2px
         left 0
         bottom 2.5px
         transition background 0.3s ease-out
-
-    .fav
-        background deeppink
-
-    .activeTrack#track-item
-        td
-            background dodgerblue
-            color white
-
-    .playingTrack
-        td
-            background #d8d8d8
-            color grey
 
     @keyframes slide
         0%

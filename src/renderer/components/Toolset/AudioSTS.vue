@@ -1,7 +1,7 @@
 <template>
     <div class="main-toolset-container-alt">
-        <div class="item settings-icon" :class="{activeIcon: activeOption == 'settings'}">
-            <svg class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="11.581 465.338 14.7 14.697" width="14.7" height="14.697" @click="updateActiveOption('settings')">
+        <div class="item settings-icon" :class="{ activeIcon: settingsOpen }">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="11.581 465.338 14.7 14.697" width="14.7" height="14.697" @click="toggleSettings">
                 <path d=" M 18.468 470.242 C 18.372 470.145 18.372 469.99 18.468 469.894 L 18.781 469.58 C 18.81 469.551 18.844 469.531 18.88 469.52 C 18.756 468.43 19.118 467.288 19.962 466.445 C 21.071 465.336 22.696 465.059 24.044 465.621 L 21.591 468.074 L 21.586 468.73 L 22.889 470.034 L 23.546 470.029 L 25.999 467.576 C 26.561 468.924 26.284 470.549 25.175 471.658 C 24.332 472.502 23.19 472.864 22.1 472.74 C 22.089 472.775 22.069 472.81 22.04 472.839 L 21.726 473.152 C 21.63 473.248 21.474 473.248 21.378 473.152 L 21.422 473.196 Q 20.033 473.46 18.917 474.658 Q 17.263 476.311 13.95 479.625 C 13.406 480.169 12.527 480.172 11.987 479.633 L 11.987 479.633 C 11.448 479.093 11.446 478.209 11.983 477.659 Q 14.482 475.101 16.962 472.703 Q 17.871 471.794 18.424 470.198 L 18.468 470.242 Z " fill-rule="evenodd" />
             </svg>
         </div>
@@ -19,13 +19,30 @@
     export default {
         name: 'audio-s-ts',
         methods: {
-            ...mapActions({
-                updateActiveOption: 'updateAO'
-            })
+            ...mapActions([
+                'updateAO',
+                'toggleSettings',
+                'cacheRoute'
+            ])
+        },
+        watch: {
+            settingsOpen: function (cur, prev) {
+                if (cur) {
+                    this.$router.push('/settings')
+
+                    // cache the route for next session
+                    this.cacheRoute('/settings')
+                } else {
+                    this.$router.push('/')
+
+                    this.cacheRoute('/')
+                }
+            }
         },
         computed: {
             ...mapGetters([
-                'activeOption'
+                'activeOption',
+                'settingsOpen'
             ])
         }
     }
@@ -34,13 +51,12 @@
 <style lang="stylus">
     .main-toolset-container-alt
         position absolute
-        top 415px
+        top 410px
         left 0
         width 50px
         height 100px
         border-top-right-radius 5px
         border-bottom-right-radius 5px
-        box-shadow 0px 4px 15px 0px lightsteelblue
 
     .item
         padding 15px
@@ -54,11 +70,4 @@
 
     .icon
         cursor pointer
-        path
-            fill #a0a0a0
-
-    .activeIcon
-        svg
-            path
-                fill rgb(78,149,255)
 </style>

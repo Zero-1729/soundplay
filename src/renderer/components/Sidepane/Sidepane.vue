@@ -1,14 +1,16 @@
 <template>
     <div class="virtical-div">
-        <div v-for="item in listingOptions" class="entity" @click="changeTarget(item)" :class="{activeTarget: typeof currentTarget == 'object' ? currentTarget.name == item.name : currentTarget == item, greyedText: item == playingTarget}">
-            <p
-                @contextmenu.prevent @mousedown.right.capture="showPlaylistOptions(typeof item.name == 'object' ? item.name : item)"
+        <div class="virtical-div-holder">
+            <div v-for="item in listingOptions" class="entity" @click="changeTarget(item)" :class="{activeTarget: typeof currentTarget == 'object' ? currentTarget.name == item.name : currentTarget == item, greyedText: item == playingTarget}">
+                <p
+                @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
                 @keydown.enter.prevent="handlePlaylistRename"
                 @blur="clearEditable"
                 contenteditable=false>
-                {{ typeof item == 'object' ? item.name : item }}
-            </p>
+                    {{ typeof item == 'object' ? item.name : item }}
+                </p>
+            </div>
         </div>
         <div class="empty-listing" v-if="listingOptions.length == 0">
             <h4>
@@ -36,6 +38,7 @@
                 'changeTarget',
                 'renamePlaylist',
                 'removePlaylist',
+                'deleteAll',
                 'lockHotKeys',
                 'unlockHotKeys'
             ]),
@@ -95,7 +98,7 @@
                 event.target.contentEditable = false
             },
 
-            showPlaylistOptions(playlist) {
+            showItemOptions(item) {
                 // Only show menu if the criteria is on 'playlist'
                 if (this.currentCriteria == 'playlist') {
                     let vm = this
@@ -103,8 +106,7 @@
 
                     // We need the whole row highlighted not just the 'td'
                     this.hoveredElm = event.target
-
-                    this.hoveredElm.classList.add('hovered-text')
+                    this.hoveredElm.id = 'hovered-text'
 
                     let contextmenu = remote.Menu.buildFromTemplate([
                         {
@@ -119,18 +121,43 @@
                         {
                             label: 'Remove',
                             click() {
-                                vm.removePlaylist(playlist.name)
+                                vm.removePlaylist(item.name)
                             }
                         }
                     ])
 
                     contextmenu.popup({callback: vm.unhighlight})
+                } else {
+                    if (this.currentCriteria != 'music') {
+                        if (item != "Unknown") {
+                            let vm = this
+
+                            // We need the whole row highlighted not just the 'td'
+                            this.hoveredElm = event.target
+                            this.hoveredElm.id = 'hovered-text'
+
+                            let contextmenu = remote.Menu.buildFromTemplate([
+                                {
+                                    label: `Delete all ${item}`,
+                                    click() {
+                                        vm.deleteAll({
+                                            category: vm.currentCriteria+'s',
+                                            target: vm.currentCriteria,
+                                            name: item
+                                        })
+                                    }
+                                }
+                            ])
+
+                            contextmenu.popup({callback: vm.unhighlight})
+                        }
+                    }
                 }
             },
 
             unhighlight() {
                 // Remove 'hover' class on current hovered track
-                this.hoveredElm.classList.remove('hovered-text')
+                this.hoveredElm.id = ''
                 this.hoveredElm = null
             },
         },
@@ -166,8 +193,6 @@
         height 100%
         padding-left 60px
         padding-right 10px
-        color #a0a0a0
-        background #ececec
         z-index -999
         .entity
             p
@@ -176,8 +201,6 @@
                 font-weight bold
                 transition all 0.4s ease
                 user-select none
-            p:hover
-                color rgba(30, 144, 255, 0.51)
             p:focus
                 outline none
 
@@ -185,18 +208,13 @@
             padding-top 100px
             padding-left 18px
             user-select none
-            h4
-                color #cecece
 
-    .entity:first-child
-        padding-top 100px
+    .virtical-div-holder
+        position absolute
+        top 105px
+        height 60%
+        overflow-y auto
 
-    .greyedText
-        color #cecece
-
-    .activeTarget
-        color dodgerblue
-
-    .hovered-text
-        color rgba(30, 144, 255, 0.51)
+    .virtical-div-holder::-webkit-scrollbar
+        width 2px
 </style>

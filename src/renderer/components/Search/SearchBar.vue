@@ -95,34 +95,24 @@
         margin-right 14px
         cursor pointer
 
-    ::placeholder
-        color #7C7C7C
-
     input
         outline none
         height 20px
         width 160px
         padding 6px
         padding-left 16px
-        background #F2F2F2
-        color #7C7C7C
         border-radius 5px
         border none
         transition 0.1s ease-in
 
     input:focus
-        border-color rgb(78,149,255)
         border-width 2px
         border-style solid
+        outline none
 
     .search-icon
         path
             transition fill 0.15s ease-in
-            fill #cecece
-
-    .search-icon:hover
-        path
-            fill #a0a0a0
 
     .div-hor
         display flex

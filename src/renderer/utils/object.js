@@ -56,4 +56,24 @@ const removeObject = (obj, name, category) => {
     }
 }
 
-module.exports = { buildMap, removeObject, getIndexFromKey }
+const removeObjects = (obj, name, category) => {
+    return obj.filter((item) => {
+        if (item[category] != name) {
+            return item
+        }
+    })
+}
+
+const getRelatedItems = (obj, value, category, targetCategory) => {
+    let items = []
+
+    for (var i = 0;i < obj.length;i++) {
+        if (obj[i][category] == value) {
+            items.push(obj[i][targetCategory])
+        }
+    }
+
+    return items
+}
+
+module.exports = { buildMap, removeObject, removeObjects, getIndexFromKey, getRelatedItems }
