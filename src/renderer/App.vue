@@ -100,10 +100,14 @@
         },
         created() {
             // Load style files
-            this.loadStyle()
+            this.loadTheme()
 
             // Resume last route
-            this.$router.push(this.cachedRoute)
+            if (this.cachedRoutes.mainRoute == '/settings') {
+                this.$router.push(this.cachedRoutes.childRoute)
+            } else {
+                this.$router.push(this.cachedRoutes.mainRoute)
+            }
 
         },
         mounted() {
@@ -145,7 +149,7 @@
 
 
             // If the 'musicFolder' is set we should update the store
-            if (this.appMusicFolder) {
+            /*if (this.appMusicFolder) {
                 // Load tracks from 'musicFolder'
                 new FS(this.appMusicFolder).forEachFile((file) => {
                     let format = file.split('.')
@@ -156,19 +160,19 @@
                         this.deref(file)
                     }
                 }, this.appExcludedFolders)
-            }
+            }*/
         },
         watch: {
-            theme: function () {
+            appTheme: function () {
                 // reload theme after every theme change
-                this.loadStyle()
+                this.loadTheme()
             },
             all_imports: function () {
                 // Because failed imports need to trigger the change
                 if (this.all_imports < 0) {
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
+                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
                     }
 
                     if (this.failed_imports.length > 0) {
@@ -199,7 +203,8 @@
                 'clearWarnMessage',
                 'clearFailMessage',
                 'setPlaylistModal',
-                'clearCurrentTrack'
+                'clearCurrentTrack',
+                'loadTheme',
             ]),
             windowUpdated() {
                 // Resize width to allow ellipses
@@ -218,17 +223,6 @@
                 }
 
                 // Redraw waveform here
-            },
-            loadStyle() {
-                let head = document.getElementsByTagName('head')[0]
-                let link = document.createElement('link')
-
-                link.rel = 'stylesheet'
-                link.type = 'text/css'
-                link.href = path.join('/', 'static', 'theme', this.appTheme + '.css')
-                link.media = 'all'
-
-                head.appendChild(link)
             },
             closeModals() {
                 // Trigger modal close here
@@ -390,11 +384,10 @@
                 'errorMessage',
                 'warnMessage',
                 'failMessage',
-                'cachedRoute',
+                'cachedRoutes',
                 'openPlaylistModal',
-                'appMusicFolder',
                 'appExcludedFolders',
-                'appTheme'
+                'appTheme',
             ])
         },
         beforeDestroy() {

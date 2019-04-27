@@ -91,7 +91,7 @@
             ipcRenderer.on('create-playlist', (event, arg) => {
                 //this.openModal = true
                 this.setPlaylistModal(true)
-                this.lockHotkey('backspace')
+                this.lockHotKey('backspace')
             })
         },
         watch: {
@@ -346,7 +346,7 @@
                     {
                         label: vm.selectedTracks.length > 0 ? `Delete (${vm.selectedTracks.length}) Tracks` : 'Delete Track',
                         click() {
-                            if (vm.playingTrack == track) {
+                            if (vm.currentTrack == track) {
                                 // Dump current Track
                                 vm.updateCurrentTrack(null)
 
@@ -573,7 +573,7 @@
 
     .tracklist
         position absolute
-        top 90px
+        top 96px
         left 250px
         width calc(100vw - 250px)
 
@@ -695,6 +695,7 @@
     .playlist-input-focus
         border-width 2px
         border-style solid
+        outline none
 
     .open
         animation slide 0.3s ease-in

@@ -1,3 +1,5 @@
+const path                = require('path')
+
 // Some helper functions
 
 const {
@@ -45,7 +47,13 @@ const state = {
         },
         ui: {
             theme: 'light', // or dark or night
-            nightTheme: 'night'
+            nightTheme: 'night',
+            nightMode: false,
+            autoNightMode: {
+                isOn: false,
+                am: 6,
+                pm: 6,
+            }
         },
         audio: {},
         isOpen: false,
@@ -59,7 +67,10 @@ const state = {
         modals: {
             playlist: false
         },
-        cachedRoute: '/'
+        cached: {
+            mainRoute: '/',
+            childRoute: '/'
+        }
     }
 }
 
@@ -268,8 +279,12 @@ const mutations = {
         state.vars.lock[hotkey] = false
     },
 
-    CACHE_ROUTE (state, route) {
-        state.vars.cachedRoute = route
+    CACHE_ROUTE (state, routeObj) {
+        if (routeObj.type == 'main') {
+            state.vars.cached.mainRoute = routeObj.name
+        } else {
+            state.vars.cached.childRoute = routeObj.name
+        }
     },
 
     // Settings mutations
@@ -280,6 +295,13 @@ const mutations = {
         // - Night
         // - Light
         state.settings.ui.theme = name
+    },
+
+    LOAD_THEME (state) {
+        let head = document.getElementsByTagName('head')[0]
+        let link = document.getElementsByTagName('link')[0]
+
+        link.href = path.join('/', 'static', 'theme', state.settings.ui.theme + '.css')
     },
 
     SET_NIGHT_THEME (state, name) {
@@ -295,10 +317,24 @@ const mutations = {
         // ... not the night mode already
         if (state.settings.ui.theme == 'light' && !(state.settings.ui.theme == state.settings.ui.nightTheme)) {
             state.settings.ui.theme = state.settings.ui.nightTheme
+            state.settings.ui.nightMode = true
         } else {
             // Otherwise we change it to the lightTheme
             state.settings.ui.theme = 'light'
+            state.settings.ui.nightMode = false
         }
+    },
+
+    TOGGLE_AUTO_NIGHT_MODE (state) {
+        state.settings.ui.autoNightMode.isOn = !state.settings.ui.autoNightMode.isOn
+    },
+
+    SET_AUTO_NIGHT_MODE_AM (state, value) {
+        state.settings.ui.autoNightMode.am = value
+    },
+
+    SET_AUTO_NIGHT_MODE_PM (state, value) {
+        state.settings.ui.autoNightMode.pm = value
     },
 
     // Audio
@@ -414,8 +450,8 @@ const actions = {
         commit('UNLOCK_HOTKEY', hotkey)
     },
 
-    cacheRoute: ({ commit }, route) => {
-        commit('CACHE_ROUTE', route)
+    cacheRoute: ({ commit }, routeObj) => {
+        commit('CACHE_ROUTE', routeObj)
     },
 
     // Settings Actions
@@ -429,6 +465,35 @@ const actions = {
 
     removeMusicFolder: ({ commit }) => {
         commit('REMOVE_MUSIC_FOLDER')
+    },
+
+    // UI
+    changeTheme: ({ commit }, name) => {
+        commit('CHANGE_THEME', name)
+    },
+
+    loadTheme: ({ commit }) => {
+        commit('LOAD_THEME')
+    },
+
+    setNightTheme: ({ commit }, name) => {
+        commit('SET_NIGHT_THEME', name)
+    },
+
+    toggleNightMode: ({ commit }) => {
+        commit('TOGGLE_NIGHT_MODE')
+    },
+
+    toggleAutoNightMode: ({ commit }) => {
+        commit('TOGGLE_AUTO_NIGHT_MODE')
+    },
+
+    setAutoNightModeAm: ({ commit }, value) => {
+        commit('SET_AUTO_NIGHT_MODE_AM', value)
+    },
+
+    setAutoNightModePm: ({ commit }, value) => {
+        commit('SET_AUTO_NIGHT_MODE_PM', value)
     },
 
     // Audio
@@ -497,8 +562,8 @@ const getters = {
         return state.vars.lock['enter']
     },
 
-    cachedRoute (state) {
-        return state.vars.cachedRoute
+    cachedRoutes (state) {
+        return state.vars.cached
     },
 
     // Settings getters
@@ -518,6 +583,25 @@ const getters = {
     // UI
     appTheme (state) {
         return state.settings.ui.theme
+    },
+
+    appNightMode (state) {
+        return state.settings.ui.nightMode
+    },
+
+    appNightModeTheme (state) {
+        return state.settings.ui.nightTheme
+    },
+
+    appAutoNightMode (state) {
+        return state.settings.ui.autoNightMode.isOn
+    },
+
+    appAutoNightModeTime (state) {
+        return {
+            am: state.settings.ui.autoNightMode.am,
+            pm: state.settings.ui.autoNightMode.pm
+        }
     },
 
     settingsOpen (state) {

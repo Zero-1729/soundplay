@@ -18,26 +18,40 @@
 
     export default {
         name: 'audio-s-ts',
-        methods: {
-            ...mapActions([
-                'updateAO',
-                'toggleSettings',
-                'cacheRoute'
-            ])
-        },
         watch: {
             settingsOpen: function (cur, prev) {
                 if (cur) {
                     this.$router.push('/settings')
 
                     // cache the route for next session
-                    this.cacheRoute('/settings')
+                    this.cacheRoute({
+                        type: 'main',
+                        name: '/settings'
+                    })
+
+                    this.cacheRoute({
+                        type: 'child',
+                        name: '/settings/'
+                    })
+
+                    this.setCurrentSetting('/')
                 } else {
                     this.$router.push('/')
 
-                    this.cacheRoute('/')
+                    this.cacheRoute({
+                        type: 'main',
+                        name: '/'
+                    })
                 }
             }
+        },
+        methods: {
+            ...mapActions([
+                'updateAO',
+                'toggleSettings',
+                'cacheRoute',
+                'setCurrentSetting'
+            ])
         },
         computed: {
             ...mapGetters([

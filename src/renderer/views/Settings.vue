@@ -2,20 +2,20 @@
     <div class="main-panel">
         <div class="headings">
             <router-link to="/settings/">
-                <h4 :class="{'active-setting': currentSetting == 'general'}"
-                @click="setCurrentSetting('general')">
+                <h4 :class="{'active-setting': currentSetting == '/'}"
+                @click="handle_route_change('/')">
                     General
                 </h4>
             </router-link>
             <router-link to="/settings/ui">
                 <h4 :class="{'active-setting': currentSetting == 'ui'}"
-                @click="setCurrentSetting('ui')">
+                @click="handle_route_change('ui')">
                     Interface
                 </h4>
             </router-link>
             <router-link to="/settings/audio">
                 <h4 :class="{'active-setting': currentSetting == 'audio'}"
-                @click="setCurrentSetting('audio')">
+                @click="handle_route_change('audio')">
                     Audio
                 </h4>
             </router-link>
@@ -31,11 +31,22 @@
 
     export default {
         name: 'settings',
-        watch: {},
         methods: {
             ...mapActions([
-                'setCurrentSetting'
-            ])
+                'setCurrentSetting',
+                'cacheRoute'
+            ]),
+            handle_route_change(childName) {
+                this.cacheRoute({
+                    type: 'child',
+                    name: this.joinRoute('/settings', childName)
+                })
+
+                this.setCurrentSetting(childName)
+            },
+            joinRoute(main, child) {
+                return child != '/' ? main + '/' + child : main + child
+            }
         },
         computed: {
             ...mapGetters([
@@ -63,6 +74,8 @@
     left 6vw
     h4
         cursor pointer
+    h4:hover
+        opacity 0.6
 
 a
     text-decoration none
@@ -90,4 +103,18 @@ a
     position relative
     display inline-block
     transition all .3s ease-out
+
+.option-item .info
+    display flex
+
+.option-item .info p, .option-item p.info
+    margin-top 8px
+    font-size 11px
+
+.option-item .info b
+    margin-right 5px
+
+.option-item input
+    height 15px
+    margin 5px
 </style>

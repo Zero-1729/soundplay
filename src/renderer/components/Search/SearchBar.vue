@@ -39,16 +39,16 @@
             ...mapActions([
                 'updateSearchText',
                 'updatePool',
-                'lockHotKeys',
-                'unlockHotKeys'
+                'lockHotKey',
+                'unlockHotKey'
             ]),
             highlight() {
                 Id('search-input').select()
-                this.lockHotKeys('backspace')
+                this.lockHotKey('backspace')
             },
             blur() {
                 Id('search-input').blur()
-                this.unlockHotKeys('backspace')
+                this.unlockHotKey('backspace')
             },
             focus() {
                 Id('search-input').focus()
