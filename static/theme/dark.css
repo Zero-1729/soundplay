@@ -49,7 +49,7 @@ body {
 
 /* Search Component colors [NO] */
 .search-icon path{
-    fill: #cecece;
+    fill: #171717;
 }
 
 .search-icon:hover path {
@@ -57,7 +57,7 @@ body {
 }
 
 .div-hor.holder input#search-input {
-    background: #212121; /* DONE */
+    background: #212121;
     color: #7C7C7C;
 }
 
@@ -71,7 +71,7 @@ body {
 
 /* SidePane Component colors [NO] */
 .soundpane .virtical-div {
-    background: #262626; /* DONE */
+    background: #262626;
 }
 
 .soundpane .virtical-div .entity p {
@@ -102,10 +102,14 @@ body {
     color: #c5c5c5;
 }
 
+.soundpane .virtical-div::-webkit-scrollbar, .soundpane .virtical-div-holder::-webkit-scrollbar {
+    background: #171717;
+}
+
 /* Toolset Component colors [NO] */
 .main-toolset-container, .main-toolset-container-alt {
-    box-shadow: 0px 4px 15px 0px #171717; /* DONE */
-    background: #212121; /* DONE */
+    box-shadow: 0px 4px 15px 0px #171717;
+    background: #212121;
 }
 
 .main-toolset-container .item .icon path, .main-toolset-container-alt .item .icon path {
@@ -139,7 +143,7 @@ body {
 }
 
 th {
-    background: #262626; /* DONE */
+    background: #262626; 
     color: grey;
 }
 

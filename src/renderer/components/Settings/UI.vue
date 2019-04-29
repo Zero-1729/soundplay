@@ -76,7 +76,11 @@
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
+    import { mapGetters, mapActions }         from 'vuex'
+
+    import { isNightTime, reformatTo24Hours } from './../../utils/time'
+
+    const schedule = require('node-schedule')
 
     export default {
         name: 'ui-settings',
@@ -98,6 +102,59 @@
                 if (this.appNightMode) {
                     this.loadTheme()
                 }
+            },
+            appAutoNightModeTime(cur, old) {
+                let vm = this
+
+                // Check whether in night mode time
+                if (this.appAutoNightMode) {
+                    let {am, pm} = cur
+
+                    // Reschedule here
+                    this.clearJobsFn()
+
+                    this.setJobsFn({
+                        start: schedule.scheduleJob({hour: pm, minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (!vm.appNightMode) {
+                                    vm.setNightMode(true)
+                                }
+                            }
+                        }),
+                        end: schedule.scheduleJob({hour: am, minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (vm.appNightMode) {
+                                    vm.setNightMode(false)
+                                }
+                            }
+                        })
+                    })
+
+                    if (isNightTime(new Date().getHours(), reformatTo24Hours(pm), am)) {
+                        if (!this.appNightMode) {
+                            // If the current time after change is in the night
+                            // ... turn on night mode
+                            this.setNightMode(true)
+                        }
+                    } else {
+                        if (this.appNightMode) {
+                            // Otherwise we turn it off
+                            this.setNightMode(false)
+                        }
+                    }
+                }
+            },
+            currentAutoNightMode(cur, old) {
+                // Check if autoNightMode is set
+                if (cur) {
+                    // check whether we are in the night and adjust theme accordingly
+                    let { am, pm } = this.appAutoNightModeTime
+                    let time = new Date().getHours()
+
+                    if (isNightTime(time, reformatTo24Hours(pm), am) && !this.appNightMode) {
+                        this.setNightMode(true)
+                    }
+                }
             }
         },
         methods: {
@@ -108,7 +165,10 @@
                 'toggleNightMode',
                 'toggleAutoNightMode',
                 'setAutoNightModeAm',
-                'setAutoNightModePm'
+                'setAutoNightModePm',
+                'setNightMode',
+                'setJobsFn',
+                'clearJobsFn'
             ]),
             handle_input_inc(period) {
                 let time = Number(event.target.value)
@@ -135,7 +195,8 @@
                 'appNightMode',
                 'appNightModeTheme',
                 'appAutoNightMode',
-                'appAutoNightModeTime'
+                'appAutoNightModeTime',
+                'appScheduleJobs'
             ]),
             currentTheme: {
                 get() {

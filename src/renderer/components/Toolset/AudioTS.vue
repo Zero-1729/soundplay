@@ -38,9 +38,30 @@
 
     export default {
         name: 'audio-ts',
+        data() {
+            return {
+                cachedPlayingCriteria: null
+            }
+        },
+        mounted() {
+            // Changing the route seems to mutate this
+            this.cachedPlayingCriteria = this.playingCriteria
+        },
+        watch: {
+            '$route': function (cur, old) {
+                // ... so we therefore have to cache it and manually
+                // ... reset it each time the route is mutated
+                this.updatePlayingCriteria(this.cachedPlayingCriteria)
+            },
+            playingCriteria: function (cur, old) {
+                // We keep them in sync
+                this.cachedPlayingCriteria = cur
+            }
+        },
         methods: {
             ...mapActions([
                 'updateCriteria',
+                'updatePlayingCriteria',
                 'changeTarget'
             ]),
             updateAndSelect() {

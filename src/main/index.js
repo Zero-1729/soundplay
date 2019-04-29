@@ -90,7 +90,8 @@ const template = [
                 label: 'Create Playlist',
                 click() {
                     mainWindow.webContents.send('create-playlist', null)
-                }
+                },
+                accelerator: 'CmdOrCtrl+N'
             },
             {
                 type: 'separator'
@@ -99,22 +100,31 @@ const template = [
                 label: 'Import Tracks...',
                 click() {
                     mainWindow.webContents.send('import-tracks', null)
-                }
+                },
+                accelerator: 'CmdOrCtrl+O'
             },
             {
                 label: 'Import Folder...',
                 click() {
                     mainWindow.webContents.send('import-folder', null)
-                }
+                },
+                accelerator: 'CmdOrCtrl+Shift+O'
             },
             {
                 type: 'separator'
             },
             {
-                label: 'Delete All Sound',
+                label: 'Preferences',
                 click() {
-                    mainWindow.webContents.send('delete-all', null)
-                }
+                    mainWindow.webContents.send('toggle-settings', null)
+                },
+                accelerator: 'CmdOrCtrl+,'
+            },
+            {
+                type: 'separator'
+            },
+            {
+                role: 'quit'
             }
         ]
     },
@@ -135,6 +145,13 @@ const template = [
             },
             {
                 type: 'separator'
+            },
+            {
+                label: 'Toggle Night Mode',
+                click() {
+                    mainWindow.webContents.send('toggle-night-mode', null)
+                },
+                accelerator: 'CmdOrCtrl+Shift+M'
             }
         ]
     },
@@ -142,16 +159,13 @@ const template = [
         label: 'window',
         submenu: [
             {
-                role: 'togglefullscreen'
-            },
-            {
                 role: 'minimize'
             },
             {
                 type: 'separator'
             },
             {
-                role: 'close'
+                role: 'togglefullscreen'
             }
         ]
     },
@@ -225,7 +239,6 @@ if (process.platform == 'darwin') {
     template[3].submenu.push(
         {
             label: 'Minimize',
-            accelarator: 'CmdOrCtrl+M',
             role: 'minimize'
         },
         {
@@ -240,7 +253,6 @@ if (process.platform == 'darwin') {
         },
         {
             label: 'Close',
-            accelerator: 'CmdOrCtrl+W',
             role: 'close'
         }
     )

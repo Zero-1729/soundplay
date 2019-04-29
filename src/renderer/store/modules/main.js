@@ -1,7 +1,5 @@
 const path                = require('path')
 
-// Some helper functions
-
 const {
         removeObject,
         removeObjects,
@@ -53,6 +51,8 @@ const state = {
                 isOn: false,
                 am: 6,
                 pm: 6,
+                start_job: null, // Global store for schedule fn
+                end_job: null
             }
         },
         audio: {},
@@ -337,6 +337,26 @@ const mutations = {
         state.settings.ui.autoNightMode.pm = value
     },
 
+    SET_NIGHT_MODE (state, value) {
+        state.settings.ui.nightMode = value
+
+        if (value) {
+            state.settings.ui.theme = state.settings.ui.nightTheme
+        } else {
+            state.settings.ui.theme = 'light'
+        }
+    },
+
+    SET_JOBS_FN (state, jobs) {
+        state.settings.ui.autoNightMode.start_job = jobs.start
+        state.settings.ui.autoNightMode.end_job = jobs.end
+    },
+
+    CLEAR_JOBS_FN (state) {
+        state.settings.ui.autoNightMode.start_job.cancel()
+        state.settings.ui.autoNightMode.end_job.cancel()    
+    },
+
     // Audio
     UPDATE_EXCLUDED_FOLDER (state, name) {
         // Avoid adding duplicates
@@ -484,6 +504,10 @@ const actions = {
         commit('TOGGLE_NIGHT_MODE')
     },
 
+    setNightMode: ({ commit }, value) => {
+        commit('SET_NIGHT_MODE', value)
+    },
+
     toggleAutoNightMode: ({ commit }) => {
         commit('TOGGLE_AUTO_NIGHT_MODE')
     },
@@ -494,6 +518,14 @@ const actions = {
 
     setAutoNightModePm: ({ commit }, value) => {
         commit('SET_AUTO_NIGHT_MODE_PM', value)
+    },
+
+    setJobsFn: ({ commit }, jobs) => {
+        commit('SET_JOBS_FN', jobs)
+    },
+
+    clearJobsFn: ({ commit }) => {
+        commit('CLEAR_JOBS_FN')
     },
 
     // Audio
@@ -601,6 +633,13 @@ const getters = {
         return {
             am: state.settings.ui.autoNightMode.am,
             pm: state.settings.ui.autoNightMode.pm
+        }
+    },
+
+    appScheduleJobs (state) {
+        return {
+            start: state.settings.ui.autoNightMode.start_job,
+            end: state.settings.ui.autoNightMode.end_job
         }
     },
 

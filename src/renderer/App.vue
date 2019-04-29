@@ -64,14 +64,20 @@
     import Sidepane             from './components/Sidepane/Sidepane.vue'
     import Trackspane           from './components/Trackspane/Trackspane.vue'
 
+    const schedule = require('node-schedule')
+
     import {
             mapActions,
             mapGetters }        from 'vuex'
 
     import FS                   from './utils/dirwalker'
 
-    import { Id }               from './utils/htmlQuery'
+    import {
+            Id,
+            ClassName }         from './utils/htmlQuery'
 
+    import { isNightTime,
+            reformatTo24Hours } from './utils/time'
 
     const {
             remote,
@@ -109,44 +115,87 @@
                 this.$router.push(this.cachedRoutes.mainRoute)
             }
 
+            // Create autoNightMode scheduler
+            let vm = this
+
+            // Reschedule here
+            this.setJobsFn({
+                start: schedule.scheduleJob({hour: this.appAutoNightModeTime.pm, minute: 0}, function () {
+                    if (vm.appAutoNightMode) {
+                        if (!vm.appNightMode) {
+                            vm.setNightMode(true)
+                        }
+                    }
+                }),
+                end: schedule.scheduleJob({hour: this.appAutoNightModeTime.am, minute: 0}, function () {
+                    if (vm.appAutoNightMode) {
+                        if (vm.appNightMode) {
+                            vm.setNightMode(false)
+                        }
+                    }
+                })
+            })
+
+            // Check if autoNightMode is set
+            if (this.appAutoNightMode) {
+                // check whether we are in the night and adjust theme accordingly
+                let { am, pm } = this.appAutoNightModeTime
+                let time = new Date().getHours()
+
+                if (isNightTime(time, reformatTo24Hours(pm), am) && !this.appNightMode) {
+                    this.setNightMode(true)
+                }
+            }
         },
         mounted() {
+            window.jobs = this.appScheduleJobs
             window.addEventListener('resize', this.windowUpdated)
 
             // Handle events thrown from main renderer (App Menu)
             ipcRenderer.on('import-tracks', (event, arg) => {
-                let objs = remote.dialog.showOpenDialog({
+                let vm = this
+                remote.dialog.showOpenDialog({
                     properties: ['openFile', 'multiSelections']
-                })
-
-                if (objs.length > 0) {
-                    for (var i = 0;i < objs.length;i++) {
-                        this.deref(objs[i])
+                }, (items) => {
+                    if (items) {
+                        // Make sure we check whether the user canceled the dialog first
+                        // ... before we start performing any actions
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                vm.deref(items[i])
+                            }
+                        }
                     }
-                }
+                })
             })
 
             // Check fn for infinte loops
             ipcRenderer.on('import-folder', (event, arg) => {
-                let objs = remote.dialog.showOpenDialog({
+                let vm = this
+                remote.dialog.showOpenDialog({
                     properties: ['openDirectory', 'multiSelections']
-                })
+                }, (items) => {
+                    if (items) {
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                let tracks = vm.crawl(items[i])
 
-                if (objs.length > 0) {
-                    for (var i = 0;i < objs.length;i++) {
-                        let tracks = this.crawl(objs[i])
-
-                        for (var j = 0;j < tracks.length;j++) {
-                            this.deref(tracks[j])
+                                for (var j = 0;j < tracks.length;j++) {
+                                    vm.deref(tracks[j])
+                                }
+                            }
                         }
                     }
-                }
+                })
             })
 
-            ipcRenderer.on('delete-all', (event, arg) => {
-                this.deleteAllTracks()
+            ipcRenderer.on('toggle-settings', (event, arg) => {
+                this.toggleSettings()
             })
 
+            ipcRenderer.on('toggle-night-mode', (event, arg) => {
+                this.toggleNightMode()
+            })
 
             // If the 'musicFolder' is set we should update the store
             /*if (this.appMusicFolder) {
@@ -163,7 +212,7 @@
             }*/
         },
         watch: {
-            appTheme: function () {
+            appTheme: function (cur, old) {
                 // reload theme after every theme change
                 this.loadTheme()
             },
@@ -204,21 +253,26 @@
                 'clearFailMessage',
                 'setPlaylistModal',
                 'clearCurrentTrack',
+                'toggleSettings',
                 'loadTheme',
+                'toggleNightMode',
+                'setNightMode',
+                'setJobsFn',
+                'clearJobsFn'
             ]),
             windowUpdated() {
                 // Resize width to allow ellipses
                 if (window.innerWidth > 1310) {
-                    let length = document.getElementsByClassName('short').length
+                    let length = ClassName('short').length
 
                     for (var i = 0;i < length;i++) {
-                        document.getElementsByClassName('short')[i].style.width = "200%"
+                        ClassName('short')[i].style.width = "200%"
                     }
                 } else {
-                    let length = document.getElementsByClassName('short').length
+                    let length = ClassName('short').length
 
                     for (var i = 0;i < length;i++) {
-                        document.getElementsByClassName('short')[i].style.width = "100%"
+                        ClassName('short')[i].style.width = "100%"
                     }
                 }
 
@@ -388,6 +442,10 @@
                 'openPlaylistModal',
                 'appExcludedFolders',
                 'appTheme',
+                'appNightMode',
+                'appAutoNightMode',
+                'appAutoNightModeTime',
+                'appScheduleJobs'
             ])
         },
         beforeDestroy() {
@@ -399,6 +457,9 @@
 
             // Clear playing track
             this.clearCurrentTrack()
+
+            // Clear jobs
+            this.setJobs({start: null, end: null})
         }
     }
 </script>

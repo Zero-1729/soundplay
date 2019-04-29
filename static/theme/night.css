@@ -7,7 +7,7 @@ body {
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #b7b8b9;
+    background: #182c3a;
 }
 
 /* Scrollbar thumb */
@@ -49,7 +49,7 @@ body {
 
 /* Search Component colors [NO] */
 .search-icon path{
-    fill: #cecece;
+    fill: #152838;
 }
 
 .search-icon:hover path {
@@ -57,12 +57,12 @@ body {
 }
 
 .div-hor.holder input#search-input {
-    background: #223A4B; /* DONE */
+    background: #223A4B;
     color: #bbbbbb;
 }
 
 .div-hor.holder input#search-input::placeholder {
-    color: grey;
+    color: #bbbbbb;
 }
 
 .div-hor.holder input#search-input:focus {
@@ -71,7 +71,7 @@ body {
 
 /* SidePane Component colors [NO] */
 .soundpane .virtical-div {
-    background: #1F3444; /* DONE */
+    background: #1F3444;
 }
 
 .soundpane .virtical-div .entity p {
@@ -99,13 +99,14 @@ body {
 }
 
 .soundpane .virtical-div .empty-listing h4 {
-    color: #c5c5c5;
+    color: #122433;
 }
+
 
 /* Toolset Component colors [NO] */
 .main-toolset-container, .main-toolset-container-alt {
-    box-shadow: 0px 4px 15px 0px #182c3a; /* DONE */
-    background: #223A4B; /* DONE */
+    box-shadow: 0px 4px 15px 0px #182c3a;
+    background: #223A4B;
 }
 
 .main-toolset-container .item .icon path, .main-toolset-container-alt .item .icon path {
@@ -122,11 +123,11 @@ body {
 }
 
 .greyBar {
-    background: #525252;
+    background: #152838;
 }
 
 .main-toolset-container .item svg.icon.greyedIcon path {
-    fill: #525252;
+    fill: #152838;
 }
 
 /* Trackspane Component colors [NO] */
@@ -139,7 +140,7 @@ body {
 }
 
 th {
-    background: #1f3444; /* DONE */
+    background: #1f3444;
     color: #bbbbbb;
 }
 

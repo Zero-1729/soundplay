@@ -25,12 +25,19 @@
 
     const { remote } = require('electron')
 
+    const { ClassNameSingle } = require('./../../utils/htmlQuery')
+
     export default {
         name: 'sidepane',
         data() {
             return {
                 hoveredElm: null,
                 cachedText: ''
+            }
+        },
+        mounted() {
+            if (ClassNameSingle('activeTarget')) {
+                ClassNameSingle('activeTarget').scrollIntoViewIfNeeded()
             }
         },
         methods: {
@@ -42,9 +49,8 @@
                 'lockHotKeys',
                 'unlockHotKeys'
             ]),
-
             cachePlaylistName(forcedEvent=false) {
-                // We don't the user to be able to change the name of enities
+                // We don't want the user to be able to change the name of enities
                 // ... Changing 'All Tracks', etc
                 if (this.currentCriteria == 'playlist') {
                     if (forcedEvent) {
@@ -212,6 +218,7 @@
     .virtical-div-holder
         position absolute
         top 105px
+        width 180px
         height 60%
         overflow-y auto
 

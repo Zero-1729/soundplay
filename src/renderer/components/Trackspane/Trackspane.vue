@@ -60,12 +60,13 @@
 
     import { Id } from './../../utils/htmlQuery'
 
-    const { buildMap } = require('./../../utils/object')
-    const { generateMenu } = require('./../../utils/menuGenerator')
+    const { buildMap,
+            getIndexFromKey } = require('./../../utils/object')
+    const { generateMenu }    = require('./../../utils/menuGenerator')
 
     const {
             remote,
-            ipcRenderer } = require('electron')
+            ipcRenderer }     = require('electron')
 
     export default {
         data() {
@@ -79,6 +80,9 @@
             }
         },
         mounted() {
+            // Resize the 'td's after route changes
+            this.$parent.$parent.windowUpdated()
+
             // Without this we can't index the tracks properly for
             // ... the state mutations like 'toggleFavourite'
             /*if (this.allTracks.length > 0) {
@@ -95,6 +99,21 @@
             })
         },
         watch: {
+            openPlaylistModal: function (cur, old) {
+                // We unhighlight the hoveredElm after the modal is closed
+                if (!cur && this.hoveredElm != null) {
+                    this.unhighlight()
+                }
+            },
+            allPlaylists: function (cur, old) {
+                // We need to determine whether the current playlist has been deleted
+                // ... If it has then we need to purge the current pool
+                if ((getIndexFromKey(cur, this.currentTarget.name, 'name') == -1) && !(getIndexFromKey(old, this.currentTarget.name, 'name') == -1)) {
+                    this.changeTarget(null)
+
+                    this.filterPool()
+                }
+            },
             currentTarget: function () {
                 this.filterPool()
 
@@ -121,6 +140,7 @@
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
                 'toggleFavourite',
+                'changeTarget',
                 'createPlaylist',
                 'addTrack',
                 'addTrackToPlaylist',
@@ -214,7 +234,8 @@
             },
 
             getFromPlaylist (currentPlaylist) {
-                return currentPlaylist.tracks
+                // In case the current Playlists was just deleted
+                return currentPlaylist ? currentPlaylist.tracks : []
             },
 
             getFavs () {
@@ -292,11 +313,13 @@
                     {
                         label: 'Toggle Favourite',
                         click() {
-                            vm.toggleFavourite(track)
+                            if (vm.index != -1) {
+                                vm.toggleFavourite(track)
 
-                            if (vm.currentTarget == 'Favourites') {
-                                vm.filterPool()
-                                vm.index = -1
+                                if (vm.currentTarget == 'Favourites') {
+                                    vm.filterPool()
+                                    vm.index = -1
+                                }
                             }
                         }
                     },
@@ -320,7 +343,7 @@
                             // ... to avoid random track deletions on backspacing
                             //vm.openModal = true
                             vm.setPlaylistModal(true)
-                            this.lockHotKey('backspace')
+                            vm.lockHotKey('backspace')
                         }
                     },
                     {
@@ -367,9 +390,13 @@
             },
 
             unhighlight() {
-                // Remove 'hover' class on current hovered track
-                this.hoveredElm.classList.remove('hover')
-                this.hoveredElm = null
+                // We still prefer that the track to be included in the new
+                // ... playlist be highlighted
+                if (!this.openPlaylistModal) {
+                    // Remove 'hover' class on current hovered track
+                    this.hoveredElm.classList.remove('hover')
+                    this.hoveredElm = null
+                }
             },
 
             mutateIndexF(resetSelection=true) {
@@ -514,12 +541,14 @@
             },
 
             toggleFavouriteTrack() {
-                this.toggleFavourite(this.filteredPool[this.index])
+                if (this.index != -1) {
+                    this.toggleFavourite(this.filteredPool[this.index])
 
-                // Lets update the pool if we are in the favourites listing
-                if (this.currentTarget == 'Favourites') {
-                    this.filterPool()
-                    this.index = -1
+                    // Lets update the pool if we are in the favourites listing
+                    if (this.currentTarget == 'Favourites') {
+                        this.filterPool()
+                        this.index = -1
+                    }
                 }
             }
         },
@@ -535,7 +564,8 @@
                 'currentDirec',
                 'backspaceLock',
                 'enterLock',
-                'openPlaylistModal'
+                'openPlaylistModal',
+                'allPlaylists'
             ]),
             keymap() {
                 return buildMap([

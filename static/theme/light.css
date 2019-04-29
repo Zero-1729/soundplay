@@ -99,6 +99,15 @@
     color: #c5c5c5;
 }
 
+.soundpane .virtical-div::-webkit-scrollbar, .soundpane .virtical-div-holder::-webkit-scrollbar {
+    background: #d8d8d8;
+}
+
+.soundpane .virtical-div::-webkit-scrollbar-thumb, .soundpane .virtical-div-holder::-webkit-scrollbar-thumb {
+    background: #b7b8b9;
+}
+
+
 /* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {
     box-shadow: 0px 4px 15px 0px lightsteelblue;
