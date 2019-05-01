@@ -225,7 +225,12 @@
                 get() {
                     return this.appNightMode
                 },
-                set() {
+                set(value) {
+                    // Auto night mode is disabled if user toggles out of dark mode
+                    if (!value && this.appAutoNightMode) {
+                        this.toggleAutoNightMode()
+                    }
+
                     this.toggleNightMode()
                 }
             },

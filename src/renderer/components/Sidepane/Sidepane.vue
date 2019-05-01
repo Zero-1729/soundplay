@@ -45,10 +45,13 @@
                 'changeTarget',
                 'renamePlaylist',
                 'removePlaylist',
-                'deleteAll',
+                'deleteArtist',
+                'deleteAlbum',
+                'deleteGenre',
                 'lockHotKeys',
                 'unlockHotKeys'
             ]),
+
             cachePlaylistName(forcedEvent=false) {
                 // We don't want the user to be able to change the name of enities
                 // ... Changing 'All Tracks', etc
@@ -135,28 +138,32 @@
                     contextmenu.popup({callback: vm.unhighlight})
                 } else {
                     if (this.currentCriteria != 'music') {
-                        if (item != "Unknown") {
-                            let vm = this
+                        let vm = this
 
-                            // We need the whole row highlighted not just the 'td'
-                            this.hoveredElm = event.target
-                            this.hoveredElm.id = 'hovered-text'
+                        // We need the whole row highlighted not just the 'td'
+                        this.hoveredElm = event.target
+                        this.hoveredElm.id = 'hovered-text'
 
-                            let contextmenu = remote.Menu.buildFromTemplate([
-                                {
-                                    label: `Delete all ${item}`,
-                                    click() {
-                                        vm.deleteAll({
-                                            category: vm.currentCriteria+'s',
-                                            target: vm.currentCriteria,
-                                            name: item
-                                        })
+                        let contextmenu = remote.Menu.buildFromTemplate([
+                            {
+                                label: `Delete all ${item}`,
+                                click() {
+                                    if (vm.currentCriteria == 'artist') {
+                                        vm.deleteArtist(item)
+                                    }
+
+                                    if (vm.currentCriteria == 'album') {
+                                        vm.deleteAlbum(item)
+                                    }
+
+                                    if (vm.currentCriteria == 'genre') {
+                                        vm.deleteGenre(item)
                                     }
                                 }
-                            ])
+                            }
+                        ])
 
-                            contextmenu.popup({callback: vm.unhighlight})
-                        }
+                        contextmenu.popup({callback: vm.unhighlight})
                     }
                 }
             },
@@ -177,6 +184,7 @@
                 'allGenres',
                 'allPlaylists'
             ]),
+
             listingOptions() {
                 return this.currentCriteria == 'music' ? [
                     'All Tracks',

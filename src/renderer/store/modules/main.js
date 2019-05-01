@@ -1,15 +1,15 @@
-const path                = require('path')
+const path                      = require('path')
 
 const {
         removeObject,
-        removeObjects,
         getIndexFromKey,
-        getRelatedItems } = require('./../../utils/object')
+        getRelatedItems,
+        getRelatedSingleItems } = require('./../../utils/object')
 
 const {
         add,
         remove,
-        related }         = require('./../../utils/list')
+        related }               = require('./../../utils/list')
 
 const state = {
     music: [],
@@ -85,12 +85,14 @@ const mutations = {
             favourite: false,
             plays: 0,
             peaks: null,
-            duration: null
+            duration: null,
+            year: meta.year,
+            art: meta.art
         }
 
         track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
         track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', true) : state.albums = add(state.albums, track.album, true)
-        track.genre == 'Unknown' ? state.genres = add(state.genres, track.genre, true) : state.genres = add(state.genres, track.genre, true)
+        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', true) : state.genres = add(state.genres, track.genre, true)
 
         // Only add the track if its not a duplicate
         let result = add(state.music, track)
@@ -99,7 +101,7 @@ const mutations = {
             state.music = result
 
             if (meta.activePlaylist) {
-                let pindex = getIndexFromKey(state.playlists, meta.activePlaylist.name, 'name')
+                let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
                 // If we are in a playlist and add a track we also include it in the playlist
                 state.playlists[pindex].tracks.push(track)
             }
@@ -107,39 +109,147 @@ const mutations = {
     },
 
     DELETE_TRACK (state, track) {
-        let index
+        // Delete the track from the store
+        state.music = removeObject(state.music, 'source', track.source)
 
-        for (var i = 0;i < state.music.length;i++) {
-            if (state.music[i].source == track.source) {
-                index = i
+        // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
+        // ... i.e this is the last of its `kind`
+        if (track.artist == 'Unknown') {
+            // If it has no artist then we refer to the "Unknown"
+            // ... entry
+            if (related(state.music, 'artist', 'Unknown').length == 0) {
+                state.artists = remove(state.artists, 'Unknown')
+            }
+        } else {
+            // Otherwise we perform the check using the track's
+            // ... `artist` field
+            if (related(state.music, 'artist', track.artist).length == 0) {
+                state.artists = remove(state.artists, track.artist)
             }
         }
 
-        state.music = removeObject(state.music, track.source, 'source')
-
-        // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are deleted
-        if (!related(state.music, 'artist', track.artist)) {
-            state.artists = remove(state.artists, track.artist)
+        // We do the same for the album and genre
+        if (track.album == 'Unknown') {
+            if (related(state.music, 'album', 'Unknown').length == 0) {
+                state.albums = remove(state.albums, 'Unknown')
+            }
+        } else {
+            if (related(state.music, 'album', track.album).length == 0) {
+                state.albums = remove(state.albums, track.album)
+            }
         }
 
-        if (!related(state.music, 'album', track.album)) {
-            state.albums = remove(state.albums, track.album)
-        }
-
-        if (!related(state.music, 'genre', track.genre)) {
-            state.genres = remove(state.genres, track.genre)
+        if (track.genre == 'Unknown') {
+            if (related(state.music, 'genre', 'Unknown').length == 0) {
+                state.genres = remove(state.music, 'Unknown')
+            }
+        } else {
+            if (related(state.music, 'genre', track.genre).length == 0) {
+                state.genres = remove(state.genres, track.genre)
+            }
         }
 
         // Purge playlists of the track
         for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, track.source, 'source')
+            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'source', track.source)
+        }
+    },
+
+    DELETE_ARTIST (state, artist) {
+        // We obtain all albums and genres from this artist
+        let albums = getRelatedItems(state.music, 'artist', 'album', artist)
+        let genres = getRelatedItems(state.music, 'artist', 'genre', artist)
+
+        // The artist is then scrubbed from the 'artists' list
+        state.artists = remove(state.artists, artist)
+
+        // Followed by deleting all tracks by the artist in the store
+        state.music = removeObject(state.music, "artist", artist)
+
+        // The artist's albums are removed from the `albums` list
+        // ... "Unknown" is not a single album but a shared one
+        // ... given to tracks with no known album
+        // ... therefore, before we delete it we must make sure no other
+        // ... related tracks by others before we deleted
+        for (var i = 0;i < albums.length;i++) {
+            // Remeber that all tracks by the artist have been wiped
+            // ... and os if we still find tracks from others
+            // ... in the "Unknown" album we can't delete
+            if (related(state.music, 'album', albums[i]).length == 0) {
+                state.albums = remove(state.albums, albums[i])
+            }
         }
 
-        // If the music store has been emptied
-        // ... then we empty all tracks in the playlists aswell
-        if (state.music.length == 0) {
-            for (var i = 0;i < state.platlists;i++) {
-                state.playlists[i].tracks = []
+        // Check whether there are other tracks besides the one from
+        // ... the artist with the same genre(s)
+        for (var i = 0;i < genres.length;i++) {
+            if (getRelatedSingleItems(state.music, 'genre', genres[i]).length == 0) {
+                // We only delete the entire genre when there are no more tracks
+                // ... that fall into that category
+                state.genres = remove(state.genres, genres[i])
+            }
+        }
+    },
+
+    DELETE_ALBUM (state, album) {
+        // Get ther album's artist and genre
+        let artist = getRelatedItems(state.music, 'album', 'artist', album)
+        let genres  = getRelatedItems(state.music, 'album', 'genre', album)
+
+        // Delete the album from the albums store
+        state.albums = remove(state.albums, album)
+        // and all related tracks in the album
+        state.music = removeObject(state.music, 'album', album)
+
+        // We could also check whether this is the only album from the artist
+        // ... if thats the case we get rid of them
+        if (getRelatedItems(state.music, 'artist', 'album', artist).length == 0) {
+            state.artists = remove(state.artists, artist)
+        }
+
+        // Remeber that we previously cleared all album tracks
+        // ... we need to check whether there are still tracks with the albums genre
+        // If there are no such tracks then we go ahead and remove the genre(s)
+        for (var i = 0;i < genres.length;i++) {
+            if (getRelatedSingleItems(state.music, 'genre', genres[i]).length == 0) {
+                state.genres = remove(state.genres, genres[i])
+            }
+        }
+    },
+
+    DELETE_GENRE (state, genre) {
+        // Grab all related albums and artists of the genre
+        let albums = getRelatedItems(state.music, 'genre', 'album', genre)
+        let artists = getRelatedItems(state.music, 'genre', 'artist', genre)
+
+        // Scrub all tracks related to this genre
+        state.music = removeObject(state.music, 'genre', genre)
+        // and the genre from the genres store
+        state.genres = remove(state.genres, genre)
+
+        // Delete all related albums from the albums store
+        // ... unless they have none (i.e 'Unknown')
+        // ... in that case we need to see whether other tracks outside the genre exists
+        // ... if no sich exist we can safely delete the 'Unknown' album
+        for (var i = 0;i < albums.length;i++) {
+            // The remaining tracks frim this album wouldn't be from the genre
+            // ... because we scrubbed all related tracks already
+            // ... if there are no more tracks by the 'Unknown' album
+            // ... we can delete them
+            if (getRelatedSingleItems(state.music, 'album', albums[i]).length == 0) {
+                state.albums = remove(state.albums, albums[i])
+            }
+        }
+
+        // Wipe all related artists from the artists store
+        // ... including 'Unknown' artists if all their tracks are in this genre
+        for (var i = 0;i < artists.length;i++) {
+            // The remaining tracks frim this artist wouldn't be from the genre
+            // ... because we scrubbed all related tracks already
+            // ... if there are no more tracks by the 'Unknown' artist
+            // ... we can delete them
+            if (getRelatedSingleItems(state.music, 'artist', artists[i]).length == 0) {
+                state.artists = remove(state.artists, artists[i])
             }
         }
     },
@@ -147,32 +257,10 @@ const mutations = {
     DELETE_ALL_TRACKS (state) {
         state.albums = []
         state.artists = []
+        state.genres = []
 
         if (state.music.length > 0) {
             state.music = []
-        }
-    },
-
-    DELETE_ALL (state, obj) {
-        // Remove's album, artist, etc from store
-        state[obj.category] = remove(state[obj.category], obj.name)
-
-        // If its an artist we need to also scrub all thei albums
-        if (obj.target == 'artist') {
-            let relatedAlbums = getRelatedItems(state.music, obj.name, obj.target, 'album')
-
-            for (var i = 0;i < relatedAlbums.length;i++) {
-                if (relatedAlbums[i] != 'Unknown') {
-                    state.albums = remove(state.albums, relatedAlbums[i])
-                }
-            }
-        }
-
-        state.music = removeObjects(state.music, obj.name, obj.target)
-
-        // Scrap it from all playlists
-        for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObjects(state.playlists[i], obj.name, obj.target)
         }
     },
 
@@ -194,7 +282,7 @@ const mutations = {
     },
 
     RENAME_PLAYLIST (state, obj) {
-        let index = getIndexFromKey(state.playlists, obj.old, 'name')
+        let index = getIndexFromKey(state.playlists, 'name', obj.old)
         let tracks = state.playlists[index].tracks
 
         // Rename it from the core
@@ -209,17 +297,17 @@ const mutations = {
     },
 
     REMOVE_PLAYLIST (state, name) {
-        state.playlists = removeObject(state.playlists, name, 'name')
+        state.playlists = removeObject(state.playlists, 'name', name)
     },
 
     ADD_TRACK_TO_PLAYLIST (state, obj) {
-        let index = getIndexFromKey(state.playlists, obj.playlist, 'name')
+        let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
         state.playlists[index].tracks = add(state.playlists[index].tracks, obj.track)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
-        let index = getIndexFromKey(state.playlists, obj.playlist, 'name')
-        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, obj.track.source, 'source')
+        let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
+        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
     },
 
     UPDATE_ERROR_MESSAGE (state, meta) {
@@ -354,7 +442,7 @@ const mutations = {
 
     CLEAR_JOBS_FN (state) {
         state.settings.ui.autoNightMode.start_job.cancel()
-        state.settings.ui.autoNightMode.end_job.cancel()    
+        state.settings.ui.autoNightMode.end_job.cancel()
     },
 
     // Audio
@@ -376,6 +464,10 @@ const mutations = {
     // General
     TOGGLE_SETTINGS (state) {
         state.settings.isOpen = !state.settings.isOpen
+    },
+
+    SET_SETTINGS (state, value) {
+        state.settings.isOpen = value
     },
 
     SET_CURRENT_SETTING (state, name) {
@@ -406,12 +498,20 @@ const actions = {
         commit('DELETE_TRACK', track)
     },
 
-    deleteAllTracks: ({ commit }) => {
-        commit('DELETE_ALL_TRACKS')
+    deleteArtist: ({ commit }, artist) => {
+        commit('DELETE_ARTIST', artist)
     },
 
-    deleteAll: ({ commit }, obj) => {
-        commit('DELETE_ALL', obj)
+    deleteAlbum: ({ commit }, album) => {
+        commit('DELETE_ALBUM', album)
+    },
+
+    deleteGenre: ({ commit }, genre) => {
+        commit('DELETE_GENRE', genre)
+    },
+
+    deleteAllTracks: ({ commit }) => {
+        commit('DELETE_ALL_TRACKS')
     },
 
     toggleFavourite: ({ commit }, track) => {
@@ -544,6 +644,10 @@ const actions = {
     // Settings Open var action
     toggleSettings: ({ commit }) => {
         commit('TOGGLE_SETTINGS')
+    },
+
+    setSettings: ({ commit }, value) => {
+        commit("SET_SETTINGS", value)
     },
 
     // Modals

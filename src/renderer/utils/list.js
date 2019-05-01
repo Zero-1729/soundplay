@@ -32,23 +32,18 @@ const add = (list, item, basic=false) => {
 
 // Remove an item from an array
 const remove = (list, item) => {
-    let index = list.indexOf(item)
-
-    if (index != -1) {
-        // If the index is the first item then we slice
-        // ... ahead of it
-        list = index == 0 ? list.slice(1) : list.slice(0, index).concat(list.slice(index+1))
-        return list
-    } else {
-        return list
-    }
+    return list.filter((entry) => {
+        if (entry != item) {
+            return true
+        }
+    })
 }
 
-// Obtain tracks related to a given category; i.e genre
+// Obtain item related to a given category; i.e genre
 const related = (list, category, name) => {
-    // Returns all tracks with the category (i.e genre) 'name'
-    return list.filter((track) => {
-        return track[category] == name
+    // Returns all items with the category (i.e genre) 'name'
+    return list.filter((item) => {
+        return item[category] == name
     }).length
 }
 

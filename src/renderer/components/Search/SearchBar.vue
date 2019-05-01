@@ -23,13 +23,15 @@
             this.cachedPool = this.filteredPool
         },
         watch: {
-            currentCriteria: function () {
+            currentCriteria () {
                 this.cachedPool = this.filteredPool
             },
-            currentTarget: function () {
+
+            currentTarget () {
                 this.cachedPool = this.filtreredPool
             },
-            filteredPool: function () {
+
+            filteredPool () {
                 if (Id('search-input') != document.activeElement) {
                     this.cachedPool = this.filteredPool
                 }
@@ -42,27 +44,33 @@
                 'lockHotKey',
                 'unlockHotKey'
             ]),
+
             highlight() {
                 Id('search-input').select()
                 this.lockHotKey('backspace')
             },
+
             blur() {
                 Id('search-input').blur()
                 this.unlockHotKey('backspace')
             },
+
             focus() {
                 Id('search-input').focus()
                 this.highlight()
             },
+
             mutateST() {
                 this.updateSearchText(event.target.value)
                 this.updatePool(this.searchTracks())
             },
+
             searchTracks() {
                 return this.cachedPool.filter((track) => {
                         return track.title.toLowerCase().includes(this.searchText) || track.artist.toLowerCase().includes(this.searchText) || track.album.toLowerCase().includes(this.searchText) || track.genre.toLowerCase().includes(this.searchText.toLowerCase())
                 })
             },
+
             deletePrevText() {
                 if (Id('search-input').value == 0) {
                     // Lets restore pool

@@ -19,7 +19,7 @@
     export default {
         name: 'audio-s-ts',
         watch: {
-            settingsOpen: function (cur, prev) {
+            settingsOpen (cur, prev) {
                 if (cur) {
                     this.$router.push('/settings')
 

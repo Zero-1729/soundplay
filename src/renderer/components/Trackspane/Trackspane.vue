@@ -24,26 +24,29 @@
             </div>
 
             <tbody>
-            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
-            @keydown.40="mutateIndex(1)"
-            @keydown.38="mutateIndex(-1)"
-            @click="setIndex(track)"
-            @keydown.enter.prevent="updateCurrentTrack(track)">
-                <td>
-                    <div class="fav-bar" :class="{fav: track.favourite}"></div>
+                <transition-group :name="trackTransition" tag="tbody">
+                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
+                @keydown.40="mutateIndex(1)"
+                @keydown.38="mutateIndex(-1)"
+                @click="setIndex(track)"
+                @keydown.enter.prevent="updateCurrentTrack(track)"
+                :key="track.source">
+                    <td>
+                        <div class="fav-bar" :class="{fav: track.favourite}"></div>
 
-                    <span class="short">{{ track.title }}</span>
-                </td>
-                <td>
-                    <span class="short">{{ track.artist }}</span>
-                </td>
-                <td>
-                    <span class="short">{{ track.album }}</span>
-                </td>
-                <td>
-                    <span class="short">{{ track.genre }}</span>
-                </td>
+                        <span class="short">{{ track.title }}</span>
+                    </td>
+                    <td>
+                        <span class="short">{{ track.artist }}</span>
+                    </td>
+                    <td>
+                        <span class="short">{{ track.album }}</span>
+                    </td>
+                    <td>
+                        <span class="short">{{ track.genre }}</span>
+                    </td>
                 </tr>
+            </transition-group>
             </tbody>
 
             <div class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
@@ -76,18 +79,14 @@
                 selectedTracks: [],
                 focused: false,
                 hoveredElm: null,
-                pendingTrack: null
+                pendingTrack: null,
+                trackTransition: 'drop-in'
             }
         },
         mounted() {
             // Resize the 'td's after route changes
             this.$parent.$parent.windowUpdated()
 
-            // Without this we can't index the tracks properly for
-            // ... the state mutations like 'toggleFavourite'
-            /*if (this.allTracks.length > 0) {
-                this.filterPool()
-            }*/
             // In cases of route changing
             this.filterPool()
 
@@ -99,34 +98,56 @@
             })
         },
         watch: {
-            openPlaylistModal: function (cur, old) {
+            filteredPool (cur, old) {
+                // I.e no tracks
+                if (cur.length == 0) {
+                    this.trackTransition = 'vanish'
+                } else {
+                    if (cur.length < old.length) {
+                        // I.e sorting & track deletion
+                        this.trackTransition = 'drop-in-right'
+                    } else {
+                        this.trackTransition = 'drop-in-left'
+                    }
+                }
+            },
+
+            openPlaylistModal (cur, old) {
                 // We unhighlight the hoveredElm after the modal is closed
                 if (!cur && this.hoveredElm != null) {
                     this.unhighlight()
                 }
             },
-            allPlaylists: function (cur, old) {
+
+            allPlaylists (cur, old) {
                 // We need to determine whether the current playlist has been deleted
                 // ... If it has then we need to purge the current pool
-                if ((getIndexFromKey(cur, this.currentTarget.name, 'name') == -1) && !(getIndexFromKey(old, this.currentTarget.name, 'name') == -1)) {
-                    this.changeTarget(null)
+                if ((getIndexFromKey(cur, 'name', this.currentTarget.name) == -1) && !(getIndexFromKey(old, 'name', this.currentTarget.name) == -1)) {
+                    // Artificially clear playlist
+                    this.changeTarget({
+                        name: this.currentTarget.name,
+                        tracks: []
+                    })
 
                     this.filterPool()
                 }
             },
-            currentTarget: function () {
+
+            currentTarget () {
                 this.filterPool()
 
                 // reset current highlighted track to nothing
                 // ... each time the target is changed
                 this.index = -1
             },
-            allTracks: function () {
+
+            allTracks () {
                 // Each time we detect a change in the 'state.music'
                 // ... we rehydrate the current render of tracks
                 this.filterPool()
             },
-            currentTrack: function () {
+
+            currentTrack () {
                 // When Tracks are clicked, the currentCriteria becomes
                 // ... the playing one
                 this.updatePlayingCriteria(this.currentCriteria)
@@ -152,6 +173,7 @@
                 'unlockHotKey',
                 'setPlaylistModal'
             ]),
+
             isSameSource(track) {
                 if (this.currentTrack) {
                     return this.currentTrack.source == track.source
@@ -159,6 +181,7 @@
                     return false
                 }
             },
+
             addNewPlaylist() {
                 //this.openModal = false
                 this.setPlaylistModal(false)
@@ -213,7 +236,7 @@
                 }
             },
 
-            filterTracks () {
+            filterTracks() {
             	// Returns tracks that match a criteria under some target
             	// Eg: filterTrack('Genre', 'Rap', tracks) -> Returns all Rap tracks
             	return this.allTracks.filter((track) => {
@@ -221,7 +244,7 @@
             	})
             },
 
-            getOldTracks (year, y_two_k=false) {
+            getOldTracks(year, y_two_k=false) {
                 if (y_two_k) {
                     return this.allTracks.filter((track) => {
                         return String(track.year).slice(0, 1) == 2 && String(track.year).slice(2, 4) <= 10
@@ -233,12 +256,12 @@
                 })
             },
 
-            getFromPlaylist (currentPlaylist) {
+            getFromPlaylist(currentPlaylist) {
                 // In case the current Playlists was just deleted
                 return currentPlaylist ? currentPlaylist.tracks : []
             },
 
-            getFavs () {
+            getFavs() {
                 return this.allTracks.filter((track) => {
             		return track.favourite == true
             	})
@@ -567,6 +590,7 @@
                 'openPlaylistModal',
                 'allPlaylists'
             ]),
+
             keymap() {
                 return buildMap([
                     'down',
@@ -740,6 +764,33 @@
         left 0
         bottom 2.5px
         transition background 0.3s ease-out
+
+    .drop-in-left-active, .drop-in-left-leave-to
+        transition all 0.4s
+        opacity 0
+        transform translateX(-20px)
+
+    .drop-in-left-enter-to
+        opacity 1
+        transform translateX(0)
+
+    .drop-in-right-active, .drop-in-right-leave-to
+        transition all 0.4s
+        opacity 0
+        transform translateX(20px)
+
+    .drop-in-right-enter-to
+        opacity 1
+        transform translateX(0)
+
+    .vanish-active, .vanish-leave-to
+        transition 0.4s
+        opacity 0
+        transform scale(0)
+
+    .vanish-enter-to
+        opacity 1
+        transform scale(1)
 
     @keyframes slide
         0%

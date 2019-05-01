@@ -26,8 +26,8 @@ const buildMap = (k, v) => {
 // ... using only the name of some key
 //
 // i.e  let arr = [{name: 'Foo'}, {name: 'Bar'}]
-// getIndexFromKey(arr, 'Foo', 'name') -> 0
-const getIndexFromKey = (arr, name, key) => {
+// getIndexFromKey(arr, 'name', 'Foo') -> 0
+const getIndexFromKey = (arr, key, name) => {
     let index = -1
 
     for (var i = 0;i < arr.length;i++) {
@@ -39,41 +39,40 @@ const getIndexFromKey = (arr, name, key) => {
     return index
 }
 
-const removeObject = (obj, name, category) => {
-    let index = null
-
-    obj.forEach((item) => {
-        if (item[category] == name) {
-            index = obj.indexOf(item)
-        }
-    })
-
-    if (index != null) {
-        obj = obj.slice(0, index).concat(obj.slice(index+1))
-        return obj
-    } else {
-        return obj
-    }
-}
-
-const removeObjects = (obj, name, category) => {
+const removeObject = (obj, category, name) => {
     return obj.filter((item) => {
-        if (item[category] != name) {
-            return item
+        if (!(item[category] == name)) {
+            return true
         }
     })
 }
 
-const getRelatedItems = (obj, value, category, targetCategory) => {
+const getRelatedItems = (obj, category, targetCategory, value) => {
     let items = []
 
     for (var i = 0;i < obj.length;i++) {
         if (obj[i][category] == value) {
-            items.push(obj[i][targetCategory])
+            if (items.indexOf(obj[i][targetCategory]) == -1) {
+                items.push(obj[i][targetCategory])
+            }
         }
     }
 
     return items
 }
 
-module.exports = { buildMap, removeObject, removeObjects, getIndexFromKey, getRelatedItems }
+const getRelatedSingleItems = (obj, category, name) => {
+    let items = []
+
+    for (var i = 0;i < obj.length;i++) {
+        if (obj[i][category] == name) {
+            if (items.indexOf(obj[i][category]) == -1) {
+                items.push(obj[i])
+            }
+        }
+    }
+
+    return items
+}
+
+module.exports = { buildMap, removeObject, getIndexFromKey, getRelatedItems, getRelatedSingleItems }

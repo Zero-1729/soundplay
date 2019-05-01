@@ -112,6 +112,7 @@
                 'lockHotKey',
                 'unlockHotKey'
             ]),
+
             handle_open_dialog() {
                 let name = remote.dialog.showOpenDialog({
                     properties: ['openDirectory']
@@ -119,14 +120,17 @@
 
                 this.setMusicFolder(name[0])
             },
+
             handle_hovered_folder(folder) {
                 this.hoveredFolder = folder
             },
+
             handle_new_excluded_folder() {
                 this.lockHotKey('enter')
                 this.updateExcludedFolder(this.newFolder)
                 this.newFolder = ''
             },
+
             handle_music_sync() {
                 if (this.appMusicFolder) {
                     // Load tracks from 'musicFolder'
@@ -152,104 +156,104 @@
 </script>
 
 <style lang="stylus">
-.flex
-    display flex
-    h3
-        margin-bottom 4px
-    p
-        margin-top 0
-    .dialog-button-alt
-        margin-left 18px
-        width unset
-
-.flex button
-    height 25px
-    margin-top 14px
-    margin-left 110px
-    border-radius 2px
-    border-width inherit
-    width 58px
-    outline none
-    transition all 0.3s linear
-    cursor pointer
-
-.option-item
-    margin-bottom 18px
-
-.flexed-div-holder
-    height 30px
-    width 55%
-    display flex
-    overflow-x auto
-    overflow-y hidden
-    margin-top 4px
-    margin-left 20px
-    .flexed-div
-        button:first-child
-            margin-left 0
-
-.flexed-div
-    height 20px
-    margin-left 4px
-    display flex
-    p
-        margin 0
-        padding 0
-        align-self center
-    button
-        width unset
+    .flex
         display flex
+        h3
+            margin-bottom 4px
+        p
+            margin-top 0
+        .dialog-button-alt
+            margin-left 18px
+            width unset
+
+    .flex button
         height 25px
-        margin-top 0
-        margin-left 8px
-        padding 0
+        margin-top 14px
+        margin-left 110px
         border-radius 2px
         border-width inherit
+        width 58px
         outline none
         transition all 0.3s linear
         cursor pointer
-        p
-            margin-left 6px
-            margin-right auto
-            padding-right 6px
-        svg
-            margin-left 8px
-            margin-right 8px
-            height 100%
-            display none
-        svg.showClose
-            display block
 
-.dialog-button
-    display flex
-    p
+    .option-item
+        margin-bottom 18px
+
+    .flexed-div-holder
+        height 30px
+        width 55%
         display flex
-        height 100%
+        overflow-x auto
+        overflow-y hidden
+        margin-top 4px
+        margin-left 20px
+        .flexed-div
+            button:first-child
+                margin-left 0
+
+    .flexed-div
+        height 20px
+        margin-left 4px
+        display flex
+        p
+            margin 0
+            padding 0
+            align-self center
+        button
+            width unset
+            display flex
+            height 25px
+            margin-top 0
+            margin-left 8px
+            padding 0
+            border-radius 2px
+            border-width inherit
+            outline none
+            transition all 0.3s linear
+            cursor pointer
+            p
+                margin-left 6px
+                margin-right auto
+                padding-right 6px
+            svg
+                margin-left 8px
+                margin-right 8px
+                height 100%
+                display none
+            svg.showClose
+                display block
+
+    .dialog-button
+        display flex
+        p
+            display flex
+            height 100%
+            align-self center
+            margin-right 4px
+            margin-left 0
+            margin-top 0
+            margin-bottom 0
+        svg
+            height 100%
+
+    .dialog-button-alt.greyed-button
+        opacity 0.4
+        cursor default
+
+    input#settings-input
+        height 20px
+        margin-top 6px
         align-self center
-        margin-right 4px
-        margin-left 0
-        margin-top 0
-        margin-bottom 0
-    svg
-        height 100%
+        border-top none
+        border-right none
+        border-left none
+        border-bottom-width 2px
+        border-bottom-style solid
+        margin-left 20px
+        background transparent
+        transition all 0.4s ease-out
 
-.dialog-button-alt.greyed-button
-    opacity 0.4
-    cursor default
-
-input#settings-input
-    height 20px
-    margin-top 6px
-    align-self center
-    border-top none
-    border-right none
-    border-left none
-    border-bottom-width 2px
-    border-bottom-style solid
-    margin-left 20px
-    background transparent
-    transition all 0.4s ease-out
-
-input#settings-input:focus
-    outline none
+    input#settings-input:focus
+        outline none
 </style>

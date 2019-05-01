@@ -196,27 +196,14 @@
             ipcRenderer.on('toggle-night-mode', (event, arg) => {
                 this.toggleNightMode()
             })
-
-            // If the 'musicFolder' is set we should update the store
-            /*if (this.appMusicFolder) {
-                // Load tracks from 'musicFolder'
-                new FS(this.appMusicFolder).forEachFile((file) => {
-                    let format = file.split('.')
-                    format = format[format.length-1]
-
-                    // All supported formats
-                    if (['mp3', 'ogg', 'wav'].includes(format)) {
-                        this.deref(file)
-                    }
-                }, this.appExcludedFolders)
-            }*/
         },
         watch: {
-            appTheme: function (cur, old) {
+            appTheme (cur, old) {
                 // reload theme after every theme change
                 this.loadTheme()
             },
-            all_imports: function () {
+
+            all_imports () {
                 // Because failed imports need to trigger the change
                 if (this.all_imports < 0) {
                     // We want to show issues with folders first
@@ -244,7 +231,6 @@
         methods: {
             ...mapActions([
                 'addTrack',
-                'deleteAllTracks',
                 'updateErrorMessage',
                 'updateWarnMessage',
                 'updateFailMessage',
@@ -260,6 +246,7 @@
                 'setJobsFn',
                 'clearJobsFn'
             ]),
+
             windowUpdated() {
                 // Resize width to allow ellipses
                 if (window.innerWidth > 1310) {
@@ -278,6 +265,7 @@
 
                 // Redraw waveform here
             },
+
             closeModals() {
                 // Trigger modal close here
                 // ... but only if it was open
@@ -286,21 +274,25 @@
                     this.setPlaylistModal(false)
                 }
             },
+
             clearAllErrorMessage() {
                 this.error_imports = []
 
                 this.clearErrorMessage()
             },
+
             clearAllWarnMessage() {
                 this.imported_folders = []
 
                 this.clearWarnMessage()
             },
+
             clearAllFailMessage() {
                 this.failed_imports = []
 
                 this.clearFailMessage()
             },
+
             crawl(dir) {
                 // suppose the following path structure
                 // .
@@ -328,6 +320,7 @@
 
                 return tracks
             },
+
             handle_new_track(obj) {
                 this.all_imports -= 1
 
@@ -366,10 +359,12 @@
                 // Finally we add the track to our store
                 this.addTrack(meta)
             },
+
             handle_new_track_error(track_path) {
                 this.error_imports.push(track_path)
                 this.all_imports -= 1
             },
+
             deref(track) {
                 // We create a JS promise and feed it the relevant state
                 // ... This allows us to still have access to the sound's filepath
@@ -397,6 +392,7 @@
                     this.handle_new_track_error(track_path)
                 })
             },
+
             addFiles(ev) {
                 // Check if Dir or audio dropped
                 let objs = ev.dataTransfer.files
