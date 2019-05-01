@@ -3,8 +3,11 @@
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
-        <span :class="{'fade-pane': loading}">
-            <router-view></router-view>
+        <Sidepane></Sidepane>
+        <span>
+            <transition name="faded-slide-in">
+                <router-view></router-view>
+            </transition>
         </span>
 
         <div class="error-message" :class="{rise: !errorMessage.isEmpty}" v-show="!errorMessage.isEmpty">
@@ -62,7 +65,6 @@
     import AudioSTS             from './components/Toolset/AudioSTS.vue'
     import Search               from './components/Search/SearchBar.vue'
     import Sidepane             from './components/Sidepane/Sidepane.vue'
-    import Trackspane           from './components/Trackspane/Trackspane.vue'
 
     const schedule = require('node-schedule')
 
@@ -93,15 +95,15 @@
         components: {
             Search,
             AudioTS,
-            AudioSTS
+            AudioSTS,
+            Sidepane
         },
         data() {
             return {
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
-                all_imports: 0,
-                loading: false
+                all_imports: 0
             }
         },
         created() {
@@ -148,7 +150,6 @@
             }
         },
         mounted() {
-            window.jobs = this.appScheduleJobs
             window.addEventListener('resize', this.windowUpdated)
 
             // Handle events thrown from main renderer (App Menu)
@@ -221,10 +222,6 @@
                         // And problematic sound files
                         this.updateErrorMessage({heading: 'Error during sound scan', message: 'Could not retrieve media tag from (' + this.error_imports.length + ') sound file(s): ', items: this.error_imports})
                     }
-
-                    this.loading = false
-                } else {
-                    this.loading = true
                 }
             }
         },
@@ -455,7 +452,7 @@
             this.clearCurrentTrack()
 
             // Clear jobs
-            this.setJobs({start: null, end: null})
+            this.setJobsFn({start: null, end: null})
         }
     }
 </script>
@@ -512,8 +509,15 @@
             margin-top 0
             margin-bottom 0
 
-    .fade-pane
+    .faded-slide-in-enter, .faded-slide-in-leave-to
+        transition all 0.3s
+        opacity 0
+        transform translateY(50px)
+
+    .faded-slide-in-enter-to
+        transition all 0.3s
         opacity 0.4
+        transform translateY(0)
 
     @keyframes rise
         0%

@@ -1,4 +1,4 @@
-/* General App colors [NO] */
+/* General App colors */
 body {
     background: #2f2f2f;
 }
@@ -47,7 +47,7 @@ body {
     fill: orange;
 }
 
-/* Search Component colors [NO] */
+/* Search Component colors */
 .search-icon path{
     fill: #171717;
 }
@@ -69,44 +69,44 @@ body {
     color: #7C7C7C;
 }
 
-/* SidePane Component colors [NO] */
-.soundpane .virtical-div {
+/* SidePane Component colors */
+#app .virtical-div {
     background: #262626;
 }
 
-.soundpane .virtical-div .entity p {
+#app .virtical-div .entity p {
     color: #a0a0a0;
 }
 
-.soundpane .virtical-div .entity p:hover {
+#app .virtical-div .entity p:hover {
     color: rgba(30, 144, 255, 0.51);
 }
 
-.soundpane .virtical-div .entity p#hovered-text {
+#app .virtical-div .entity p#hovered-text {
     color: rgba(30, 144, 255, 0.51);
 }
 
-.soundpane .virtical-div .entity-listing h4 {
+#app .virtical-div .entity-listing h4 {
     color: #cecece;
 }
 
-.soundpane .virtical-div .entity.greyedText p {
+#app .virtical-div .entity.greyedText p {
     color: #cecece;
 }
 
-.soundpane .virtical-div .entity.activeTarget p {
+#app .virtical-div .entity.activeTarget p {
     color: dodgerblue;
 }
 
-.soundpane .virtical-div .empty-listing h4 {
+#app .virtical-div .empty-listing h4 {
     color: #c5c5c5;
 }
 
-.soundpane .virtical-div::-webkit-scrollbar, .soundpane .virtical-div-holder::-webkit-scrollbar {
+#app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
     background: #171717;
 }
 
-/* Toolset Component colors [NO] */
+/* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {
     box-shadow: 0px 4px 15px 0px #171717;
     background: #212121;
@@ -120,7 +120,7 @@ body {
     fill: dodgerblue;
 }
 
-/* Audio / Audio settings Toolset [NO] */
+/* Audio / Audio settings Toolset */
 .bar {
     background: dodgerblue;
 }
@@ -133,7 +133,7 @@ body {
     fill: #525252;
 }
 
-/* Trackspane Component colors [NO] */
+/* Trackspane Component colors */
 .tracklist {
     background: #2f2f2f;
 }
@@ -143,7 +143,7 @@ body {
 }
 
 th {
-    background: #262626; 
+    background: #262626;
     color: grey;
 }
 
@@ -220,9 +220,9 @@ tbody tr:hover span {
     color: white;
 }
 
-/* Settings [NO] */
+/* Settings */
 .main-panel {
-    background: #262626;
+    background: #2f2f2f;
 }
 
 .main-panel h4, .main-panel h3 {

@@ -1,14 +1,14 @@
 <template>
     <div class="virtical-div">
         <div class="virtical-div-holder">
-            <div v-for="item in listingOptions" class="entity" @click="changeTarget(item)" :class="{activeTarget: typeof currentTarget == 'object' ? currentTarget.name == item.name : currentTarget == item, greyedText: item == playingTarget}">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: item == playingTarget}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
                 @keydown.enter.prevent="handlePlaylistRename"
                 @blur="clearEditable"
                 contenteditable=false>
-                    {{ typeof item == 'object' ? item.name : item }}
+                    {{ parseItem(item) }}
                 </p>
             </div>
         </div>
@@ -26,13 +26,24 @@
     const { remote } = require('electron')
 
     const { ClassNameSingle } = require('./../../utils/htmlQuery')
+    const { buildMap }        = require('./../../utils/object')
 
     export default {
         name: 'sidepane',
         data() {
             return {
                 hoveredElm: null,
-                cachedText: ''
+                cachedText: '',
+                settingsNames: [
+                    'General',
+                    'Interface',
+                    'Audio'
+                ],
+                settingsPaths: [
+                    '/',
+                    '/ui',
+                    '/audio'
+                ]
             }
         },
         mounted() {
@@ -49,8 +60,45 @@
                 'deleteAlbum',
                 'deleteGenre',
                 'lockHotKeys',
-                'unlockHotKeys'
+                'unlockHotKeys',
+                'cacheRoute',
+                'setCurrentSetting'
             ]),
+
+            isActiveItem(item) {
+                if (this.settingsOpen) {
+                    return this.settingsRoutes[item] == this.currentSetting
+                } else {
+                    return typeof this.currentTarget == 'object' ? this.currentTarget.name == item.name : this.currentTarget == item
+                }
+            },
+
+            parseItem(item) {
+                if (this.settingsOpen) {
+                    return item
+                } else {
+                    return typeof item == 'object' ? item.name : item
+                }
+            },
+
+            handle_item_click(item) {
+                if (this.settingsOpen) {
+                    let childRoute = this.settingsRoutes[item]
+                    let fullRoute = '/settings' + childRoute
+
+                    this.cacheRoute({
+                        type: 'child',
+                        name: fullRoute
+                    })
+
+                    this.setCurrentSetting(childRoute)
+
+                    // Force a route change to fake `<router-link>`
+                    this.$router.push(fullRoute)
+                } else {
+                    this.changeTarget(item)
+                }
+            },
 
             cachePlaylistName(forcedEvent=false) {
                 // We don't want the user to be able to change the name of enities
@@ -182,8 +230,14 @@
                 'allArtists',
                 'allAlbums',
                 'allGenres',
-                'allPlaylists'
+                'allPlaylists',
+                'settingsOpen',
+                'currentSetting'
             ]),
+
+            settingsRoutes() {
+                return buildMap(this.settingsNames, this.settingsPaths)
+            },
 
             listingOptions() {
                 return this.currentCriteria == 'music' ? [
@@ -193,6 +247,14 @@
                     '2000s Music',
                     'Favourites'
                 ] : eval('this.all'+this.currentCriteria[0].toUpperCase() + this.currentCriteria.slice(1)+'s')
+            },
+
+            currentOptions() {
+                if (this.settingsOpen) {
+                    return this.settingsNames
+                } else {
+                    return this.listingOptions
+                }
             }
         }
     }

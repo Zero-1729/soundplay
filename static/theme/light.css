@@ -67,43 +67,43 @@
 }
 
 /* SidePane Component colors */
-.soundpane .virtical-div {
+#app .virtical-div {
     background: #ececec;
 }
 
-.soundpane .virtical-div .entity p {
+#app .virtical-div .entity p {
     color: #a0a0a0;
 }
 
-.soundpane .virtical-div .entity p:hover {
+#app .virtical-div .entity p:hover {
     color: rgba(30, 144, 255, 0.51);
 }
 
-.soundpane .virtical-div .entity p#hovered-text {
+#app .virtical-div .entity p#hovered-text {
     color: rgba(30, 144, 255, 0.51);
 }
 
-.soundpane .virtical-div .entity-listing h4 {
+#app .virtical-div .entity-listing h4 {
     color: #cecece;
 }
 
-.soundpane .virtical-div .entity.greyedText p {
+#app .virtical-div .entity.greyedText p {
     color: #cecece;
 }
 
-.soundpane .virtical-div .entity.activeTarget p {
+#app .virtical-div .entity.activeTarget p {
     color: dodgerblue;
 }
 
-.soundpane .virtical-div .empty-listing h4 {
+#app .virtical-div .empty-listing h4 {
     color: #c5c5c5;
 }
 
-.soundpane .virtical-div::-webkit-scrollbar, .soundpane .virtical-div-holder::-webkit-scrollbar {
+#app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
     background: #d8d8d8;
 }
 
-.soundpane .virtical-div::-webkit-scrollbar-thumb, .soundpane .virtical-div-holder::-webkit-scrollbar-thumb {
+#app .virtical-div::-webkit-scrollbar-thumb, #app .virtical-div-holder::-webkit-scrollbar-thumb {
     background: #b7b8b9;
 }
 
@@ -218,10 +218,6 @@ tbody tr:hover span {
 }
 
 /* Settings */
-.main-panel {
-    background: #ececec;
-}
-
 .main-panel h4, .main-panel h3 {
     color: #9e9e9e;
 }
