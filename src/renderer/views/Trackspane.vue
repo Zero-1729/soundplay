@@ -96,7 +96,7 @@
             })
 
             // Resize the 'td's after route changes
-            this.$parent.$parent.windowUpdated()
+            this.$parent.windowUpdated()
 
             // In cases of route changing
             this.filterPool()
