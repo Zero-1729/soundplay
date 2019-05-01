@@ -10,7 +10,7 @@ const buildMap = (k, v) => {
     // Creates a hash map itaratively from an Array of keys 'k' and values 'v'
 
     if (k.length != v.length) {
-        throw '[Err] The function requires length of keys and values to equal'
+        throw '[Err] The function requires length of keys and values to be equal'
     } else {
         let tmp = {}
 

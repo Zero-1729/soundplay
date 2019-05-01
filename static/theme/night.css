@@ -1,4 +1,4 @@
-/* General App colors [NO] */
+/* General App colors */
 body {
     background: #223A4B;
 }
@@ -47,7 +47,7 @@ body {
     fill: orange;
 }
 
-/* Search Component colors [NO] */
+/* Search Component colors */
 .search-icon path{
     fill: #152838;
 }
@@ -69,41 +69,41 @@ body {
     border-color: rgb(78,149,255);
 }
 
-/* SidePane Component colors [NO] */
-.soundpane .virtical-div {
+/* SidePane Component colors */
+#app .virtical-div {
     background: #1F3444;
 }
 
-.soundpane .virtical-div .entity p {
+#app .virtical-div .entity p {
     color: #bbbbbb;
 }
 
-.soundpane .virtical-div .entity p:hover {
+#app .virtical-div .entity p:hover {
     opacity: 0.8;
 }
 
-.soundpane .virtical-div .entity p#hovered-text {
+#app .virtical-div .entity p#hovered-text {
     opacity: 0.8;
 }
 
-.soundpane .virtical-div .entity-listing h4 {
+#app .virtical-div .entity-listing h4 {
     color: #bbbbbb;
 }
 
-.soundpane .virtical-div .entity.greyedText p {
+#app .virtical-div .entity.greyedText p {
     color: #cecece;
 }
 
-.soundpane .virtical-div .entity.activeTarget p {
+#app .virtical-div .entity.activeTarget p {
     color: dodgerblue;
 }
 
-.soundpane .virtical-div .empty-listing h4 {
+#app .virtical-div .empty-listing h4 {
     color: #122433;
 }
 
 
-/* Toolset Component colors [NO] */
+/* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {
     box-shadow: 0px 4px 15px 0px #182c3a;
     background: #223A4B;
@@ -117,7 +117,7 @@ body {
     fill: dodgerblue;
 }
 
-/* Audio / Audio settings Toolset [NO] */
+/* Audio / Audio settings Toolset */
 .bar {
     background: dodgerblue;
 }
@@ -130,7 +130,7 @@ body {
     fill: #152838;
 }
 
-/* Trackspane Component colors [NO] */
+/* Trackspane Component colors */
 .tracklist {
     background: #223A4B;
 }
@@ -222,9 +222,9 @@ tbody tr:hover span {
     color: white;
 }
 
-/* Settings [NO] */
+/* Settings */
 .main-panel {
-    background: #1b3344;
+    background: #223a4b;
 }
 
 .main-panel h4, .main-panel h3 {

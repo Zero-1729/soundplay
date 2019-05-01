@@ -7,7 +7,7 @@ export default new Router({
     routes: [
         {
             path: '/',
-            component: require('@/views/Soundpane').default
+            component: require('@/views/Trackspane').default
         },
         {
             path: '/settings',
