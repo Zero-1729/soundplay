@@ -47,6 +47,14 @@ const removeObject = (obj, category, name) => {
     })
 }
 
+// Obtain item related to a given category; i.e genre
+const related = (list, category, name) => {
+    // Returns all items with the category (i.e genre) 'name'
+    return list.filter((item) => {
+        return item[category] == name
+    }).length
+}
+
 const getRelatedItems = (obj, category, targetCategory, value) => {
     let items = []
 
@@ -61,18 +69,4 @@ const getRelatedItems = (obj, category, targetCategory, value) => {
     return items
 }
 
-const getRelatedSingleItems = (obj, category, name) => {
-    let items = []
-
-    for (var i = 0;i < obj.length;i++) {
-        if (obj[i][category] == name) {
-            if (items.indexOf(obj[i][category]) == -1) {
-                items.push(obj[i])
-            }
-        }
-    }
-
-    return items
-}
-
-module.exports = { buildMap, removeObject, getIndexFromKey, getRelatedItems, getRelatedSingleItems }
+module.exports = { buildMap, removeObject, getIndexFromKey, related, getRelatedItems }

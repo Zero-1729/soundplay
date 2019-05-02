@@ -66,9 +66,9 @@
                         Switch to night mode when time is between
                     </p>
                     <input class="info-input-field-nm" v-model="autoNightModeAm" @keydown.up.prevent="handle_input_inc('am')" @keydown.down.prevent="handle_input_dec('am')">
-                    <p>am and </p>
+                    <p><b>am</b> and </p>
                     <input class="info-input-field-nm" v-model="autoNightModePm" @keydown.up.prevent="handle_input_inc('pm')" @keydown.down.prevent="handle_input_dec('pm')">
-                    <p>pm</p>
+                    <p><b>pm</b></p>
                 </div>
             </div>
         </div>

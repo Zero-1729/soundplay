@@ -39,14 +39,6 @@ const remove = (list, item) => {
     })
 }
 
-// Obtain item related to a given category; i.e genre
-const related = (list, category, name) => {
-    // Returns all items with the category (i.e genre) 'name'
-    return list.filter((item) => {
-        return item[category] == name
-    }).length
-}
-
 // Replaces an item in an Array with another item
 //
 // i.e let arr = ['foo', 'bar']
@@ -59,4 +51,4 @@ const replaceItem = (arr, old, current) => {
     return index == 0 ? arr.slice(1) : arr.slice(0, index).concat(current).concat(arr.slice(index+1))
 }
 
-module.exports = { add, remove, related, replaceItem }
+module.exports = { add, remove, replaceItem }

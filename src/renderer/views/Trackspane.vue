@@ -103,7 +103,6 @@
 
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
-                //this.openModal = true
                 this.setPlaylistModal(true)
                 this.lockHotKey('backspace')
             })
@@ -284,7 +283,7 @@
 
             getFromPlaylist(currentPlaylist) {
                 // In case the current Playlists was just deleted
-                return currentPlaylist ? currentPlaylist.tracks : []
+                return currentPlaylist.tracks
             },
 
             getFavs() {
@@ -390,7 +389,6 @@
                             // We then open the modal and
                             // ... lock the global hotkey
                             // ... to avoid random track deletions on backspacing
-                            //vm.openModal = true
                             vm.setPlaylistModal(true)
                             vm.lockHotKey('backspace')
                         }
