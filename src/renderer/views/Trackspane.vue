@@ -1,5 +1,5 @@
 <template>
-    <table class="tracklist" v-hotkey="keymap">
+    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}">
             <thead>
                 <tr>
                 <th @click="sort('title')">
@@ -612,7 +612,8 @@
                 'backspaceLock',
                 'enterLock',
                 'openPlaylistModal',
-                'allPlaylists'
+                'allPlaylists',
+                'appIsLoading'
             ]),
 
             keymap() {

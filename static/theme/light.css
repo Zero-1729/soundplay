@@ -13,8 +13,17 @@
 }
 
 /* - Error messages - */
-.error-message, .warn-message, .fail-message {
+.status-message, .error-message, .warn-message, .fail-message {
     background: white;
+}
+
+.status-message {
+    border-color: #8bc34a;
+    color: #8bc34a;
+}
+
+.status-message .cancel-btn svg path {
+    fill: #8bc34a;
 }
 
 .error-message {

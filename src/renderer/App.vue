@@ -10,6 +10,15 @@
             </transition>
         </span>
 
+        <div class="status-message" :class="{rise: !statusMessage.isEmpty}" v-show="!statusMessage.isEmpty">
+            <div class="cancel-btn" @click="clearStatusMessage">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+            </div>
+            <h4>
+                {{ statusMessage.heading }}
+            </h4>
+        </div>
+
         <div class="error-message" :class="{rise: !errorMessage.isEmpty}" v-show="!errorMessage.isEmpty">
             <div class="cancel-btn" @click="clearAllErrorMessage">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
@@ -103,10 +112,68 @@
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
-                all_imports: 0
+                imports: 0,
+                imports_count: 0
             }
         },
         created() {
+            window.addEventListener('resize', this.windowUpdated)
+
+            // Handle events thrown from main renderer (App Menu)
+            ipcRenderer.on('import-tracks', (event, arg) => {
+                let vm = this
+                remote.dialog.showOpenDialog({
+                    properties: ['openFile', 'multiSelections']
+                }, (items) => {
+                    if (items) {
+                        // Log number of files to import
+                        this.imports += items.length
+                        this.imports_count += items.length
+                        vm.setLoading(true)
+
+                        // Make sure we check whether the user canceled the dialog first
+                        // ... before we start performing any actions
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                vm.deref(items[i])
+                            }
+                        }
+                    }
+                })
+            })
+
+            // Check fn for infinte loops
+            ipcRenderer.on('import-folder', (event, arg) => {
+                let vm = this
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory', 'multiSelections']
+                }, (items) => {
+                    if (items) {
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                let tracks = vm.crawl(items[i])
+                                // Log number files to import
+                                vm.imports += tracks.length
+                                vm.imports_count += tracks.length
+                                vm.setLoading(true)
+
+                                for (var j = 0;j < tracks.length;j++) {
+                                    vm.deref(tracks[j])
+                                }
+                            }
+                        }
+                    }
+                })
+            })
+
+            ipcRenderer.on('toggle-settings', (event, arg) => {
+                this.toggleSettings()
+            })
+
+            ipcRenderer.on('toggle-night-mode', (event, arg) => {
+                this.toggleNightMode()
+            })
+
             // Load style files
             this.loadTheme()
 
@@ -149,64 +216,22 @@
                 }
             }
         },
-        mounted() {
-            window.addEventListener('resize', this.windowUpdated)
-
-            // Handle events thrown from main renderer (App Menu)
-            ipcRenderer.on('import-tracks', (event, arg) => {
-                let vm = this
-                remote.dialog.showOpenDialog({
-                    properties: ['openFile', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        // Make sure we check whether the user canceled the dialog first
-                        // ... before we start performing any actions
-                        if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                vm.deref(items[i])
-                            }
-                        }
-                    }
-                })
-            })
-
-            // Check fn for infinte loops
-            ipcRenderer.on('import-folder', (event, arg) => {
-                let vm = this
-                remote.dialog.showOpenDialog({
-                    properties: ['openDirectory', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                let tracks = vm.crawl(items[i])
-
-                                for (var j = 0;j < tracks.length;j++) {
-                                    vm.deref(tracks[j])
-                                }
-                            }
-                        }
-                    }
-                })
-            })
-
-            ipcRenderer.on('toggle-settings', (event, arg) => {
-                this.toggleSettings()
-            })
-
-            ipcRenderer.on('toggle-night-mode', (event, arg) => {
-                this.toggleNightMode()
-            })
-        },
         watch: {
             appTheme (cur, old) {
                 // reload theme after every theme change
                 this.loadTheme()
             },
 
-            all_imports () {
-                // Because failed imports need to trigger the change
-                if (this.all_imports < 0) {
+            imports (cur, old) {
+                if (cur == 0) {
+                    this.setLoading(false)
+                    this.updateStatusMessage({
+                        heading: `Successfully imported ${this.imports_count} sounds`,
+                        isEmpty: false
+                    })
+
+                    this.imports_count = 0
+
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
                         this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
@@ -228,9 +253,11 @@
         methods: {
             ...mapActions([
                 'addTrack',
+                'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
                 'updateFailMessage',
+                'clearStatusMessage',
                 'clearErrorMessage',
                 'clearWarnMessage',
                 'clearFailMessage',
@@ -241,7 +268,8 @@
                 'toggleNightMode',
                 'setNightMode',
                 'setJobsFn',
-                'clearJobsFn'
+                'clearJobsFn',
+                'setLoading'
             ]),
 
             windowUpdated() {
@@ -319,7 +347,7 @@
             },
 
             handle_new_track(obj) {
-                this.all_imports -= 1
+                this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
                 var tag = obj.tag
@@ -359,7 +387,7 @@
 
             handle_new_track_error(track_path) {
                 this.error_imports.push(track_path)
-                this.all_imports -= 1
+                this.imports -= 1
             },
 
             deref(track) {
@@ -394,6 +422,8 @@
                 // Check if Dir or audio dropped
                 let objs = ev.dataTransfer.files
 
+                this.setLoading(true)
+
                 for (var i = 0;i < objs.length;i++) {
                     var callback = {
                         onSuccess: this.grab_tags,
@@ -406,7 +436,8 @@
 
                         let tracks = this.crawl(objs[i].path)
 
-                        this.all_imports += 1
+                        this.imports += tracks.length
+                        this.imports_count += tracks.length
 
                         for (var j = 0;j < tracks.length;j++) {
                             this.deref(tracks[j])
@@ -414,10 +445,11 @@
                     } else {
                         if (objs[i].type == 'audio/mp3') {
                             // Scan and add Track
-                            this.all_imports += 1
+                            this.imports += 1
+                            this.imports_count += 1
                             this.deref(objs[i].path)
                         } else {
-                            this.all_imports -= 1
+                            this.imports -= 1
                             this.failed_imports.push(objs[i].path)
                         }
                     }
@@ -428,6 +460,7 @@
             ...mapGetters([
                 'currentCriteria',
                 'currentTarget',
+                'statusMessage',
                 'errorMessage',
                 'warnMessage',
                 'failMessage',
@@ -484,7 +517,7 @@
         top 15px
         right 20px
 
-    .error-message, .warn-message, .fail-message
+    .status-message, .error-message, .warn-message, .fail-message
         width 300px
         height 105px
         position absolute
@@ -492,15 +525,16 @@
         bottom 30px
         padding 20px
         border-radius 5px
+        border-width 2.5px
+        border-style solid
         h4
             margin-top 10px
 
+    .status-message
+        height 35px
+
     .rise
         animation rise 0.6s ease-in
-
-    .error-message, .warn-message, .fail-message
-        border-width 2.5px
-        border-style solid
 
     .tight-listing
         height 30px
@@ -508,6 +542,10 @@
         p
             margin-top 0
             margin-bottom 0
+
+    .fade-pane
+        opacity 0.4
+        animation beat 1.25s infinite ease
 
     .faded-slide-in-enter, .faded-slide-in-leave-to
         transition all 0.3s
@@ -528,6 +566,14 @@
         100%
             bottom 30px
             opacity 1
+
+    @keyframes beat
+        0%
+            opacity 0.3
+        50%
+            opacity 0.6
+        100%
+            opacity 0.3
 
     ::-webkit-scrollbar
         width 3px

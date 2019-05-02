@@ -18,6 +18,10 @@ const state = {
     playlists: [],
     reporter: {
         // For environment variables
+        status: {
+            heading: null,
+            isEmpty: true
+        },
         error: {
             heading: null,
             message: null,
@@ -69,7 +73,8 @@ const state = {
         cached: {
             mainRoute: '/',
             childRoute: '/'
-        }
+        },
+        loading: false
     }
 }
 
@@ -309,6 +314,12 @@ const mutations = {
         state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
     },
 
+    UPDATE_STATUS_MESSAGE (state, meta) {
+        state.reporter.status.heading = meta.heading
+
+        state.reporter.status.isEmpty = false
+    },
+
     UPDATE_ERROR_MESSAGE (state, meta) {
         state.reporter.error.heading = meta.heading
         state.reporter.error.message = meta.message
@@ -331,6 +342,12 @@ const mutations = {
         state.reporter.failure.items   = meta.items
 
         state.reporter.failure.isEmpty = false
+    },
+
+    CLEAR_STATUS_MESSAGE (state) {
+        state.reporter.status.heading = null
+
+        state.reporter.status.isEmpty = true
     },
 
     CLEAR_ERROR_MESSAGE (state) {
@@ -372,6 +389,10 @@ const mutations = {
         } else {
             state.vars.cached.childRoute = routeObj.name
         }
+    },
+
+    SET_LOADING (state, value) {
+        state.vars.loading = value
     },
 
     // Settings mutations
@@ -537,6 +558,10 @@ const actions = {
         commit('REMOVE_FROM_PLAYLIST', obj)
     },
 
+    updateStatusMessage: ({ commit }, meta) => {
+        commit('UPDATE_STATUS_MESSAGE', meta)
+    },
+
     updateErrorMessage: ({ commit }, meta) => {
         commit('UPDATE_ERROR_MESSAGE', meta)
     },
@@ -547,6 +572,10 @@ const actions = {
 
     updateFailMessage: ({ commit }, meta) => {
         commit('UPDATE_FAILURE_MESSAGE', meta)
+    },
+
+    clearStatusMessage: ({ commit }) => {
+        commit('CLEAR_STATUS_MESSAGE')
     },
 
     clearErrorMessage: ({ commit }) => {
@@ -571,6 +600,10 @@ const actions = {
 
     cacheRoute: ({ commit }, routeObj) => {
         commit('CACHE_ROUTE', routeObj)
+    },
+
+    setLoading: ({ commit }, value) => {
+        commit('SET_LOADING', value)
     },
 
     // Settings Actions
@@ -677,6 +710,10 @@ const getters = {
         return state.playlists
     },
 
+    statusMessage (state) {
+        return state.reporter.status
+    },
+
     errorMessage (state) {
         return state.reporter.error
     },
@@ -701,6 +738,9 @@ const getters = {
         return state.vars.cached
     },
 
+    appIsLoading (state) {
+        return state.vars.loading
+    },
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting
