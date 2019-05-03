@@ -262,7 +262,7 @@
     }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
     .flex select
         height 25px
         margin-top auto
@@ -315,7 +315,6 @@
 
     .info-input-field-nm
         width 20px
-        height 30px
         background transparent
         border-top 0
         border-bottom 2px solid grey

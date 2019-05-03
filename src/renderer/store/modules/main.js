@@ -10,6 +10,10 @@ const {
         add,
         remove }          = require('./../../utils/list')
 
+const { TagName,
+        TagNameSingle,
+        CreateElm }       = require('./../../utils/htmlQuery')
+
 const state = {
     music: [],
     albums: [],
@@ -90,8 +94,7 @@ const mutations = {
             plays: 0,
             peaks: null,
             duration: null,
-            year: meta.year,
-            art: meta.art
+            year: meta.year
         }
 
         track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
@@ -411,9 +414,19 @@ const mutations = {
 
     LOAD_THEME (state) {
         let head = document.getElementsByTagName('head')[0]
-        let link = document.getElementsByTagName('link')[0]
+        let linkExists = TagName('link').length > 0
+        let link
 
-        link.href = path.join('/', 'static', 'theme', state.settings.ui.theme + '.css')
+        if (linkExists) {
+            link = TagNameSingle('link')
+            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
+        } else {
+            link = CreateElm('link')
+            link.rel = 'stylesheet'
+            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
+
+            head.appendChild(link)
+        }
     },
 
     SET_NIGHT_THEME (state, name) {

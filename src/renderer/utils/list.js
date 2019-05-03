@@ -7,27 +7,20 @@
 
 // Fn for Adding unique items to arrays
 const add = (list, item, basic=false) => {
-    let isDup = false
-
     for (var i = 0;i < list.length;i++) {
     	if (!basic) {
             if (list[i].source == item.source) {
-                isDup = true
+                return list
             }
         } else {
             if (list[i] == item) {
-                isDup = true
+                return list
             }
         }
     }
 
-    // If we do find a duplicate we simply return an unaltered list
-    if (isDup) {
-    	return list
-    } else {
-        // otherwise, we return an altered list with the new item
-        return list.concat(item)
-    }
+    // otherwise, we return an altered list with the new item
+    return list.concat(item)
 }
 
 // Remove an item from an array

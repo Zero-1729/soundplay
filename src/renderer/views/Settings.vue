@@ -11,7 +11,6 @@
     import { mapGetters } from 'vuex'
 
     export default {
-        name: 'settings',
         data() {
             return {
                 transition: ''
@@ -64,6 +63,9 @@
         display inline-block
         transition all .3s ease-out
 
+    .option-item
+        margin-bottom 18px
+
     .option-item .info
         display flex
 
@@ -77,6 +79,16 @@
     .option-item input
         height 15px
         margin 5px
+
+    .flex
+        display flex
+        h3
+            margin-bottom 4px
+        p
+            margin-top 0
+        .dialog-button-alt
+            margin-left 18px
+            width unset
 
     .slide-to-right-enter-active, .slide-to-right-leave-active, .slide-to-left-enter-active, .slide-to-left-leave-active
         opacity 1

@@ -17,7 +17,6 @@
 
 <script>
     export default {
-        name: 'audio-settings',
-        methods: {}
+        name: 'audio-settings'
     }
 </script>

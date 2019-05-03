@@ -88,7 +88,7 @@
     import FS                         from './../../utils/dirwalker'
 
     export default {
-        name: 'general-seetings',
+        name: 'general-settings',
         data() {
             return {
                 newFolder: '',
@@ -171,17 +171,7 @@
     }
 </script>
 
-<style lang="stylus">
-    .flex
-        display flex
-        h3
-            margin-bottom 4px
-        p
-            margin-top 0
-        .dialog-button-alt
-            margin-left 18px
-            width unset
-
+<style lang="stylus" scoped>
     .flex button
         height 25px
         margin-top 14px
@@ -192,9 +182,6 @@
         outline none
         transition all 0.3s linear
         cursor pointer
-
-    .option-item
-        margin-bottom 18px
 
     .flexed-div-holder
         height 30px
@@ -258,7 +245,7 @@
         cursor default
 
     input#settings-input
-        height 20px
+        height 22px
         margin-top 6px
         align-self center
         border-top none
