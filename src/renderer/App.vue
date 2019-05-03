@@ -10,53 +10,70 @@
             </transition>
         </span>
 
-        <div class="error-message" :class="{rise: !errorMessage.isEmpty}" v-show="!errorMessage.isEmpty">
-            <div class="cancel-btn" @click="clearAllErrorMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+        <transition name="rise">
+            <div class="status-message" v-show="!statusMessage.isEmpty">
+                <div class="cancel-btn" @click="clearStatusMessage">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                </div>
+                <h4>
+                    {{ statusMessage.heading }}
+                </h4>
             </div>
-            <h4>
-                {{ errorMessage.heading }}
-            </h4>
-            <p>
-                {{ errorMessage.message }}
-            </p>
+        </transition>
 
-            <div class="tight-listing">
-                <p v-for="item in errorMessage.items">{{ item }}</p>
-            </div>
-        </div>
+        <transition name="rise">
+            <div class="error-message" v-show="!errorMessage.isEmpty">
+                <div class="cancel-btn" @click="clearAllErrorMessage">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                </div>
+                <h4>
+                    {{ errorMessage.heading }}
+                </h4>
+                <p>
+                    {{ errorMessage.message }}
+                </p>
 
-        <div class="warn-message" :class="{rise: !warnMessage.isEmpty}" v-show="!warnMessage.isEmpty">
-            <div class="cancel-btn" @click="clearAllWarnMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                <div class="tight-listing">
+                    <p v-for="item in errorMessage.items">{{ item }}</p>
+                </div>
             </div>
-            <h4>
-                {{ warnMessage.heading }}
-            </h4>
-            <p>
-                {{ warnMessage.message }}
-            </p>
+        </transition>
 
-            <div class="tight-listing">
-                <p v-for="item in warnMessage.items">{{ item }}</p>
-            </div>
-        </div>
+        <transition name="rise">
+            <div class="warn-message" v-show="!warnMessage.isEmpty">
+                <div class="cancel-btn" @click="clearAllWarnMessage">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                </div>
+                <h4>
+                    {{ warnMessage.heading }}
+                </h4>
+                <p>
+                    {{ warnMessage.message }}
+                </p>
 
-        <div class="fail-message" :class="{rise: !failMessage.isEmpty}" v-show="!failMessage.isEmpty">
-            <div class="cancel-btn" @click="clearAllFailMessage">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                <div class="tight-listing">
+                    <p v-for="item in warnMessage.items">{{ item }}</p>
+                </div>
             </div>
-            <h4>
-                {{ failMessage.heading }}
-            </h4>
-            <p>
-                {{ failMessage.message }}
-            </p>
+        </transition>
 
-            <div class="tight-listing">
-                <p v-for="item in failMessage.items">{{ item }}</p>
+        <transition name="rise">
+            <div class="fail-message" v-show="!failMessage.isEmpty">
+                <div class="cancel-btn" @click="clearAllFailMessage">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                </div>
+                <h4>
+                    {{ failMessage.heading }}
+                </h4>
+                <p>
+                    {{ failMessage.message }}
+                </p>
+
+                <div class="tight-listing">
+                    <p v-for="item in failMessage.items">{{ item }}</p>
+                </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -103,10 +120,71 @@
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
-                all_imports: 0
+                imports: 0,
+                imports_count: 0
             }
         },
         created() {
+            // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
+            // Lets resisze it if the scrollbars are visible on landing
+            // and ellipses should be visible aswell
+            window.addEventListener('resize', this.handle_window_update)
+
+            // Handle events thrown from main renderer (App Menu)
+            ipcRenderer.on('import-tracks', (event, arg) => {
+                let vm = this
+                remote.dialog.showOpenDialog({
+                    properties: ['openFile', 'multiSelections']
+                }, (items) => {
+                    if (items) {
+                        // Log number of files to import
+                        this.imports += items.length
+                        this.imports_count += items.length
+                        vm.setLoading(true)
+
+                        // Make sure we check whether the user canceled the dialog first
+                        // ... before we start performing any actions
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                vm.deref(items[i])
+                            }
+                        }
+                    }
+                })
+            })
+
+            // Check fn for infinte loops
+            ipcRenderer.on('import-folder', (event, arg) => {
+                let vm = this
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory', 'multiSelections']
+                }, (items) => {
+                    if (items) {
+                        if (items.length > 0) {
+                            for (var i = 0;i < items.length;i++) {
+                                let tracks = vm.crawl(items[i])
+                                // Log number files to import
+                                vm.imports += tracks.length
+                                vm.imports_count += tracks.length
+                                vm.setLoading(true)
+
+                                for (var j = 0;j < tracks.length;j++) {
+                                    vm.deref(tracks[j])
+                                }
+                            }
+                        }
+                    }
+                })
+            })
+
+            ipcRenderer.on('toggle-settings', (event, arg) => {
+                this.toggleSettings()
+            })
+
+            ipcRenderer.on('toggle-night-mode', (event, arg) => {
+                this.toggleNightMode()
+            })
+
             // Load style files
             this.loadTheme()
 
@@ -149,64 +227,32 @@
                 }
             }
         },
-        mounted() {
-            window.addEventListener('resize', this.windowUpdated)
-
-            // Handle events thrown from main renderer (App Menu)
-            ipcRenderer.on('import-tracks', (event, arg) => {
-                let vm = this
-                remote.dialog.showOpenDialog({
-                    properties: ['openFile', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        // Make sure we check whether the user canceled the dialog first
-                        // ... before we start performing any actions
-                        if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                vm.deref(items[i])
-                            }
-                        }
-                    }
-                })
-            })
-
-            // Check fn for infinte loops
-            ipcRenderer.on('import-folder', (event, arg) => {
-                let vm = this
-                remote.dialog.showOpenDialog({
-                    properties: ['openDirectory', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                let tracks = vm.crawl(items[i])
-
-                                for (var j = 0;j < tracks.length;j++) {
-                                    vm.deref(tracks[j])
-                                }
-                            }
-                        }
-                    }
-                })
-            })
-
-            ipcRenderer.on('toggle-settings', (event, arg) => {
-                this.toggleSettings()
-            })
-
-            ipcRenderer.on('toggle-night-mode', (event, arg) => {
-                this.toggleNightMode()
-            })
-        },
         watch: {
+            '$route' (cur, old) {
+                if (cur.path == '/') {
+                    this.windowUpdated()
+                }
+            },
+
             appTheme (cur, old) {
                 // reload theme after every theme change
                 this.loadTheme()
             },
 
-            all_imports () {
-                // Because failed imports need to trigger the change
-                if (this.all_imports < 0) {
+            imports (cur, old) {
+                if (cur == 0) {
+                    this.setLoading(false)
+
+                    // Only display a success message if atleast 1 or more non duplicates were imported
+                    if (!(this.failMessage.items.length == this.imports_count)) {
+                        this.updateStatusMessage({
+                            heading: `Successfully imported ${this.imports_count - this.failMessage.items.length} sounds`,
+                            isEmpty: false
+                        })
+                    }
+
+                    this.imports_count = 0
+
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
                         this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
@@ -215,6 +261,15 @@
                     if (this.failed_imports.length > 0) {
                         // Then issues with non sound files
                         this.updateFailMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.failed_imports.length + ' non sound file(s):', items: this.failed_imports})
+                    }
+
+                    // In case duplicated files are droped
+                    if (this.failed_imports.length == 0 && this.failMessage.items.length > 0) {
+                        this.updateFailMessage({
+                            heading: 'Detected potential sound file(s) duplication',
+                            message: `Discovered ${this.failMessage.items.length} duplicate track(s)`,
+                            items: this.failMessage.items
+                        })
                     }
 
 
@@ -228,9 +283,11 @@
         methods: {
             ...mapActions([
                 'addTrack',
+                'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
                 'updateFailMessage',
+                'clearStatusMessage',
                 'clearErrorMessage',
                 'clearWarnMessage',
                 'clearFailMessage',
@@ -241,8 +298,31 @@
                 'toggleNightMode',
                 'setNightMode',
                 'setJobsFn',
-                'clearJobsFn'
+                'setLoading'
             ]),
+
+            handle_window_resize() {
+                if (this.$route.path == '/') {
+                    this.resizeThead()
+                }
+
+                this.windowUpdated()
+            },
+
+            resizeThead() {
+                var thead = QuerySelectorAll('thead')[0]
+                var tbody = QuerySelectorAll('tbody')[0]
+
+                if (tbody.scrollHeight > tbody.clientHeight) {
+                    // We use the static width of the window not the table
+                    // ... To avoid mutating both thead and tbody
+                    thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
+                } else {
+                    // If no scollbars are detected the width is automatically
+                    // ... the window's minus the sidpane's width
+                    thead.style.width = String(window.innerWidth - 250) + "px"
+                }
+            },
 
             windowUpdated() {
                 // Resize width to allow ellipses
@@ -319,7 +399,7 @@
             },
 
             handle_new_track(obj) {
-                this.all_imports -= 1
+                this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
                 var tag = obj.tag
@@ -359,7 +439,7 @@
 
             handle_new_track_error(track_path) {
                 this.error_imports.push(track_path)
-                this.all_imports -= 1
+                this.imports -= 1
             },
 
             deref(track) {
@@ -394,6 +474,8 @@
                 // Check if Dir or audio dropped
                 let objs = ev.dataTransfer.files
 
+                this.setLoading(true)
+
                 for (var i = 0;i < objs.length;i++) {
                     var callback = {
                         onSuccess: this.grab_tags,
@@ -406,7 +488,8 @@
 
                         let tracks = this.crawl(objs[i].path)
 
-                        this.all_imports += 1
+                        this.imports += tracks.length
+                        this.imports_count += tracks.length
 
                         for (var j = 0;j < tracks.length;j++) {
                             this.deref(tracks[j])
@@ -414,10 +497,11 @@
                     } else {
                         if (objs[i].type == 'audio/mp3') {
                             // Scan and add Track
-                            this.all_imports += 1
+                            this.imports += 1
+                            this.imports_count += 1
                             this.deref(objs[i].path)
                         } else {
-                            this.all_imports -= 1
+                            this.imports -= 1
                             this.failed_imports.push(objs[i].path)
                         }
                     }
@@ -428,6 +512,7 @@
             ...mapGetters([
                 'currentCriteria',
                 'currentTarget',
+                'statusMessage',
                 'errorMessage',
                 'warnMessage',
                 'failMessage',
@@ -437,13 +522,13 @@
                 'appTheme',
                 'appNightMode',
                 'appAutoNightMode',
-                'appAutoNightModeTime',
-                'appScheduleJobs'
+                'appAutoNightModeTime'
             ])
         },
         beforeDestroy() {
             // Clear all error messages when app is closed
             // ... To avoid persisted error messages between sessions
+            this.clearStatusMessage()
             this.clearErrorMessage()
             this.clearWarnMessage()
             this.clearFailMessage()
@@ -453,6 +538,9 @@
 
             // Clear jobs
             this.setJobsFn({start: null, end: null})
+
+            // Clear loading state
+            this.setLoading(false)
         }
     }
 </script>
@@ -484,7 +572,7 @@
         top 15px
         right 20px
 
-    .error-message, .warn-message, .fail-message
+    .status-message, .error-message, .warn-message, .fail-message
         width 300px
         height 105px
         position absolute
@@ -492,15 +580,13 @@
         bottom 30px
         padding 20px
         border-radius 5px
+        border-width 2.5px
+        border-style solid
         h4
             margin-top 10px
 
-    .rise
-        animation rise 0.6s ease-in
-
-    .error-message, .warn-message, .fail-message
-        border-width 2.5px
-        border-style solid
+    .status-message
+        height 35px
 
     .tight-listing
         height 30px
@@ -508,6 +594,10 @@
         p
             margin-top 0
             margin-bottom 0
+
+    .fade-pane
+        opacity 0.4
+        animation beat 1.25s infinite ease
 
     .faded-slide-in-enter, .faded-slide-in-leave-to
         transition all 0.3s
@@ -519,15 +609,22 @@
         opacity 0.4
         transform translateY(0)
 
-    @keyframes rise
+    .rise-enter, .rise-leave-to
+        transition all 0.6s
+        bottom -150px
+        opacity 0.3
+
+    .rise-enter-to
+        bottom 30px
+        opacity 1
+
+    @keyframes beat
         0%
-            bottom -150px
             opacity 0.3
-        75%
-            bottom 60px
+        50%
+            opacity 0.6
         100%
-            bottom 30px
-            opacity 1
+            opacity 0.3
 
     ::-webkit-scrollbar
         width 3px

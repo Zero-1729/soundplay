@@ -7,7 +7,7 @@ body {
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #b7b8b9;
+    background: #212121;
 }
 
 /* Scrollbar thumb */
@@ -16,8 +16,17 @@ body {
 }
 
 /* - Error messages - */
-.error-message, .warn-message, .fail-message {
+.status-message, .error-message, .warn-message, .fail-message {
     background: #262626;
+}
+
+.status-message {
+    border-color: #3ca735;
+    color: #3ca735;
+}
+
+.status-message .cancel-btn svg path {
+    fill: #3ca735;
 }
 
 .error-message {
@@ -315,7 +324,7 @@ input#settings-input:focus {
     background: #d24136;
 }
 
-.flex .dialog-button-alt:hover.green {
+.flex .dialog-button-alt:hover {
     background: #3ca735;
 }
 

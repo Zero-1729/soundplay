@@ -6,7 +6,7 @@
                     <h3>
                         Clear Sounds
                     </h3>
-                    <button @click="deleteAllTracks">
+                    <button @click="handle_delete_all_tracks">
                         Delete
                     </button>
                 </div>
@@ -96,9 +96,18 @@
             }
         },
         watch: {
-            newFolder: function (cur, old) {
+            newFolder(cur, old) {
                 if (cur == '') {
                     this.unlockHotKey('enter')
+                }
+            },
+            allTracks(cur, old) {
+                if (cur.length == 0) {
+                    this.setLoading(false)
+                    this.updateStatusMessage({
+                        heading: 'Successfully deleted all sounds',
+                        isEmpty: false
+                    })
                 }
             }
         },
@@ -110,8 +119,14 @@
                 'setMusicFolder',
                 'removeMusicFolder',
                 'lockHotKey',
-                'unlockHotKey'
+                'unlockHotKey',
+                'updateStatusMessage',
+                'setLoading'
             ]),
+
+            handle_delete_all_tracks() {
+                this.deleteAllTracks()
+            },
 
             handle_open_dialog() {
                 let name = remote.dialog.showOpenDialog({
@@ -148,6 +163,7 @@
         },
         computed: {
             ...mapGetters([
+                'allTracks',
                 'appMusicFolder',
                 'appExcludedFolders'
             ])

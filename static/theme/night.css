@@ -16,8 +16,17 @@ body {
 }
 
 /* - Error messages - */
-.error-message, .warn-message, .fail-message {
+.status-message, .error-message, .warn-message, .fail-message {
     background: #1b3344;
+}
+
+.status-message {
+    border-color: #3ca735;
+    color: #3ca735;
+}
+
+.status-message .cancel-btn svg path {
+    fill: #3ca735;
 }
 
 .error-message {
@@ -43,7 +52,7 @@ body {
     color: orange;
 }
 
-.faile-message .cancel-btn svg path {
+.fail-message .cancel-btn svg path {
     fill: orange;
 }
 

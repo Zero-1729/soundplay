@@ -18,22 +18,26 @@ const state = {
     playlists: [],
     reporter: {
         // For environment variables
+        status: {
+            heading: null,
+            isEmpty: true
+        },
         error: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         },
         warning: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         },
         failure: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         }
     },
@@ -69,7 +73,8 @@ const state = {
         cached: {
             mainRoute: '/',
             childRoute: '/'
-        }
+        },
+        loading: false
     }
 }
 
@@ -104,6 +109,10 @@ const mutations = {
                 // If we are in a playlist and add a track we also include it in the playlist
                 state.playlists[pindex].tracks.push(track)
             }
+        } else {
+            // Lets override the 'failure' message from here
+            // ... we log the duplicated files to be reported later
+            state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
         }
     },
 
@@ -309,6 +318,12 @@ const mutations = {
         state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
     },
 
+    UPDATE_STATUS_MESSAGE (state, meta) {
+        state.reporter.status.heading = meta.heading
+
+        state.reporter.status.isEmpty = false
+    },
+
     UPDATE_ERROR_MESSAGE (state, meta) {
         state.reporter.error.heading = meta.heading
         state.reporter.error.message = meta.message
@@ -333,10 +348,16 @@ const mutations = {
         state.reporter.failure.isEmpty = false
     },
 
+    CLEAR_STATUS_MESSAGE (state) {
+        state.reporter.status.heading = null
+
+        state.reporter.status.isEmpty = true
+    },
+
     CLEAR_ERROR_MESSAGE (state) {
         state.reporter.error.heading = null
         state.reporter.error.message = null
-        state.reporter.error.items   = null
+        state.reporter.error.items   = []
 
         state.reporter.error.isEmpty = true
     },
@@ -344,7 +365,7 @@ const mutations = {
     CLEAR_WARN_MESSAGE (state) {
         state.reporter.warning.heading = null
         state.reporter.warning.message = null
-        state.reporter.warning.items   = null
+        state.reporter.warning.items   = []
 
         state.reporter.warning.isEmpty = true
     },
@@ -352,7 +373,7 @@ const mutations = {
     CLEAR_FAILURE_MESSAGE (state) {
         state.reporter.failure.heading = null
         state.reporter.failure.message = null
-        state.reporter.failure.items   = null
+        state.reporter.failure.items   = []
 
         state.reporter.failure.isEmpty = true
     },
@@ -372,6 +393,10 @@ const mutations = {
         } else {
             state.vars.cached.childRoute = routeObj.name
         }
+    },
+
+    SET_LOADING (state, value) {
+        state.vars.loading = value
     },
 
     // Settings mutations
@@ -537,6 +562,10 @@ const actions = {
         commit('REMOVE_FROM_PLAYLIST', obj)
     },
 
+    updateStatusMessage: ({ commit }, meta) => {
+        commit('UPDATE_STATUS_MESSAGE', meta)
+    },
+
     updateErrorMessage: ({ commit }, meta) => {
         commit('UPDATE_ERROR_MESSAGE', meta)
     },
@@ -547,6 +576,10 @@ const actions = {
 
     updateFailMessage: ({ commit }, meta) => {
         commit('UPDATE_FAILURE_MESSAGE', meta)
+    },
+
+    clearStatusMessage: ({ commit }) => {
+        commit('CLEAR_STATUS_MESSAGE')
     },
 
     clearErrorMessage: ({ commit }) => {
@@ -571,6 +604,10 @@ const actions = {
 
     cacheRoute: ({ commit }, routeObj) => {
         commit('CACHE_ROUTE', routeObj)
+    },
+
+    setLoading: ({ commit }, value) => {
+        commit('SET_LOADING', value)
     },
 
     // Settings Actions
@@ -677,6 +714,10 @@ const getters = {
         return state.playlists
     },
 
+    statusMessage (state) {
+        return state.reporter.status
+    },
+
     errorMessage (state) {
         return state.reporter.error
     },
@@ -701,6 +742,9 @@ const getters = {
         return state.vars.cached
     },
 
+    appIsLoading (state) {
+        return state.vars.loading
+    },
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting
