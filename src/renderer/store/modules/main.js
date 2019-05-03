@@ -25,19 +25,19 @@ const state = {
         error: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         },
         warning: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         },
         failure: {
             heading: null,
             message: null,
-            items: null,
+            items: [],
             isEmpty: true
         }
     },
@@ -109,6 +109,10 @@ const mutations = {
                 // If we are in a playlist and add a track we also include it in the playlist
                 state.playlists[pindex].tracks.push(track)
             }
+        } else {
+            // Lets override the 'failure' message from here
+            // ... we log the duplicated files to be reported later
+            state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
         }
     },
 
@@ -353,7 +357,7 @@ const mutations = {
     CLEAR_ERROR_MESSAGE (state) {
         state.reporter.error.heading = null
         state.reporter.error.message = null
-        state.reporter.error.items   = null
+        state.reporter.error.items   = []
 
         state.reporter.error.isEmpty = true
     },
@@ -361,7 +365,7 @@ const mutations = {
     CLEAR_WARN_MESSAGE (state) {
         state.reporter.warning.heading = null
         state.reporter.warning.message = null
-        state.reporter.warning.items   = null
+        state.reporter.warning.items   = []
 
         state.reporter.warning.isEmpty = true
     },
@@ -369,7 +373,7 @@ const mutations = {
     CLEAR_FAILURE_MESSAGE (state) {
         state.reporter.failure.heading = null
         state.reporter.failure.message = null
-        state.reporter.failure.items   = null
+        state.reporter.failure.items   = []
 
         state.reporter.failure.isEmpty = true
     },

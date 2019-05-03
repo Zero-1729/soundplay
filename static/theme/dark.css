@@ -7,7 +7,7 @@ body {
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #b7b8b9;
+    background: #212121;
 }
 
 /* Scrollbar thumb */

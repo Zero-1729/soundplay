@@ -84,20 +84,7 @@
                 trackTransition: 'drop-in'
             }
         },
-        mounted() {
-            // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
-            var vm = this
-
-            // Lets resisze it if the scrollbars are visible on landing
-            this.resizeThead()
-
-            window.addEventListener('resize', () => {
-                vm.resizeThead()
-            })
-
-            // Resize the 'td's after route changes
-            this.$parent.windowUpdated()
-
+        created() {
             // In cases of route changing
             this.filterPool()
 
@@ -181,23 +168,9 @@
                 'setCurrentDirec',
                 'lockHotKey',
                 'unlockHotKey',
-                'setPlaylistModal'
+                'setPlaylistModal',
+                'setLoading'
             ]),
-
-            resizeThead() {
-                var thead = QuerySelectorAll('thead')[0]
-                var tbody = QuerySelectorAll('tbody')[0]
-
-                if (tbody.scrollHeight > tbody.clientHeight) {
-                    // We use the static width of the window not the table
-                    // ... To avoid mutating both thead and tbody
-                    thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
-                } else {
-                    // If no scollbars are detected the width is automatically
-                    // ... the window's minus the sidpane's width
-                    thead.style.width = String(window.innerWidth - 250) + "px"
-                }
-            },
 
             isSameSource(track) {
                 if (this.currentTrack) {
@@ -811,11 +784,11 @@
     .vanish-active, .vanish-leave-to
         transition 0.4s
         opacity 0
-        transform scale(0)
+        transform translateY(-200px)/*scale(0)*/
 
     .vanish-enter-to
         opacity 1
-        transform scale(1)
+        transform translateY(0) /*scale(1)*/
 
     @keyframes slide
         0%

@@ -12,7 +12,7 @@
                 </p>
             </div>
         </div>
-        <div class="empty-listing" v-if="listingOptions.length == 0">
+        <div class="empty-listing" v-if="currentOptions.length == 0">
             <h4>
                 No {{ currentCriteria }} found
             </h4>
@@ -227,12 +227,12 @@
                 'currentCriteria',
                 'currentTarget',
                 'playingTarget',
+                'settingsOpen',
+                'currentSetting',
                 'allArtists',
                 'allAlbums',
                 'allGenres',
-                'allPlaylists',
-                'settingsOpen',
-                'currentSetting'
+                'allPlaylists'
             ]),
 
             settingsRoutes() {
