@@ -255,7 +255,7 @@
 
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
+                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected and scanned ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
                     }
 
                     if (this.failed_imports.length > 0) {
@@ -347,7 +347,6 @@
                 // Trigger modal close here
                 // ... but only if it was open
                 if (this.openPlaylistModal && !(Id('playlist-input') == document.activeElement)) {
-                    //this.$children[4].openModal = false
                     this.setPlaylistModal(false)
                 }
             },

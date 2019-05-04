@@ -16,16 +16,11 @@ export default class FS {
         // get all entires in the directory
         let files = fs.readdirSync(dir)
 
-        // Rename all files to their absolute path
-        files.forEach(function (item, index) {
-            this[index] = path.join(dir, this[index])
-        }, files)
-
         // Walk through the current directory and get all files
         for (var i = 0; i < files.length; i++) {
-            if (fs.statSync(files[i]).isFile()) {
+            if (fs.statSync(path.join(dir, files[i])).isFile()) {
                 // perform whatever action on the discovered file
-                callback(files[i])
+                callback(path.join(dir, files[i]))
             } else {
                 // check whether we are in an excluded folder
                 if (excludes.includes(files[i]
@@ -39,7 +34,7 @@ export default class FS {
                     i += 1
                 } else {
                     // restart the file fetch process in the new directory
-                    this.walkTree(files[i], callback, excludes)
+                    this.walkTree(path.join(dir, files[i]), callback, excludes)
                 }
             }
         }

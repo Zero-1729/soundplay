@@ -3,7 +3,7 @@ const path                = require('path')
 const {
         removeObject,
         getIndexFromKey,
-        related,
+        relatedExists,
         getRelatedItems } = require('./../../utils/object')
 
 const {
@@ -125,39 +125,17 @@ const mutations = {
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
         // ... i.e this is the last of its `kind`
-        if (track.artist == 'Unknown') {
-            // If it has no artist then we refer to the "Unknown"
-            // ... entry
-            if (related(state.music, 'artist', 'Unknown') == 0) {
-                state.artists = remove(state.artists, 'Unknown')
-            }
-        } else {
-            // Otherwise we perform the check using the track's
-            // ... `artist` field
-            if (related(state.music, 'artist', track.artist) == 0) {
-                state.artists = remove(state.artists, track.artist)
-            }
+        if (!relatedExists(state.music, 'artist', track.artist)) {
+            state.artists = remove(state.artists, track.artist)
         }
 
         // We do the same for the album and genre
-        if (track.album == 'Unknown') {
-            if (related(state.music, 'album', 'Unknown') == 0) {
-                state.albums = remove(state.albums, 'Unknown')
-            }
-        } else {
-            if (related(state.music, 'album', track.album) == 0) {
-                state.albums = remove(state.albums, track.album)
-            }
+        if (!relatedExists(state.music, 'album', track.album)) {
+            state.albums = remove(state.albums, track.album)
         }
 
-        if (track.genre == 'Unknown') {
-            if (related(state.music, 'genre', 'Unknown') == 0) {
-                state.genres = remove(state.music, 'Unknown')
-            }
-        } else {
-            if (related(state.music, 'genre', track.genre) == 0) {
-                state.genres = remove(state.genres, track.genre)
-            }
+        if (!relatedExists(state.music, 'genre', track.genre)) {
+            state.genres = remove(state.genres, track.genre)
         }
 
         // Purge playlists of the track
@@ -186,7 +164,7 @@ const mutations = {
             // Remeber that all tracks by the artist have been wiped
             // ... and os if we still find tracks from others
             // ... in the "Unknown" album we can't delete
-            if (related(state.music, 'album', albums[i]) == 0) {
+            if (!relatedExists(state.music, 'album', albums[i])) {
                 state.albums = remove(state.albums, albums[i])
             }
         }
@@ -194,7 +172,7 @@ const mutations = {
         // Check whether there are other tracks besides the one from
         // ... the artist with the same genre(s)
         for (var i = 0;i < genres.length;i++) {
-            if (related(state.music, 'genre', genres[i]) == 0) {
+            if (!relatedExists(state.music, 'genre', genres[i])) {
                 // We only delete the entire genre when there are no more tracks
                 // ... that fall into that category
                 state.genres = remove(state.genres, genres[i])
@@ -214,7 +192,7 @@ const mutations = {
 
         // We could also check whether this is the only album from the artist
         // ... if thats the case we get rid of them
-        if (getRelatedItems(state.music, 'artist', 'album', artist).length == 0) {
+        if (!relatedExists(state.music, 'artist', 'album', artist)) {
             state.artists = remove(state.artists, artist)
         }
 
@@ -222,7 +200,7 @@ const mutations = {
         // ... we need to check whether there are still tracks with the albums genre
         // If there are no such tracks then we go ahead and remove the genre(s)
         for (var i = 0;i < genres.length;i++) {
-            if (related(state.music, 'genre', genres[i]) == 0) {
+            if (!relatedExists(state.music, 'genre', genres[i])) {
                 state.genres = remove(state.genres, genres[i])
             }
         }
@@ -247,7 +225,7 @@ const mutations = {
             // ... because we scrubbed all related tracks already
             // ... if there are no more tracks by the 'Unknown' album
             // ... we can delete them
-            if (related(state.music, 'album', albums[i]) == 0) {
+            if (!relatedExists(state.music, 'album', albums[i])) {
                 state.albums = remove(state.albums, albums[i])
             }
         }
@@ -259,7 +237,7 @@ const mutations = {
             // ... because we scrubbed all related tracks already
             // ... if there are no more tracks by the 'Unknown' artist
             // ... we can delete them
-            if (related(state.music, 'artist', artists[i]) == 0) {
+            if (!relatedExists(state.music, 'artist', artists[i])) {
                 state.artists = remove(state.artists, artists[i])
             }
         }

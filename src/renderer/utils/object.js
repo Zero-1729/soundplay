@@ -33,6 +33,8 @@ const getIndexFromKey = (arr, key, name) => {
     for (var i = 0;i < arr.length;i++) {
         if (arr[i][key] == name) {
             index = i
+            // lets cur to the chase if a match is immediately found
+            return index
         }
     }
 
@@ -48,11 +50,20 @@ const removeObject = (obj, category, name) => {
 }
 
 // Obtain item related to a given category; i.e genre
-const related = (list, category, name) => {
-    // Returns all items with the category (i.e genre) 'name'
-    return list.filter((item) => {
-        return item[category] == name
-    }).length
+const relatedExists = (list, category, name) => {
+    // Returns 'true' if an item exist under a given category (i.e genre)
+    // ... with a specific 'name'. Otherwise it returns false
+    for (var i = 0;i < list.length;i++) {
+        // We cut to the chase as soon as a match is found
+        // ... to avoid unnecessary further processing of the `list`
+        if (list[i][category] == name) {
+            return true
+        }
+    }
+
+    // If the entire list has been exhausted
+    // ... then we know for sure a match doesn't exist
+    return false
 }
 
 const getRelatedItems = (obj, category, targetCategory, value) => {
@@ -69,4 +80,4 @@ const getRelatedItems = (obj, category, targetCategory, value) => {
     return items
 }
 
-module.exports = { buildMap, removeObject, getIndexFromKey, related, getRelatedItems }
+module.exports = { buildMap, removeObject, getIndexFromKey, relatedExists, getRelatedItems }
