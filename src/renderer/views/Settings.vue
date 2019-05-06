@@ -1,5 +1,5 @@
 <template>
-    <div class="main-panel">
+    <div class="main-panel" @click="clearModals()">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view></router-view>
@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex'
+    import { mapGetters, mapActions } from 'vuex'
 
     export default {
         data() {
@@ -26,6 +26,21 @@
                 // ... higher index -> slide from right (next)
                 // ... and lower index -> slide from left (previous)
                 this.transition = routes.indexOf(next) > routes.indexOf(last) ? 'slide-to-right' : 'slide-to-left'
+            }
+        },
+        methods: {
+            ...mapActions([
+                'clearStatusMessage',
+                'clearErrorMessage',
+                'clearWarnMessage',
+                'clearFailMessage'
+            ]),
+
+            clearModals() {
+                this.clearStatusMessage()
+                this.clearErrorMessage()
+                this.clearWarnMessage()
+                this.clearFailMessage()
             }
         }
     }

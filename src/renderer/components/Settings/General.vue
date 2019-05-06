@@ -28,7 +28,7 @@
                             <path d=" M 19.93 0.622 C 19.929 0.617 19.928 0.612 19.926 0.607 C 19.826 0.366 19.634 0.174 19.393 0.074 C 19.388 0.072 19.383 0.071 19.378 0.069 C 19.267 0.026 19.148 0 19.021 0 C 19.021 0 12.658 0 12.658 0 C 12.117 0 11.679 0.439 11.679 0.979 C 11.679 1.519 12.117 1.958 12.658 1.958 Q 12.658 1.958 16.658 1.958 Q 9.763 8.852 9.763 8.852 C 9.381 9.235 9.381 9.855 9.763 10.237 C 9.954 10.428 10.205 10.524 10.455 10.524 C 10.706 10.524 10.956 10.428 11.147 10.237 Q 11.147 10.237 18.042 3.342 Q 18.042 7.587 18.042 7.587 C 18.042 8.127 18.48 8.566 19.021 8.566 C 19.562 8.566 20 8.127 20 7.587 C 20 7.587 20 0.979 20 0.979 C 20 0.853 19.974 0.733 19.93 0.622" fill-rule="evenodd" />
                         </svg>
                     </button>
-                    <button class="dialog-button dialog-button-alt"
+                    <button class="dialog-button dialog-button-alt further"
                     :class="{'greyed-button': appMusicFolder == null}"
                     @click="removeMusicFolder">
                         <p>{{ appMusicFolder ? appMusicFolder : 'None' }}</p>
@@ -37,7 +37,7 @@
                             <path d="M 19.603 0.397 L 19.603 0.397 C 20.132 0.927 20.132 1.788 19.603 2.318 L 2.318 19.603 C 1.788 20.132 0.927 20.132 0.397 19.603 L 0.397 19.603 C -0.132 19.073 -0.132 18.212 0.397 17.682 L 17.682 0.397 C 18.212 -0.132 19.073 -0.132 19.603 0.397 Z" style="stroke:none;stroke-miterlimit:10;"/>
                         </svg>
                     </button>
-                    <button class="dialog-button dialog-button-alt green"
+                    <button class="dialog-button dialog-button-alt furthest green"
                     :class="{'greyed-button': appMusicFolder == null}"
                     @click="handle_music_sync">
                         <p>Sync</p>
@@ -114,6 +114,7 @@
         methods: {
             ...mapActions([
                 'deleteAllTracks',
+                'updatePlayingCriteria',
                 'updateExcludedFolder',
                 'removeExcludedFolder',
                 'setMusicFolder',
@@ -125,6 +126,10 @@
             ]),
 
             handle_delete_all_tracks() {
+                // If all tracks are removed then we definitely know the current track is also
+
+                // Pause player here
+                this.updatePlayingCriteria(null)
                 this.deleteAllTracks()
             },
 
@@ -243,6 +248,12 @@
     .dialog-button-alt.greyed-button
         opacity 0.4
         cursor default
+
+    .dialog-button.dialog-button-alt.further
+            margin-left 15px
+
+    .dialog-button.dialog-button-alt.furthest
+            margin-left 10px
 
     input#settings-input
         height 22px

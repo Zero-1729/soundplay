@@ -1,7 +1,6 @@
 const state = {
     currentTrack: null,
     pool: [],
-    playingCriteria: null, // 'music' should be default?
     currentDirec: 'a-z',
     sortBy: 'title'
 }
@@ -17,10 +16,6 @@ const mutations = {
 
     UPDATE_POOL (state, tracks) {
         state.pool = tracks
-    },
-
-    CHANGE_PLAYING_CRITERIA (state, criteria) {
-        state.playingCriteria = criteria
     },
 
     SET_SORT_BY (state, name) {
@@ -45,10 +40,6 @@ const actions = {
         commit('CLEAR_CURRENT_TRACK')
     },
 
-    updatePlayingCriteria: ({ commit }, criteria) =>  {
-        commit('CHANGE_PLAYING_CRITERIA', criteria)
-    },
-
     setSortBy: ({ commit }, name) => {
         commit('SET_SORT_BY', name)
     },
@@ -61,10 +52,6 @@ const actions = {
 const getters = {
     currentTrack(state) {
         return state.currentTrack
-    },
-
-    playingCriteria(state) {
-        return state.playingCriteria
     },
 
     filteredPool(state) {

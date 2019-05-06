@@ -1,18 +1,27 @@
-const path                = require('path')
+const path                     = require('path')
+const cuid                     = require('cuid')
 
 const {
         removeObject,
         getIndexFromKey,
         relatedExists,
-        getRelatedItems } = require('./../../utils/object')
+        getRelatedItems,
+        removeSpecificObject } = require('./../../utils/object')
 
 const {
         add,
-        remove }          = require('./../../utils/list')
+        remove }               = require('./../../utils/list')
 
 const { TagName,
         TagNameSingle,
-        CreateElm }       = require('./../../utils/htmlQuery')
+        CreateElm }            = require('./../../utils/htmlQuery')
+
+// Helper for quickly getting the appropriate checker fn for relic tracks
+const relicFnCehcks = {
+    '80s': (n) => { return n >= 1980 && n <= 1989 },
+    '90s': (n) => { return n >= 1990 && n <= 1999 },
+    '2000s': (n) => { return n >= 2000 && n <= 2005 }
+}
 
 const state = {
     music: [],
@@ -85,6 +94,7 @@ const state = {
 const mutations = {
     ADD_TRACK(state, meta) {
         let track = {
+            id: cuid(), // For 'v-for' tags
             title: meta.title,
             artist: meta.artist,
             album: meta.album,
@@ -253,6 +263,16 @@ const mutations = {
         }
     },
 
+    DELETE_RELIC_TRACKS (state, period) {
+        // Delete all tracks from either the '80s', '90s', etc
+        state.music = removeSpecificObject(state.music, 'year', relicFnCehcks[period])
+    },
+
+    UNFAVOURITE_TRACK (state, track) {
+        let index = state.music.indexOf(track)
+        state.music[index].favourite = false
+    },
+
     TOGGLE_FAVOURITE_TRACK (state, track) {
         let index = state.music.indexOf(track)
 
@@ -297,6 +317,12 @@ const mutations = {
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
         state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
+    },
+
+    DELETE_PLAYLIST_TRACKS (state, name) {
+        let index = getIndexFromKey(state.playlists, name)
+
+        state.playlists[index].tracks = []
     },
 
     UPDATE_STATUS_MESSAGE (state, meta) {
@@ -529,8 +555,16 @@ const actions = {
         commit('DELETE_ALL_TRACKS')
     },
 
+    deleteRelicTracks: ({ commit }, period) => {
+        commit('DELETE_RELIC_TRACKS', period)
+    },
+
     toggleFavourite: ({ commit }, track) => {
         commit('TOGGLE_FAVOURITE_TRACK', track)
+    },
+
+    unfavouriteTrack: ({ commit }, track) => {
+        commit('UNFAVOURITE_TRACK', track)
     },
 
     createPlaylist: ({ commit }, name) => {
@@ -543,6 +577,10 @@ const actions = {
 
     removePlaylist: ({ commit }, name) => {
         commit('REMOVE_PLAYLIST', name)
+    },
+
+    deletePlaylistTracks: ({ commit }, name) => {
+        commit('DELETE_PLAYLIST_TRACKS', name)
     },
 
     addTrackToPlaylist: ({ commit }, obj) => {

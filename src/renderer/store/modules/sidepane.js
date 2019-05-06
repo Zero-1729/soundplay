@@ -1,6 +1,7 @@
 const state = {
     target: 'All Tracks',
-    playingTarget: null
+    playingTarget: null,
+    playingCriteria: null, // 'music' should be default?
 }
 
 const mutations = {
@@ -10,6 +11,10 @@ const mutations = {
 
     SET_PLAYING_TARGET (state, value) {
         state.playingTarget = value
+    },
+
+    CHANGE_PLAYING_CRITERIA (state, criteria) {
+        state.playingCriteria = criteria
     }
 }
 
@@ -20,7 +25,11 @@ const actions = {
 
     updatePlayingTarget: ({ commit }, value) => {
         commit('SET_PLAYING_TARGET', value)
-    }
+    },
+
+    updatePlayingCriteria: ({ commit }, criteria) =>  {
+        commit('CHANGE_PLAYING_CRITERIA', criteria)
+    }   
 }
 
 const getters = {
@@ -30,6 +39,10 @@ const getters = {
 
     playingTarget(state) {
         return state.playingTarget
+    },
+
+    playingCriteria(state) {
+        return state.playingCriteria
     }
 }
 

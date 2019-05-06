@@ -49,6 +49,14 @@ const removeObject = (obj, category, name) => {
     })
 }
 
+const removeSpecificObject = (obj, category, check) => {
+    // Intended for use to delete tracks from a specific year
+    // ... removeSpecificObject(store, 'year', 19, {start: 80, end: 89) -> removes all '80s' tracks
+    return obj.filter((item) => {
+        if (!check(item[category])) { return true }
+    })
+}
+
 // Obtain item related to a given category; i.e genre
 const relatedExists = (list, category, name) => {
     // Returns 'true' if an item exist under a given category (i.e genre)
@@ -80,4 +88,4 @@ const getRelatedItems = (obj, category, targetCategory, value) => {
     return items
 }
 
-module.exports = { buildMap, removeObject, getIndexFromKey, relatedExists, getRelatedItems }
+module.exports = { buildMap, removeObject, removeSpecificObject, getIndexFromKey, relatedExists, getRelatedItems }
