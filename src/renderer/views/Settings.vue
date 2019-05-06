@@ -1,5 +1,5 @@
 <template>
-    <div class="main-panel">
+    <div class="main-panel" @click="clearModals()">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view></router-view>
@@ -8,10 +8,9 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex'
+    import { mapGetters, mapActions } from 'vuex'
 
     export default {
-        name: 'settings',
         data() {
             return {
                 transition: ''
@@ -27,6 +26,21 @@
                 // ... higher index -> slide from right (next)
                 // ... and lower index -> slide from left (previous)
                 this.transition = routes.indexOf(next) > routes.indexOf(last) ? 'slide-to-right' : 'slide-to-left'
+            }
+        },
+        methods: {
+            ...mapActions([
+                'clearStatusMessage',
+                'clearErrorMessage',
+                'clearWarnMessage',
+                'clearFailMessage'
+            ]),
+
+            clearModals() {
+                this.clearStatusMessage()
+                this.clearErrorMessage()
+                this.clearWarnMessage()
+                this.clearFailMessage()
             }
         }
     }
@@ -64,6 +78,9 @@
         display inline-block
         transition all .3s ease-out
 
+    .option-item
+        margin-bottom 18px
+
     .option-item .info
         display flex
 
@@ -77,6 +94,16 @@
     .option-item input
         height 15px
         margin 5px
+
+    .flex
+        display flex
+        h3
+            margin-bottom 4px
+        p
+            margin-top 0
+        .dialog-button-alt
+            margin-left 18px
+            width unset
 
     .slide-to-right-enter-active, .slide-to-right-leave-active, .slide-to-left-enter-active, .slide-to-left-leave-active
         opacity 1

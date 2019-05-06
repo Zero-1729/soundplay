@@ -220,7 +220,7 @@ tbody tr:hover span {
     background: transparent;
 }
 
-.fav {
+tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     background: deeppink;
 }
 

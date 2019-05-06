@@ -96,7 +96,7 @@
     }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
     .main-toolset-container
         position absolute
         top 110px

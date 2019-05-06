@@ -1,14 +1,27 @@
-const path                = require('path')
+const path                     = require('path')
+const cuid                     = require('cuid')
 
 const {
         removeObject,
         getIndexFromKey,
-        related,
-        getRelatedItems } = require('./../../utils/object')
+        relatedExists,
+        getRelatedItems,
+        removeSpecificObject } = require('./../../utils/object')
 
 const {
         add,
-        remove }          = require('./../../utils/list')
+        remove }               = require('./../../utils/list')
+
+const { TagName,
+        TagNameSingle,
+        CreateElm }            = require('./../../utils/htmlQuery')
+
+// Helper for quickly getting the appropriate checker fn for relic tracks
+const relicFnCehcks = {
+    '80s': (n) => { return n >= 1980 && n <= 1989 },
+    '90s': (n) => { return n >= 1990 && n <= 1999 },
+    '2000s': (n) => { return n >= 2000 && n <= 2005 }
+}
 
 const state = {
     music: [],
@@ -81,6 +94,7 @@ const state = {
 const mutations = {
     ADD_TRACK(state, meta) {
         let track = {
+            id: cuid(), // For 'v-for' tags
             title: meta.title,
             artist: meta.artist,
             album: meta.album,
@@ -90,8 +104,7 @@ const mutations = {
             plays: 0,
             peaks: null,
             duration: null,
-            year: meta.year,
-            art: meta.art
+            year: meta.year
         }
 
         track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
@@ -122,39 +135,17 @@ const mutations = {
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
         // ... i.e this is the last of its `kind`
-        if (track.artist == 'Unknown') {
-            // If it has no artist then we refer to the "Unknown"
-            // ... entry
-            if (related(state.music, 'artist', 'Unknown') == 0) {
-                state.artists = remove(state.artists, 'Unknown')
-            }
-        } else {
-            // Otherwise we perform the check using the track's
-            // ... `artist` field
-            if (related(state.music, 'artist', track.artist) == 0) {
-                state.artists = remove(state.artists, track.artist)
-            }
+        if (!relatedExists(state.music, 'artist', track.artist)) {
+            state.artists = remove(state.artists, track.artist)
         }
 
         // We do the same for the album and genre
-        if (track.album == 'Unknown') {
-            if (related(state.music, 'album', 'Unknown') == 0) {
-                state.albums = remove(state.albums, 'Unknown')
-            }
-        } else {
-            if (related(state.music, 'album', track.album) == 0) {
-                state.albums = remove(state.albums, track.album)
-            }
+        if (!relatedExists(state.music, 'album', track.album)) {
+            state.albums = remove(state.albums, track.album)
         }
 
-        if (track.genre == 'Unknown') {
-            if (related(state.music, 'genre', 'Unknown') == 0) {
-                state.genres = remove(state.music, 'Unknown')
-            }
-        } else {
-            if (related(state.music, 'genre', track.genre) == 0) {
-                state.genres = remove(state.genres, track.genre)
-            }
+        if (!relatedExists(state.music, 'genre', track.genre)) {
+            state.genres = remove(state.genres, track.genre)
         }
 
         // Purge playlists of the track
@@ -183,7 +174,7 @@ const mutations = {
             // Remeber that all tracks by the artist have been wiped
             // ... and os if we still find tracks from others
             // ... in the "Unknown" album we can't delete
-            if (related(state.music, 'album', albums[i]) == 0) {
+            if (!relatedExists(state.music, 'album', albums[i])) {
                 state.albums = remove(state.albums, albums[i])
             }
         }
@@ -191,7 +182,7 @@ const mutations = {
         // Check whether there are other tracks besides the one from
         // ... the artist with the same genre(s)
         for (var i = 0;i < genres.length;i++) {
-            if (related(state.music, 'genre', genres[i]) == 0) {
+            if (!relatedExists(state.music, 'genre', genres[i])) {
                 // We only delete the entire genre when there are no more tracks
                 // ... that fall into that category
                 state.genres = remove(state.genres, genres[i])
@@ -211,7 +202,7 @@ const mutations = {
 
         // We could also check whether this is the only album from the artist
         // ... if thats the case we get rid of them
-        if (getRelatedItems(state.music, 'artist', 'album', artist).length == 0) {
+        if (!relatedExists(state.music, 'artist', 'album', artist)) {
             state.artists = remove(state.artists, artist)
         }
 
@@ -219,7 +210,7 @@ const mutations = {
         // ... we need to check whether there are still tracks with the albums genre
         // If there are no such tracks then we go ahead and remove the genre(s)
         for (var i = 0;i < genres.length;i++) {
-            if (related(state.music, 'genre', genres[i]) == 0) {
+            if (!relatedExists(state.music, 'genre', genres[i])) {
                 state.genres = remove(state.genres, genres[i])
             }
         }
@@ -244,7 +235,7 @@ const mutations = {
             // ... because we scrubbed all related tracks already
             // ... if there are no more tracks by the 'Unknown' album
             // ... we can delete them
-            if (related(state.music, 'album', albums[i]) == 0) {
+            if (!relatedExists(state.music, 'album', albums[i])) {
                 state.albums = remove(state.albums, albums[i])
             }
         }
@@ -256,7 +247,7 @@ const mutations = {
             // ... because we scrubbed all related tracks already
             // ... if there are no more tracks by the 'Unknown' artist
             // ... we can delete them
-            if (related(state.music, 'artist', artists[i]) == 0) {
+            if (!relatedExists(state.music, 'artist', artists[i])) {
                 state.artists = remove(state.artists, artists[i])
             }
         }
@@ -270,6 +261,16 @@ const mutations = {
         if (state.music.length > 0) {
             state.music = []
         }
+    },
+
+    DELETE_RELIC_TRACKS (state, period) {
+        // Delete all tracks from either the '80s', '90s', etc
+        state.music = removeSpecificObject(state.music, 'year', relicFnCehcks[period])
+    },
+
+    UNFAVOURITE_TRACK (state, track) {
+        let index = state.music.indexOf(track)
+        state.music[index].favourite = false
     },
 
     TOGGLE_FAVOURITE_TRACK (state, track) {
@@ -316,6 +317,12 @@ const mutations = {
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
         state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
+    },
+
+    DELETE_PLAYLIST_TRACKS (state, name) {
+        let index = getIndexFromKey(state.playlists, name)
+
+        state.playlists[index].tracks = []
     },
 
     UPDATE_STATUS_MESSAGE (state, meta) {
@@ -411,9 +418,19 @@ const mutations = {
 
     LOAD_THEME (state) {
         let head = document.getElementsByTagName('head')[0]
-        let link = document.getElementsByTagName('link')[0]
+        let linkExists = TagName('link').length > 0
+        let link
 
-        link.href = path.join('/', 'static', 'theme', state.settings.ui.theme + '.css')
+        if (linkExists) {
+            link = TagNameSingle('link')
+            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
+        } else {
+            link = CreateElm('link')
+            link.rel = 'stylesheet'
+            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
+
+            head.appendChild(link)
+        }
     },
 
     SET_NIGHT_THEME (state, name) {
@@ -538,8 +555,16 @@ const actions = {
         commit('DELETE_ALL_TRACKS')
     },
 
+    deleteRelicTracks: ({ commit }, period) => {
+        commit('DELETE_RELIC_TRACKS', period)
+    },
+
     toggleFavourite: ({ commit }, track) => {
         commit('TOGGLE_FAVOURITE_TRACK', track)
+    },
+
+    unfavouriteTrack: ({ commit }, track) => {
+        commit('UNFAVOURITE_TRACK', track)
     },
 
     createPlaylist: ({ commit }, name) => {
@@ -552,6 +577,10 @@ const actions = {
 
     removePlaylist: ({ commit }, name) => {
         commit('REMOVE_PLAYLIST', name)
+    },
+
+    deletePlaylistTracks: ({ commit }, name) => {
+        commit('DELETE_PLAYLIST_TRACKS', name)
     },
 
     addTrackToPlaylist: ({ commit }, obj) => {

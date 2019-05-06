@@ -255,7 +255,7 @@
 
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
+                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected and scanned ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
                     }
 
                     if (this.failed_imports.length > 0) {
@@ -347,7 +347,6 @@
                 // Trigger modal close here
                 // ... but only if it was open
                 if (this.openPlaylistModal && !(Id('playlist-input') == document.activeElement)) {
-                    //this.$children[4].openModal = false
                     this.setPlaylistModal(false)
                 }
             },
@@ -412,7 +411,6 @@
                     album: null,
                     genre: null,
                     year: null,
-                    art: null,
                     source: fp
                 }
 
@@ -425,7 +423,11 @@
 
                 meta.album = tag.tags.album === undefined || tag.tags.album === '' ? 'Unknown' : tag.tags.album
 
-                meta.art = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+                // Too large to store
+                // ... maybe we load it when track is going to play
+                // ... Or, we could write it to a file instead
+                // ... and read it when track is going to play?
+                // meta.art = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
                 meta.genre = tag.tags.genre === undefined || tag.tags.genre === '' ? 'Unknown' : tag.tags.genre
 
@@ -447,7 +449,7 @@
                 // ... This allows us to still have access to the sound's filepath
                 new Promise((resolve, reject) => {
                     new jsm.Reader(track).setTagsToRead([
-                    'title', 'artist', 'album', 'genre', 'picture', 'year'
+                    'title', 'artist', 'album', 'genre', 'year'
                     ]).read({
                         onSuccess: (tag) => {
                             resolve({

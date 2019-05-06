@@ -3,28 +3,39 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+function lazyLoadView (name) {
+    return () => import(/* webpackChunkName: 'view-[request]' */ `@/views/${name}.vue`)
+}
+
+function lazyLoadComp (name, parent) {
+    return () => import(/* webpackChunkName: 'comp-[request]' */ `@/components/${parent}/${name}.vue`)
+}
+
 export default new Router({
     routes: [
         {
             path: '/',
-            component: require('@/views/Trackspane').default
+            component: lazyLoadView('Trackspane')
         },
         {
             path: '/settings',
-            component: require('@/views/Settings').default,
+            component: lazyLoadView('Settings'),
             children: [
                 {
                     path: '/',
-                    component: require('@/components/Settings/General').default
+                    name: 'general-settings',
+                    component: lazyLoadComp('General', 'Settings')
                 },
                 {
                     path: 'ui',
-                    component: require('@/components/Settings/UI').default
+                    name: 'ui-settings',
+                    component: lazyLoadComp('UI', 'Settings')
                 },
                 {
                     path: 'audio',
-                    component: require('@/components/Settings/Audio').default
-                }
+                    name: 'audio-settings',
+                    component: lazyLoadComp('Audio', 'Settings')
+                },
             ]
         }
     ]

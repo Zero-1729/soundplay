@@ -1,5 +1,5 @@
 <template>
-    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}">
+    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}" @click="clearModals">
             <thead>
                 <tr>
                 <th @click="sort('title')">
@@ -25,12 +25,15 @@
 
             <tbody>
                 <transition-group :name="trackTransition" tag="tbody">
-                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && filteredPool.indexOf(track) != index && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}" v-if="allTracks.length > 0" @contextmenu.prevent @mousedown.right.capture="showTrackOptions(track)"
+                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}"
+                v-if="allTracks.length > 0"
+                @contextmenu.prevent
+                @mousedown.right.capture="showTrackOptions(track)"
                 @keydown.40="mutateIndex(1)"
                 @keydown.38="mutateIndex(-1)"
                 @click="setIndex(track)"
                 @keydown.enter.prevent="updateCurrentTrack(track)"
-                :key="track.source">
+                :key="track.id">
                     <td>
                         <div class="fav-bar" :class="{fav: track.favourite}"></div>
 
@@ -154,22 +157,34 @@
         methods: {
             ...mapActions([
                 'updateCurrentTrack',
+                'clearCurrentTrack',
                 'updatePool',
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
                 'toggleFavourite',
+                'unfavouriteTrack',
                 'changeTarget',
                 'createPlaylist',
                 'addTrack',
                 'addTrackToPlaylist',
                 'removeFromPlaylist',
                 'deleteTrack',
+                'deleteAllTracks',
+                'deleteRelicTracks',
+                'deletePlaylistTracks',
+                'deleteArtist',
+                'deleteAlbum',
+                'deleteGenre',
                 'setSortBy',
                 'setCurrentDirec',
                 'lockHotKey',
                 'unlockHotKey',
                 'setPlaylistModal',
-                'setLoading'
+                'setLoading',
+                'clearStatusMessage',
+                'clearErrorMessage',
+                'clearWarnMessage',
+                'clearFailMessage'
             ]),
 
             isSameSource(track) {
@@ -222,6 +237,15 @@
                 // Since we are bluring the modal
                 // ... we should unlock the hotkey
                 this.unlockHotKey('backspace')
+            },
+
+            clearModals() {
+                // Clear all error messages when user engages the tracks
+                // ... to avoid any annoying persisted error messages
+                this.clearStatusMessage()
+                this.clearErrorMessage()
+                this.clearWarnMessage()
+                this.clearFailMessage()
             },
 
             sort(kind) {
@@ -391,14 +415,24 @@
                         click() {
                             if (vm.currentTrack == track) {
                                 // Dump current Track
-                                vm.updateCurrentTrack(null)
+                                vm.clearCurrentTrack()
 
                                 // Pause Player here
                             }
 
                             if (vm.selectedTracks.length > 0) {
-                                vm.deleteTracks()
+                                if (vm.selectedTracks.length == vm.filteredPool.length) {
+                                    // If the user manually selected all tracks then we alias it to the 'deleteTracks' fn
+                                    vm.deleteTracks()
+                                } else {
+                                    vm.deleteSelectedTracks()
+                                }
                             } else {
+                                if (this.currentTrack == track) {
+                                    // To avoid still darkening the criteria post deletion
+                                    this.updatePlayingCriteria(null)
+                                }
+
                                 vm.deleteTrack(track)
                             }
                         }
@@ -519,21 +553,60 @@
             },
 
             deleteTracks() {
-                // Return index to track above removed ones
-                for (var i = 0;i < this.selectedTracks.length;i++) {
-                    this.deleteTrack(this.selectedTracks[i])
+                // Reset the current track if it is about to be deleted
+                if (this.selectedTracks.includes(this.currentTrack)) {
+                    this.clearCurrentTrack()
+                    this.updatePlayingCriteria(null)
+
+                    // Pause player
                 }
 
-                // lets reset the index for now
-                this.index = -1
+                if (this.currentCriteria == 'playlist') {
+                    this.deletePlaylistTracks(this.currentTarget)
+                } else {
+                    if (this.currentCriteria == 'music') {
+                        if (this.currentTarget == 'All Tracks') {
+                            this.deleteAllTracks()
+                        }
 
-                this.selectedTracks = []
+                        if (this.currentTarget == 'Favourites') {
+                            for (var i = 0;i < this.filteredPool.length;i++) {
+                                this.unfavouriteTrack(this.filteredPool[i])
+                            }
+                        }
 
-                // So the pool is appropriately updated
-                this.filterPool()
+                        else {
+                            // I.e '80s', '90s' and '2000s' tracks
+                            this.deleteRelicTracks(
+                                this.currentTarget[2] != 's' ?
+                                '2000s' : this.currentTarget.slice(0, 3)
+                            )
+                        }
+
+                        // UpdatePool and clear selected tracks to reflect change
+                        this.selectedTracks = []
+                        this.filterPool()
+                    } else {
+                        if (this.currentCriteria == 'artist') {
+                            this.deleteArtist(this.currentTarget)
+                        }
+
+                        if (this.currentCriteria == 'album') {
+                            this.deleteAlbum(this.currentTarget)
+                        }
+
+                        if (this.currentCriteria == 'genre') {
+                            this.deleteGenre(this.currentTarget)
+                        }
+                    }
+                }
             },
 
             deleteSelectedTracks() {
+                if (this.selectedTracks.includes(this.currentTracks) && !this.backspaceLock) {
+                    this.clearCurrentTrack()
+                }
+
                 // We want to only remove the track from the playlist
                 // ... instead of deleting it entirely
                 if (this.currentCriteria == 'playlist' && !this.backspaceLock) {
@@ -548,8 +621,23 @@
                     // We don't want the tracks disappearing randomly while typing
                     if (!this.backspaceLock) {
                         if (this.selectedTracks.length > 0) {
-                            this.deleteTracks()
+                            if (this.selectedTracks.length == this.filteredPool.length) {
+                                this.deleteTracks()
+                            } else {
+                                // To avoid still darkening the criteria post deletion
+                                if (this.selectedTracks.includes(this.currentTrack)) {
+                                    this.updatePlayingCriteria(null)
+                                }
+
+                                // Make this a bit quicker later if possible
+                                for (var i = 0;i < this.selectedTracks.length;i++) {
+                                    this.deleteTrack(this.selectedTracks[i])
+                                }
+                            }
                         } else {
+                            if (this.currentTrack == this.filteredPool[this.index]) {
+                                this.updatePlayingCriteria(null)
+                            }
                             // This.currentTrack isn't set yet
                             // So we improvise and call out the current highlighted track
                             this.deleteTrack(this.filteredPool[this.index])
