@@ -29,7 +29,7 @@ const actions = {
 
     updatePlayingCriteria: ({ commit }, criteria) =>  {
         commit('CHANGE_PLAYING_CRITERIA', criteria)
-    }   
+    }
 }
 
 const getters = {
