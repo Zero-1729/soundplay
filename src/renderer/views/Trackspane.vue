@@ -84,7 +84,8 @@
                 focused: false,
                 hoveredElm: null,
                 pendingTrack: null,
-                trackTransition: 'drop-in'
+                trackTransition: 'drop-in',
+                playingCriteriaLock: false
             }
         },
         created() {
@@ -150,8 +151,10 @@
             currentTrack () {
                 // When Tracks are clicked, the currentCriteria becomes
                 // ... the playing one
-                this.updatePlayingCriteria(this.currentCriteria)
-                this.updatePlayingTarget(this.currentTarget)
+                if (!this.playingCriteriaLock) {
+                    this.updatePlayingCriteria(this.currentCriteria)
+                    this.updatePlayingTarget(this.currentTarget)
+                }
             }
         },
         methods: {
@@ -428,8 +431,9 @@
                                     vm.deleteSelectedTracks()
                                 }
                             } else {
-                                if (this.currentTrack == track) {
+                                if (this.isSameSource(track)) {
                                     // To avoid still darkening the criteria post deletion
+                                    this.playingCriteriaLock = true
                                     this.updatePlayingCriteria(null)
                                 }
 
@@ -555,6 +559,7 @@
             deleteTracks() {
                 // Reset the current track if it is about to be deleted
                 if (this.selectedTracks.includes(this.currentTrack)) {
+                    this.playingCriteriaLock = true
                     this.clearCurrentTrack()
                     this.updatePlayingCriteria(null)
 
@@ -604,7 +609,9 @@
 
             deleteSelectedTracks() {
                 if (this.selectedTracks.includes(this.currentTracks) && !this.backspaceLock) {
+                    this.playingCriteriaLock = true
                     this.clearCurrentTrack()
+                    this.updatePlayingCriteria(null)
                 }
 
                 // We want to only remove the track from the playlist
@@ -626,6 +633,7 @@
                             } else {
                                 // To avoid still darkening the criteria post deletion
                                 if (this.selectedTracks.includes(this.currentTrack)) {
+                                    this.playingCriteriaLock = true
                                     this.updatePlayingCriteria(null)
                                 }
 
@@ -636,6 +644,7 @@
                             }
                         } else {
                             if (this.currentTrack == this.filteredPool[this.index]) {
+                                this.playingCriteriaLock = true
                                 this.updatePlayingCriteria(null)
                             }
                             // This.currentTrack isn't set yet
@@ -664,6 +673,7 @@
             ...mapGetters([
                 'allTracks',
                 'allPlaylists',
+                'playingCriteria',
                 'currentCriteria',
                 'currentTarget',
                 'currentTrack',

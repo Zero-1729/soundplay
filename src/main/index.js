@@ -3,9 +3,7 @@ import {
         BrowserWindow,
         nativeImage,
         Menu,
-        shell,
-        Tray,
-        ipcMain
+        shell
     } from 'electron'
 
 import '../renderer/store'
@@ -59,7 +57,7 @@ function createWindow () {
         width: 1100,
         center: true,
         icon: process.platform == 'win' ? Icons['ico'] : Icons['tray']
-  })
+    })
 
     mainWindow.loadURL(winURL)
 
