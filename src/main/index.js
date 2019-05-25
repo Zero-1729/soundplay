@@ -19,7 +19,7 @@ const APP_VERSION = 'v.0.2.0-a'
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (process.env.NODE_ENV !== 'development') {
-    global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+    global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
 const rootPath = path.join(__dirname) // root Path
@@ -157,21 +157,21 @@ const template = [
         label: 'window',
         submenu: [
             {
-                role: 'minimize'
+                role: 'togglefullscreen'
             },
             {
                 type: 'separator'
             },
             {
-                role: 'togglefullscreen'
-            }
+                role: 'minimize'
+            },
         ]
     },
     {
         role: 'help',
         submenu: [
             {
-                label: 'About Soundplay',
+                label: 'About ' + app.getName(),
                 click() {
                     shell.openExternal('https://github.com/zero-1729/soundplay')
                 }
@@ -190,7 +190,24 @@ if (process.platform == 'darwin') {
             label: app.getName(),
             submenu: [
                 {
-                    role: 'about'
+                    label: 'About ' + app.getName(),
+                    click() {
+                        shell.openExternal('https://github.com/zero-1729/soundplay')
+                    }
+                },
+                {
+                    label: `Version ${APP_VERSION} (64-bit)`,
+                    enabled: false
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: 'Preferences',
+                    click() {
+                        mainWindow.webContents.send('toggle-settings', null)
+                    },
+                    accelerator: 'CmdOrCtrl+,'
                 },
                 {
                     type: 'separator'
@@ -220,25 +237,8 @@ if (process.platform == 'darwin') {
         }
     )
 
-    // Edit
-    template[1].submenu.push(
-        {
-            type: 'separator'
-        },
-        {
-            role: 'startspeaking'
-        },
-        {
-            role: 'stopspeaking'
-        }
-    )
-
     // Window
     template[3].submenu.push(
-        {
-            label: 'Minimize',
-            role: 'minimize'
-        },
         {
             type: 'separator'
         },
@@ -255,6 +255,68 @@ if (process.platform == 'darwin') {
         }
     )
 }
+
+// Clear redundant entries
+template[1].submenu = template[1].submenu.slice(0, 4)
+
+// Add 'Edit' menu item to allow 'Copy/Paste'
+template.splice(2, 0,
+    {
+        label: 'Edit',
+        submenu: [{
+            label: 'Undo',
+            accelerator: 'CmdOrCtrl+Z',
+            selector: 'undo:'
+        },
+        {
+            label: 'Redo',
+            accelerator: 'Shift+CmdOrCtrl+Z',
+            selector: 'redo:'
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Cut',
+            accelerator: 'CmdOrCtrl+X',
+            selector: 'cut:'
+        },
+        {
+            label: 'Copy',
+            accelerator: 'CmdOrCtrl+C',
+            selector: 'copy:'
+        },
+        {
+            label: 'Paste',
+            accelerator: 'CmdOrCtrl+V',
+            selector: 'paste:'
+        },
+        {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            selector: 'selectAll:'
+        }]
+    }
+)
+
+// Edit the last menu entry 'Help'
+template[template.length - 1].submenu = [
+    {
+        label: 'Documentation',
+        click() {
+            shell.openExternal('https://github.com/Zero-1729/soundplay#docs.md')
+        }
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'Follow Us on Twitter',
+        click() {
+            shell.openExternal('https://twitter.com/Soundplay')
+        }
+    }
+]
 
 const menu = Menu.buildFromTemplate(template)
 Menu.setApplicationMenu(menu)
