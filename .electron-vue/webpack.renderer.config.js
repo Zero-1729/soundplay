@@ -113,6 +113,7 @@ let rendererConfig = {
                 removeAttributeQuotes: true,
                 removeComments: true
             },
+            process: process,
             nodeModules: process.env.NODE_ENV !== 'production'
             ? path.resolve(__dirname, '../node_modules')
             : false
