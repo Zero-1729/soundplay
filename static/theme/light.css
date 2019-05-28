@@ -49,6 +49,10 @@
     color: orange;
 }
 
+.fail-message .cancel-btn svg path {
+    fill: orange;
+}
+
 .faile-message .cancel-btn svg path {
     fill: orange;
 }
@@ -145,7 +149,7 @@
 
 /* Trackspane Component colors */
 .empty-pool-info svg path {
-    fill: rgb(222,222,222);
+    fill: #cecece;
 }
 
 th {
@@ -190,7 +194,7 @@ tbody tr:hover span {
 }
 
 .empty-pool-info h4 {
-    color: grey;
+    color: #b7b8b9;
 }
 
 .playlist-modal {

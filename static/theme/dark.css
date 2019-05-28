@@ -108,7 +108,7 @@ body {
 }
 
 #app .virtical-div .empty-listing h4 {
-    color: #c5c5c5;
+    color: #525252;
 }
 
 #app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
@@ -148,7 +148,7 @@ body {
 }
 
 .empty-pool-info svg path {
-    fill: #5a5a5a;
+    fill: #171717;
 }
 
 th {
@@ -193,7 +193,7 @@ tbody tr:hover span {
 }
 
 .empty-pool-info h4 {
-    color: grey;
+    color: #171717;
 }
 
 .playlist-modal {

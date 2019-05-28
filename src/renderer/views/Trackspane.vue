@@ -3,16 +3,16 @@
             <thead>
                 <tr>
                 <th @click="sort('title')">
-                    Title
+                    <p>Title</p>
                 </th>
                 <th @click="sort('artist')">
-                    Artist
+                    <p>Artist</p>
                 </th>
                 <th @click="sort('album')">
-                    Album
+                    <p>Album</p>
                 </th>
                 <th @click="sort('genre')">
-                    Genre
+                    <p>Genre</p>
                 </th>
             </tr>
             </thead>
@@ -767,8 +767,11 @@
 
     th
         padding-bottom 20px
-        cursor pointer
         font-weight bold
+        p
+            margin 0
+            display inline-block
+            cursor pointer
 
     td, th
         text-align left
