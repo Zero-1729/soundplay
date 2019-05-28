@@ -245,6 +245,10 @@
             '$route' (cur, old) {
                 if (cur.path == '/') {
                     this.windowUpdated()
+
+                    if (!this.statusMessage.isEmpty) {
+                        this.clearStatusMessage()
+                    }
                 }
             },
 
