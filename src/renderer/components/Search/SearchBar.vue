@@ -104,7 +104,6 @@
         cursor pointer
 
     input
-        outline none
         height 20px
         width 160px
         padding 6px
@@ -116,7 +115,6 @@
     input:focus
         border-width 2px
         border-style solid
-        outline none
 
     .search-icon
         path

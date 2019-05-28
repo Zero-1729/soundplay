@@ -184,7 +184,6 @@
         border-radius 2px
         border-width inherit
         width 58px
-        outline none
         transition all 0.3s linear
         cursor pointer
 
@@ -217,7 +216,6 @@
             padding 0
             border-radius 2px
             border-width inherit
-            outline none
             transition all 0.3s linear
             cursor pointer
             p
@@ -267,7 +265,4 @@
         margin-left 20px
         background transparent
         transition all 0.4s ease-out
-
-    input#settings-input:focus
-        outline none
 </style>

@@ -277,8 +277,6 @@
                 font-weight bold
                 transition all 0.4s ease
                 user-select none
-            p:focus
-                outline none
 
         .empty-listing
             padding-top 100px

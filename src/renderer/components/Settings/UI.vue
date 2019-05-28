@@ -272,9 +272,6 @@
         border none
         cursor pointer
 
-    .flex select:focus
-        outline none
-
     .flex .furthest
         margin-left 213px
 
@@ -324,5 +321,4 @@
 
     .info-input-field-nm:focus
         border-bottom 2px solid dodgerblue
-        outline none
 </style>
