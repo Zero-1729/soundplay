@@ -130,6 +130,20 @@
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_update)
 
+            // Request startup args from Main
+            ipcRenderer.send('request-startup-process-args')
+
+            ipcRenderer.on('ack-startup-process-args', (event, arg) => {
+                let last_arg = arg.files ? arg.files : arg.startup_args[arg.startup_args.length-1]
+
+                // Only begin parsing arg if sound path or folder path injected
+                if (!last_arg.toLowerCase().includes('soundplay')) {
+                    this.addFiles(last_arg)
+
+                    // Trigger play when done parsing
+                }
+            })
+
             // Handle events thrown from main renderer (App Menu)
             ipcRenderer.on('import-tracks', (event, arg) => {
                 let vm = this
@@ -473,22 +487,24 @@
             },
 
             addFiles(ev) {
-                // Check if Dir or audio dropped
-                let objs = ev.dataTransfer.files
+                // Check if Dir or audio dropped or processing arg
+                let objs = typeof ev != 'object' ? [ev] : ev.dataTransfer.files
+                window.objs = objs
 
                 this.setLoading(true)
 
                 for (var i = 0;i < objs.length;i++) {
-                    var callback = {
-                        onSuccess: this.grab_tags,
-                        onError: this.report_tag_error
-                    }
+                    // Determine whether the current item is a folder
+                    let is_obj_folder = typeof objs[i] != 'object' ? !fs.statSync(objs[i]).isFile() : objs[i].type == ''
 
-                    if (objs[i].type == '') {
+                    if (is_obj_folder) {
+                        // Get folder path
+                        let folder_path = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+
                         // We have (a potential) directory dropped
-                        this.imported_folders.push(objs[i].path)
+                        this.imported_folders.push(folder_path)
 
-                        let tracks = this.crawl(objs[i].path)
+                        let tracks = this.crawl(folder_path)
 
                         this.imports += tracks.length
                         this.imports_count += tracks.length
@@ -497,14 +513,23 @@
                             this.deref(tracks[j])
                         }
                     } else {
-                        if (objs[i].type == 'audio/mp3') {
+                        // Find out whether it is a sound file
+                        let is_sound_file = typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
+
+                        if (is_sound_file) {
+                            // Obtain sound filepath
+                            let filepath = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+
                             // Scan and add Track
                             this.imports += 1
                             this.imports_count += 1
-                            this.deref(objs[i].path)
+                            this.deref(filepath)
                         } else {
+                            // Retrieve sound filepath
+                            let filepath = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+
                             this.imports -= 1
-                            this.failed_imports.push(objs[i].path)
+                            this.failed_imports.push(filepath)
                         }
                     }
                 }

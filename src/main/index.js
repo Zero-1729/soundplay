@@ -3,7 +3,8 @@ import {
         BrowserWindow,
         nativeImage,
         Menu,
-        shell
+        shell,
+        ipcMain
     } from 'electron'
 
 import '../renderer/store'
@@ -39,10 +40,16 @@ const Icons = {
     'tray-ico'  :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@256x256.ico')),
 }
 
-
-let mainWindow
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
 : `file://${__dirname}/index.html`
+
+// args provided during startup
+const startup_args = process.argv
+
+let mainWindow = null
+
+// Array for storing dropped/open with files
+let openFiles = []
 
 function createWindow () {
     /**
@@ -64,6 +71,23 @@ function createWindow () {
     mainWindow.on('closed', () => {
         mainWindow = null
     })
+
+    // Check whether file path specified, if so we send it over to our render for processing
+    ipcMain.on('request-startup-process-args', (event, args) => {
+        event.sender.send('ack-startup-process-args', {startup_args: startup_args, files: openFiles.pop()})
+    })
+
+    app.on('open-file', (event, arg) => {
+        event.preventDefault()
+
+        // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
+        if (mainWindow != null) {
+            mainWindow.webContents.send('ack-startup-process-args', {startup_args: startup_args, files: arg})
+        } else {
+            // If the window was closed we launch a new one to include the dropped item(s)
+            createWindow()
+        }
+    })
 }
 
 app.on('ready', createWindow)
@@ -75,9 +99,24 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
+    // In case a new window was just newly created (MacOS)
+    app.on('open-file', (event, arg) => {
+        event.preventDefault()
+
+        // Only push call when MainWindow is a 'BrowserWindow'
+        if (mainWindow != null) {
+            mainWindow.webContents.send('ack-startup-process-args', {startup_args: startup_args, files: arg})
+        }
+    })
+
     if (mainWindow === null) {
         createWindow()
     }
+})
+
+app.on('open-file', (event, arg) => {
+    event.preventDefault()
+    openFiles.push(arg)
 })
 
 const template = [
