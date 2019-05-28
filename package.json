@@ -3,7 +3,7 @@
     "version": "0.2.0-a",
     "author": "Zero-1729 <Zero1729@protonmail.com>",
     "description": "A Next Gen Minimalist's Cross-Platform Sound Player",
-    "license": null,
+    "license": "MIT",
     "main": "./dist/electron/main.js",
     "scripts": {
         "build": "node .electron-vue/build.js && electron-builder",
