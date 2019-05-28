@@ -1,5 +1,5 @@
 <template>
-    <div class="main-panel" @click="clearModals()">
+    <div class="main-panel">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view></router-view>
@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
+    import { mapActions } from 'vuex'
 
     export default {
         data() {
@@ -34,14 +34,7 @@
                 'clearErrorMessage',
                 'clearWarnMessage',
                 'clearFailMessage'
-            ]),
-
-            clearModals() {
-                this.clearStatusMessage()
-                this.clearErrorMessage()
-                this.clearWarnMessage()
-                this.clearFailMessage()
-            }
+            ])
         }
     }
 </script>
