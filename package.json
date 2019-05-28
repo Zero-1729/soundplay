@@ -16,40 +16,6 @@
         "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
         "postinstall": ""
     },
-    "build": {
-        "productName": "soundplay",
-        "appId": "com.github.Zero-1729.soundplay",
-        "directories": {
-            "output": "build"
-        },
-        "files": [
-            "dist/electron/**/*"
-        ],
-        "dmg": {
-            "contents": [
-                {
-                    "x": 410,
-                    "y": 150,
-                    "type": "link",
-                    "path": "/Applications"
-                },
-                {
-                    "x": 130,
-                    "y": 150,
-                    "type": "file"
-                }
-            ]
-        },
-        "mac": {
-            "icon": "build/icons/icon.icns"
-        },
-        "win": {
-            "icon": "build/icons/icon.ico"
-        },
-        "linux": {
-            "icon": "build/icons/256x256.png"
-        }
-    },
     "dependencies": {
         "cuid": "^2.1.6",
         "ffmetadata": "^1.5.0",

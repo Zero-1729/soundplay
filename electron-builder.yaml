@@ -1,0 +1,45 @@
+productName: Soundplay
+appId: com.github.Zero-1729.soundplay
+
+directories:
+  output: build
+  buildResources: build
+
+fileAssociations:
+  - ext: mp3
+  - ext: ogg
+  - ext: wav
+
+files:
+  - filter:
+    - dist/electron/**/*
+
+dmg:
+  title: Install Soundplay
+  contents:
+    - x: 130
+      y: 150
+      type: file
+    - x: 410
+      y: 150
+      type: link
+      path: /Applications
+
+mac:
+    icon: static/icons/app_icon.icns
+    category: public.app-category.music
+    target:
+      - dmg
+      - zip
+win:
+    icon: static/icons/app_icon_256x256.ico
+    target: nsis
+linux:
+    icon: static/icons/app_icon_256x256.png
+    category: Audio
+    target:
+      - deb
+      - AppImage
+    executableName: Soundplay
+
+electronVersion: 4.2.2
