@@ -595,7 +595,7 @@
 
     body
         font-family Lato
-        font-size 13px
+        font-size 12px
 
     .cancel-btn
         cursor pointer
