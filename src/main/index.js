@@ -181,7 +181,11 @@ const template = [
                 type: 'separator'
             },
             {
-                role: 'toggledevtools'
+                label: 'Toggle Developer Tools',
+                accelerator: 'Alt+CmdOrCtrl+I',
+                click() {
+                    mainWindow.webContents.openDevTools({ mode: 'detach' })
+                }
             },
             {
                 type: 'separator'
