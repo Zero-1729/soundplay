@@ -64,6 +64,9 @@ function createWindow () {
         width: 1100,
         center: true,
         icon: process.platform == 'win' ? Icons['ico'] : Icons['tray']
+        webPreferences: {
+            nodeIntegration: true
+        }
     })
 
     mainWindow.loadURL(winURL)
