@@ -577,13 +577,13 @@
 </script>
 
 <style lang="stylus">
-/* CSS */
+/* start of font decl */
 
     @font-face
         font-family 'Lato'
         src url('./../../static/font/Lato/Lato-Regular.ttf') format('truetype')
 
-/* end of decl */
+/* end of font decl */
 
     body, html, #app
         top 0
@@ -596,6 +596,9 @@
     body
         font-family Lato
         font-size 12px
+
+    input:focus, p:focus, select:focus, button, button:focus
+        outline none
 
     .cancel-btn
         cursor pointer
