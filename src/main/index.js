@@ -63,7 +63,7 @@ function createWindow () {
         minWidth: 1060,
         width: 1100,
         center: true,
-        icon: process.platform == 'win' ? Icons['ico'] : Icons['tray']
+        titleBarStyle: 'hiddenInset',
         webPreferences: {
             nodeIntegration: true
         }

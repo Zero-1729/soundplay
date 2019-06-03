@@ -13,12 +13,19 @@
         <!-- Stylesheet for theme -->
         <link rel="stylesheet">
 
-        <script>
-        require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, "\\\\") %>')
-        </script>
-        <% } %>
+        <style>
+            .hidden-title-bar-region {
+                position: absolute;
+                width: 100%;
+                height: 35px;
+                -webkit-app-region: drag;
+            }
+        </style>
     </head>
     <body>
+        <!-- On MacOS we use the 'hiddenInset' option on the titleBar, so we fake the behaviour -->
+        <div class="hidden-title-bar-region"></div>
+
         <div id="app"></div>
         <!-- Set `__static` path to static files in production -->
         <% if (!htmlWebpackPlugin.options.process.browser) { %>
