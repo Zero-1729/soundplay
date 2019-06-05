@@ -30,14 +30,14 @@ const logosPath = path.join(rootPath, 'static', 'icons')
 
 // Constant to store specific icon sizes and their locations
 const Icons = {
-    '256'       :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@256x256.png')),
-    '128'       :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@128x128.png')),
-    '64'        :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@64x64.png')),
-    '48'        :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@48x48.png')),
-    '32'        :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@32x32.png')),
-    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@256x256.ico')),
-    'tray'      :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@tray.png')),
-    'tray-ico'  :  nativeImage.createFromPath(path.join(logosPath, 'app_icon_black@256x256.ico')),
+    '256'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.png')),
+    '128'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_128x128.png')),
+    '64'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_64x64.png')),
+    '48'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_48x48.png')),
+    '32'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_32x32.png')),
+    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico')),
+    'tray-mac'      :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
+    'tray-win'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray.ico'))
 }
 
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
@@ -64,6 +64,7 @@ function createWindow () {
         width: 1100,
         center: true,
         titleBarStyle: 'hiddenInset',
+        icon: process.platform == 'win' ? Icons['ico'] : Icons['256'],
         webPreferences: {
             nodeIntegration: true
         }

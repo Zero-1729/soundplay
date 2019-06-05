@@ -1,4 +1,4 @@
-# ![](static/icons/app_icon_black_64x64.png) SoundPlay
+# ![](static/icons/icon_64x64.png) SoundPlay
 
 The Next Gen Minimalist's Cross-Platform Sound Player
 
