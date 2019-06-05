@@ -314,7 +314,6 @@
         width 20px
         background transparent
         border-top 0
-        border-bottom 2px solid grey
         border-left 0
         border-right 0
         text-align center

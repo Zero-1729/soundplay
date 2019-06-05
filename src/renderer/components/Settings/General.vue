@@ -241,7 +241,8 @@
             margin-top 0
             margin-bottom 0
         svg
-            height 100%
+            margin-top 2px
+            height 75%
 
     .dialog-button-alt.greyed-button
         opacity 0.4
