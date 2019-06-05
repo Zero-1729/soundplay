@@ -316,7 +316,8 @@
                 'toggleNightMode',
                 'setNightMode',
                 'setJobsFn',
-                'setLoading'
+                'setLoading',
+                'unlockHotKey'
             ]),
 
             handle_window_resize() {
@@ -572,6 +573,9 @@
 
             // Clear loading state
             this.setLoading(false)
+
+            // Unlock all mutexes
+            this.unlockHotKey('backspace')
         }
     }
 </script>
