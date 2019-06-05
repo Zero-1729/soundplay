@@ -1,23 +1,22 @@
 /* General App colors */
 body {
-    background: #223A4B;
+    background: #0e2c42;
 }
 
 /* - Scroll bars - */
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #182c3a;
+    background: #94acbd;
 }
 
-/* Scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-    background: #808088;
+    background: #4e95ff;
 }
 
 /* - Error messages - */
 .status-message, .error-message, .warn-message, .fail-message {
-    background: #1b3344;
+    background: #0c2535;
 }
 
 .status-message {
@@ -31,222 +30,137 @@ body {
 
 .error-message {
     border-color: #d24136;
-    color: #ff7a70;
 }
 
-.error-message .cancel-btn svg path {
-    fill: #ff7a70;
-}
-
-.warn-message {
-    border-color: #ffc107;
-    color: #ffc107;
-}
-
-.warn-message .cancel-btn svg path {
-    fill: #ffc107;
-}
-
-.fail-message {
-    border-color: orange;
-    color: orange;
-}
-
-.fail-message .cancel-btn svg path {
-    fill: orange;
-}
 
 /* Search Component colors */
 .search-icon path{
-    fill: #152838;
+    fill: #275473;
 }
 
 .search-icon:hover path {
-    fill: #a0a0a0;
+    fill: #208bf5;
 }
 
 .div-hor.holder input#search-input {
-    background: #223A4B;
-    color: #bbbbbb;
-}
-
-.div-hor.holder input#search-input::placeholder {
-    color: #bbbbbb;
-}
-
-.div-hor.holder input#search-input:focus {
-    border-color: rgb(78,149,255);
-}
-
-/* SidePane Component colors */
-#app .virtical-div {
-    background: #1F3444;
-}
-
-#app .virtical-div .entity p {
-    color: #bbbbbb;
-}
-
-#app .virtical-div .entity p:hover {
-    opacity: 0.8;
-}
-
-#app .virtical-div .entity p#hovered-text {
-    opacity: 0.8;
-}
-
-#app .virtical-div .entity-listing h4 {
-    color: #bbbbbb;
-}
-
-#app .virtical-div .entity.greyedText p {
+    background: #1e4058;
     color: #cecece;
 }
 
-#app .virtical-div .entity.activeTarget p {
-    color: dodgerblue;
+.div-hor.holder input#search-input::placeholder {
+    color: #e6e6e6;
+}
+
+
+/* SidePane Component colors */
+#app .virtical-div {
+    background: #0c2535;
+}
+
+#app .virtical-div .entity p {
+    color: #cecece;
 }
 
 #app .virtical-div .empty-listing h4 {
     color: #122433;
 }
 
+#app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
+    background: #346588;
+}
+
 
 /* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {
-    box-shadow: 0px 4px 15px 0px #182c3a;
-    background: #223A4B;
+    box-shadow: 0px 4px 15px 0px #091c2b;
+    background: #0e2c42;
 }
 
 .main-toolset-container .item .icon path, .main-toolset-container-alt .item .icon path {
-    fill: #bbbbbb;
+    fill: #cecece;
 }
 
-.main-toolset-container .item.activeIcon svg path, .main-toolset-container-alt .item.activeIcon svg path {
-    fill: dodgerblue;
-}
 
-/* Audio / Audio settings Toolset */
-.bar {
-    background: dodgerblue;
-}
-
-.greyBar {
-    background: #152838;
+/* Audio / settings Toolset */
+.bar.greyBar {
+    background: #346588;
 }
 
 .main-toolset-container .item svg.icon.greyedIcon path {
-    fill: #152838;
+    fill: #346588;
 }
+
 
 /* Trackspane Component colors */
 .tracklist {
-    background: #223A4B;
+    background: #0e2c42;
 }
 
 .empty-pool-info svg path {
-    fill: #152838;
-}
-
-th {
-    background: #1f3444;
-    color: #bbbbbb;
+    fill: #0c2031;
 }
 
 td, th {
-    color: #bbbbbb;
+    color: #d8d8d8;
+}
+
+th {
+    background: #113754;
 }
 
 tr:nth-child(odd) {
-    background: #2a4558;
+    background: #0b263a;
 }
 
 tbody tr:hover td, tbody tr:hover div {
     background: rgba(30, 144, 255, 0.51);
 }
 
-tbody tr:hover * {
-    color: white;
+#track-item:nth-child(even) td, #track-item:nth-child(odd) td {
+    color: #cecece;
 }
 
-tbody tr:hover span {
-    background: transparent;
-}
-
-.hover#track-item td, .hover div {
-    background: rgba(30, 144, 255, 0.51);
-}
-
-.hover#track-item span {
-    background: transparent;
-}
-
-.hover#track-item * {
-    color: white;
-}
-
-.short {
-    background: transparent;
+#track-item:nth-child(even) td {
+    background: #0e314a;
 }
 
 .empty-pool-info h4 {
-    color: #122433;
+    color: #071725;
 }
 
 .playlist-modal {
-    background: #223a4b;
-    border-color: #1f3444;
-    color: #bbbbbb;
+    background: #0f2435;
+    border-color: #2a4558;
+    color: #cecece;
 }
 
 .playlist-input {
-    background: #1b3344;
+    background: #0e314a;
     border-color: #2a4558;
-    color: #bbbbbb;
+    color: #cecece;
 }
 
 .playlist-input::placeholder {
-    color: #bbbbbb;
-}
-
-.playlist-input-focus {
-    border-color: dodgerblue;
+    color: #cecece;
 }
 
 .playingTrack td {
-    background: #546671;
+    background: #275473;
     color: #dedede;
 }
 
-.fav-bar {
-    background: transparent;
-}
-
-tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
-    background: deeppink;
-}
-
-.activeTrack#track-item td {
-    background: dodgerblue;
-    color: white;
-}
 
 /* Settings */
 .main-panel {
-    background: #223a4b;
+    background: #0e2c42;
 }
 
-.main-panel h4, .main-panel h3 {
-    color: #bbbbbb;
+.main-panel h3 {
+    color: #cecece;
 }
 
 .info {
-    color: #bbbbbb;
-}
-
-.main-panel .headings h4.active-setting {
-    color: dodgerblue;
-
+    color: #cecece;
 }
 
 /* General */
@@ -259,30 +173,21 @@ tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     color: #bbbbbb;
 }
 
-.option-item input:focus {
-    border-bottom: 2px solid dodgerblue;
-}
-
 .flex .switch {
-    background: #2a4558;
-}
-
-.flex .switch.checked {
-    background: dodgerblue;
+    background: #1e4058;
 }
 
 .flex .slider {
-    background: grey;
+    background: #dedede;
 }
 
 .flex .slider.checked {
-    background: #b7b8b9;
+    background: #dedede;
 }
 
 .flex select {
-    background: #2a4558;
+    background: #1e4058;
     color: white;
-    border: 2px solid transparent;
 }
 
 .flex button {
@@ -294,46 +199,14 @@ tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     background: #d24136;
 }
 
-.flexed-div button {
-    background: dodgerblue;
-}
-
-.flexed-div button p {
-    color: white;
-}
-
-.flexed-div button svg path {
-    fill: white;
-}
-
 input#settings-input {
     border-bottom-color: #bbbbbb;
-}
-
-input#settings-input:focus {
-    border-bottom-color: dodgerblue;
 }
 
 .flex .dialog-button:hover {
     background: #3ca735;
 }
 
-.flex .dialog-button-alt {
-    background: dodgerblue;
-}
-
 .flex .dialog-button-alt:hover {
     background: #d24136;
-}
-
-.dialog-button p {
-    color: white;
-}
-
-.dialog-button svg path {
-    fill: white;
-}
-
-.dialog-button-alt.greyed-button:hover {
-    background: dodgerblue;
 }
