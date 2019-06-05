@@ -712,6 +712,7 @@
         beforeDestroy() {
             this.updatePlayingCriteria(null)
             this.updatePlayingTarget(null)
+            this.updateCurrentTrack(null)
         }
     }
 </script>
