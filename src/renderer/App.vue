@@ -407,7 +407,7 @@
                     format = format[format.length-1]
 
                     // All supported formats
-                    if (['mp3', 'ogg', 'wav'].includes(format)) {
+                    if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
                         tracks.push(file)
                     }
                 }, this.appExcludedFolders)
@@ -518,7 +518,7 @@
                         }
                     } else {
                         // Find out whether it is a sound file
-                        let is_sound_file = typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
+                        let is_sound_file = typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav', 'm4a'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
 
                         if (is_sound_file) {
                             // Obtain sound filepath
