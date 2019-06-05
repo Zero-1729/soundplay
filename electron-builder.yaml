@@ -9,6 +9,7 @@ fileAssociations:
   - ext: mp3
   - ext: ogg
   - ext: wav
+  - ext: m4a
 
 files:
   - filter:
@@ -26,16 +27,16 @@ dmg:
       path: /Applications
 
 mac:
-    icon: static/icons/app_icon.icns
+    icon: static/icons/icon_1024x1024.png
     category: public.app-category.music
     target:
       - dmg
       - zip
 win:
-    icon: static/icons/app_icon_256x256.ico
+    icon: static/icons/icon_256x256.ico
     target: nsis
 linux:
-    icon: static/icons/app_icon_256x256.png
+    icon: static/icons/icon_256x256.png
     category: Audio
     target:
       - deb
