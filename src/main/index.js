@@ -7,6 +7,8 @@ import {
         ipcMain
     } from 'electron'
 
+const WindowManager = require('./utils/windowManager').default
+
 import '../renderer/store'
 
 const path = require('path')
@@ -48,6 +50,9 @@ const startup_args = process.argv
 
 let mainWindow = null
 
+// Instantiate window manager state
+const windowState = WindowManager.init(app.getPath('userData'))
+
 // Array for storing dropped/open with files
 let openFiles = []
 
@@ -58,11 +63,13 @@ function createWindow () {
 
     mainWindow = new BrowserWindow({
         minHeight: 550,
-        height: 600,
+        height: windowState ? windowState.windowBounds.height : 600,
         useContentSize: true,
         minWidth: 1060,
-        width: 1100,
-        center: true,
+        width: windowState ? windowState.windowBounds.width : 1100,
+        fullScreen: windowState ? windowState.isFullScreen : false,
+        x: windowState ? windowState.windowBounds.x : null,
+        y: windowState ? windowState.windowBounds.y : null,
         titleBarStyle: 'hiddenInset',
         icon: process.platform == 'win' ? Icons['ico'] : Icons['256'],
         webPreferences: {
@@ -97,8 +104,25 @@ function createWindow () {
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
+    // This ensures the state is always saved after each window is closed
+    WindowManager.sync({
+        isFullScreen: mainWindow.isFullScreen(),
+        windowBounds: mainWindow.getBounds()
+    })
+
     if (process.platform !== 'darwin') {
         app.quit()
+    }
+})
+
+app.on('quit', () => {
+    // We nned to know whether our window is still available for state query first
+    if (mainWindow) {
+        // Window state still needs to be updated to the latest state before the session ended
+        WindowManager.sync({
+            isFullScreen: mainWindow.isFullScreen(),
+            windowBounds: mainWindow.getBounds()
+        })
     }
 })
 
