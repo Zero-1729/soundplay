@@ -286,7 +286,7 @@
         position absolute
         top 105px
         width 180px
-        height 60%
+        height 45%
         overflow-y auto
 
     .virtical-div-holder::-webkit-scrollbar
