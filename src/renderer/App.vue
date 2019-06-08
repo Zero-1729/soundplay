@@ -258,7 +258,7 @@
             },
 
             imports (cur, old) {
-                if (cur == 0) {
+                if (cur == 0 || cur < 0) {
                     this.setLoading(false)
 
                     // Only display a success message if atleast 1 or more non duplicates were imported
@@ -494,15 +494,15 @@
             addFiles(ev) {
                 // Check if Dir or audio dropped or processing arg
                 let objs = typeof ev != 'object' ? [ev] : ev.dataTransfer.files
-                window.objs = objs
-
-                this.setLoading(true)
 
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder
                     let is_obj_folder = typeof objs[i] != 'object' ? !fs.statSync(objs[i]).isFile() : objs[i].type == ''
 
                     if (is_obj_folder) {
+                        // Only call load if actual folder track(s) are loaded
+                        this.setLoading(true)
+
                         // Get folder path
                         let folder_path = typeof objs[i] != 'object' ? objs[i] : objs[i].path
 
@@ -522,6 +522,9 @@
                         let is_sound_file = typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav', 'm4a'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
 
                         if (is_sound_file) {
+                            // Only call load if actual track(s) are loaded
+                            this.setLoading(true)
+
                             // Obtain sound filepath
                             let filepath = typeof objs[i] != 'object' ? objs[i] : objs[i].path
 
