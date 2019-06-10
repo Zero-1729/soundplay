@@ -261,10 +261,17 @@
                 if (cur == 0 || cur < 0) {
                     this.setLoading(false)
 
-                    // Only display a success message if atleast 1 or more non duplicates were imported
-                    if (!(this.failMessage.items.length == this.imports_count)) {
+                    // Log the number of imports that had issues
+                    let import_issues_count = this.failed_imports.length - this.error_imports.length - this.failMessage.items.length
+
+                    // ... and obtain the number of actual imported items
+                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + import_issues_count
+
+                    // Only display a success message if at least 1 or more non duplicates were imported
+                    // ... and there are at least 1 or more files without errors or warnings
+                    if (successful_imports_count > 0) {
                         this.updateStatusMessage({
-                            heading: `Successfully imported ${this.imports_count - this.failMessage.items.length} sounds`,
+                            heading: `Successfully imported ${successful_imports_count} sounds`,
                             isEmpty: false
                         })
                     }
@@ -492,6 +499,12 @@
             },
 
             addFiles(ev) {
+                // Clear all (modal) message
+                this.clearStatusMessage()
+                this.clearAllWarnMessage()
+                this.clearAllFailMessage()
+                this.clearAllErrorMessage()
+
                 // Check if Dir or audio dropped or processing arg
                 let objs = typeof ev != 'object' ? [ev] : ev.dataTransfer.files
 
