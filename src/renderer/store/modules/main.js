@@ -523,6 +523,21 @@ const mutations = {
         state.settings.general.musicFolder = null
     },
 
+    UPDATE_EXCLUDED_FOLDER (state, name) {
+        // Avoid adding duplicates
+        if (!(state.settings.general.excludedFolders.indexOf(name) != -1)) {
+            state.settings.general.excludedFolders.push(name)
+        }
+    },
+
+    REMOVE_EXCLUDED_FOLDER (state, name) {
+        state.settings.general.excludedFolders = remove(state.settings.general.excludedFolders, name)
+    },
+
+    CLEAR_EXCLUDED_FOLDER (state) {
+        state.settings.general.excludedFolders = []
+    },
+
     // Modal dialogs
     // Playlist
     SET_PLAYLIST_MODAL (state, value) {
