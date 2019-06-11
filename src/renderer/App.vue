@@ -327,6 +327,10 @@
                 'unlockHotKey'
             ]),
 
+            isEmpty(item) {
+                return item == undefined || item == ''
+            },
+
             handle_window_resize() {
                 if (this.$route.path == '/') {
                     this.resizeThead()
@@ -443,11 +447,11 @@
                 // Fill in the track template
                 let raw_filename = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
 
-                meta.title = tag.tags.title === undefined ? raw_filename.split('.')[0] : tag.tags.title
+                meta.title = this.isEmpty(tag.tags.title) ? raw_filename.split('.')[0] : tag.tags.title
 
-                meta.artist = tag.tags.artist === undefined ? 'Unknown' : tag.tags.artist
+                meta.artist = this.isEmpty(tag.tags.artist) ? 'Unknown' : tag.tags.artist
 
-                meta.album = tag.tags.album === undefined || tag.tags.album === '' ? 'Unknown' : tag.tags.album
+                meta.album = this.isEmpty(tag.tags.album) || tag.tags.album === '' ? 'Unknown' : tag.tags.album
 
                 // Too large to store
                 // ... maybe we load it when track is going to play
@@ -455,9 +459,9 @@
                 // ... and read it when track is going to play?
                 // meta.art = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
-                meta.genre = tag.tags.genre === undefined || tag.tags.genre === '' ? 'Unknown' : tag.tags.genre
+                meta.genre = this.isEmpty(tag.tags.genre) ? 'Unknown' : tag.tags.genre
 
-                meta.year = tag.tags.year === undefined ? 'Unknown' : tag.tags.year
+                meta.year = this.isEmpty(tag.tags.year) ? 'Unknown' : tag.tags.year
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
