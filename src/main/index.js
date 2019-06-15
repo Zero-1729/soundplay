@@ -9,6 +9,8 @@ import {
 
 const WindowManager = require('./utils/windowManager').default
 
+const { add } = require('./../renderer/utils/list')
+
 import '../renderer/store'
 
 const path = require('path')
@@ -38,7 +40,7 @@ const Icons = {
     '48'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_48x48.png')),
     '32'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_32x32.png')),
     'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico')),
-    'tray-mac'      :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
+    'tray-mac'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
     'tray-win'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray.ico'))
 }
 
@@ -46,15 +48,31 @@ const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
 : `file://${__dirname}/index.html`
 
 // args provided during startup
-const startup_args = process.argv
+var startup_args = process.env.NODE_ENV != 'development' ? process.argv.slice(1) : []
 
-let mainWindow = null
+var mainWindow = null
 
 // Instantiate window manager state
 const windowState = WindowManager.init(app.getPath('userData'))
 
-// Array for storing dropped/open with files
-let openFiles = []
+// Array for storing dropped files when new window triggered
+var openFiles = []
+
+app.on('open-file', (event, arg) => {
+    event.preventDefault()
+
+    // Add trigger file
+    openFiles = add(openFiles, arg, true)
+
+    // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
+    if (mainWindow != null) {
+        // Push only 'openFiles' since 'arg is pushed'
+        mainWindow.webContents.send('ack-startup-process-args', { startup_args: startup_args, files: openFiles })
+    } else {
+        // If the window was closed we launch a new one to include the dropped item(s)
+        if (app.isReady()) createWindow()
+    }
+})
 
 function createWindow () {
     /**
@@ -83,21 +101,20 @@ function createWindow () {
         mainWindow = null
     })
 
-    // Check whether file path specified, if so we send it over to our render for processing
-    ipcMain.on('request-startup-process-args', (event, args) => {
-        event.sender.send('ack-startup-process-args', {startup_args: startup_args, files: openFiles.pop()})
+    ipcMain.on('clear-open-files', (event, arg) => {
+        // Clear open files
+        openFiles = []
     })
 
-    app.on('open-file', (event, arg) => {
-        event.preventDefault()
+    // Check whether file path specified, if so we send it over to our render for processing
+    ipcMain.on('request-startup-process-args', (event, args) => {
+        event.sender.send('ack-startup-process-args', { startup_args: startup_args, trigger_files: openFiles })
 
-        // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
-        if (mainWindow != null) {
-            mainWindow.webContents.send('ack-startup-process-args', {startup_args: startup_args, files: arg})
-        } else {
-            // If the window was closed we launch a new one to include the dropped item(s)
-            createWindow()
-        }
+        // Reset startup files
+        startup_args = []
+
+        // Reset Open files
+        openFiles = []
     })
 }
 
@@ -127,24 +144,10 @@ app.on('quit', () => {
 })
 
 app.on('activate', () => {
-    // In case a new window was just newly created (MacOS)
-    app.on('open-file', (event, arg) => {
-        event.preventDefault()
-
-        // Only push call when MainWindow is a 'BrowserWindow'
-        if (mainWindow != null) {
-            mainWindow.webContents.send('ack-startup-process-args', {startup_args: startup_args, files: arg})
-        }
-    })
-
+    // We simply re-instantiate another window if dock icon clicked
     if (mainWindow === null) {
         createWindow()
     }
-})
-
-app.on('open-file', (event, arg) => {
-    event.preventDefault()
-    openFiles.push(arg)
 })
 
 const template = [

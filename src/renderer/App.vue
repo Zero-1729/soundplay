@@ -157,14 +157,14 @@
             ipcRenderer.send('request-startup-process-args')
 
             ipcRenderer.on('ack-startup-process-args', (event, arg) => {
-                let last_arg = arg.files ? arg.files : arg.startup_args[arg.startup_args.length-1]
-
                 // Only begin parsing arg if sound path or folder path injected
-                if (!last_arg.toLowerCase().includes('soundplay')) {
-                    this.addFiles(last_arg)
-
-                    // Trigger play when done parsing
+                if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
+                    this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
                 }
+
+                // Trigger play when done parsing
+
+                ipcRenderer.send('clear-open-files', null)
             })
 
             // Handle events thrown from main renderer (App Menu)
@@ -525,7 +525,38 @@
                 })
             },
 
-            addFiles(ev) {
+            // Helper fns for 'addFiles'
+            resolveObjectFiles(obj) {
+                if (Array.isArray(obj)) {
+                    return obj
+                } else {
+                    return obj.dataTransfer.files
+                }
+            },
+
+            isObjectFolder(obj) {
+                if (typeof obj == 'object') {
+                    return obj.type == ''
+                } else {
+                    return !fs.statSync(obj).isFile()
+                }
+            },
+
+            resolveObjectPath(obj) {
+                if (typeof obj == 'object') {
+                    return obj.path
+                } else { return obj }
+            },
+
+            isObjectAudioFile(obj) {
+                if (typeof obj == 'object') {
+                    return obj.type == 'audio/mp3'
+                } else {
+                    return ['mp3', 'ogg', 'wav', 'm4a'].includes(obj.slice(obj.lastIndexOf('.') + 1))
+                }
+            },
+
+            addFiles(obj) {
                 // Clear all (modal) message
                 this.clearStatusMessage()
                 this.clearAllWarnMessage()
@@ -533,18 +564,18 @@
                 this.clearAllErrorMessage()
 
                 // Check if Dir or audio dropped or processing arg
-                let objs = typeof ev != 'object' ? [ev] : ev.dataTransfer.files
+                let objs = this.resolveObjectFiles(obj) // typeof ev != 'object' ? [ev] : ev.dataTransfer.files
 
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder
-                    let is_obj_folder = typeof objs[i] != 'object' ? !fs.statSync(objs[i]).isFile() : objs[i].type == ''
+                    let is_obj_folder = this.isObjectFolder(objs[i]) // typeof objs[i] != 'object' ? !fs.statSync(objs[i]).isFile() : objs[i].type == ''
 
                     if (is_obj_folder) {
                         // Only call load if actual folder track(s) are loaded
                         this.setLoading(true)
 
                         // Get folder path
-                        let folder_path = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                        let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
 
                         // We have (a potential) directory dropped
                         this.imported_folders.push(folder_path)
@@ -559,14 +590,14 @@
                         }
                     } else {
                         // Find out whether it is a sound file
-                        let is_sound_file = typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav', 'm4a'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
+                        let is_sound_file = this.isObjectAudioFile(objs[i]) // typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav', 'm4a'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
 
                         if (is_sound_file) {
                             // Only call load if actual track(s) are loaded
                             this.setLoading(true)
 
                             // Obtain sound filepath
-                            let filepath = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                            let filepath = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
 
                             // Scan and add Track
                             this.imports += 1
@@ -574,7 +605,7 @@
                             this.deref(filepath)
                         } else {
                             // Retrieve sound filepath
-                            let filepath = typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                            let filepath = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
 
                             this.imports -= 1
                             this.failed_imports.push(filepath)
