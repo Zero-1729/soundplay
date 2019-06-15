@@ -125,6 +125,29 @@
             }
         },
         created() {
+            // Session clearing code
+
+            // Clear all error messages when app is closed
+            // ... To avoid persisted error messages between sessions
+            this.clearStatusMessage()
+            this.clearErrorMessage()
+            this.clearWarnMessage()
+            this.clearFailMessage()
+
+            // Clear playing track
+            this.clearCurrentTrack()
+
+            // Clear jobs
+            this.setJobsFn({start: null, end: null})
+
+            // Clear loading state
+            this.setLoading(false)
+
+            // Unlock all mutexes
+            this.unlockHotKey('backspace')
+
+            // End session clearing
+
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
@@ -577,26 +600,6 @@
                 'appAutoNightModeTime'
             ])
         },
-        beforeDestroy() {
-            // Clear all error messages when app is closed
-            // ... To avoid persisted error messages between sessions
-            this.clearStatusMessage()
-            this.clearErrorMessage()
-            this.clearWarnMessage()
-            this.clearFailMessage()
-
-            // Clear playing track
-            this.clearCurrentTrack()
-
-            // Clear jobs
-            this.setJobsFn({start: null, end: null})
-
-            // Clear loading state
-            this.setLoading(false)
-
-            // Unlock all mutexes
-            this.unlockHotKey('backspace')
-        }
     }
 </script>
 
