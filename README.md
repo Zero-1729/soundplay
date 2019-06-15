@@ -2,6 +2,8 @@
 
 The Next Gen Minimalist's Cross-Platform Sound Player
 
+![screenshot](./screenshot.png)
+
 ---
 
 ## Installation :computer:
