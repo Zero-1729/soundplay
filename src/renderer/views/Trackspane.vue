@@ -25,7 +25,7 @@
 
             <tbody>
                 <transition-group :name="trackTransition" tag="tbody">
-                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && !(filteredPool.indexOf(track) == index || selectedTracks.includes(track))}"
+                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
                 v-if="allTracks.length > 0"
                 @contextmenu.prevent
                 @mousedown.right.capture="showTrackOptions(track)"
@@ -708,11 +708,6 @@
                     this.selectAll
                 ])
             }
-        },
-        beforeDestroy() {
-            this.updatePlayingCriteria(null)
-            this.updatePlayingTarget(null)
-            this.updateCurrentTrack(null)
         }
     }
 </script>

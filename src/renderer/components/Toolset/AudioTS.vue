@@ -45,11 +45,10 @@
         },
         watch: {
             '$route' (cur, old) {
-                // ... so we therefore have to cache it and manually
-                // ... reset it each time the route is mutated
-                if (cur.path != '/') {
-                    this.updatePlayingCriteria(this.cachedPlayingCriteria)
-                }
+                // We have to cache 'playingCriteria' manually
+                // ... resetting it each time the route is mutated
+                // ... to avoid it being reset to 'null'
+                this.updatePlayingCriteria(this.cachedPlayingCriteria)
             },
 
             playingCriteria (cur, old) {

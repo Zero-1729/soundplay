@@ -125,7 +125,7 @@
             }
         },
         created() {
-            // Session clearing code
+            // - Session clearing code -
 
             // Clear all error messages when app is closed
             // ... To avoid persisted error messages between sessions
@@ -134,8 +134,10 @@
             this.clearWarnMessage()
             this.clearFailMessage()
 
-            // Clear playing track
+            // Clear playing track, criteria and target
             this.clearCurrentTrack()
+            this.updatePlayingCriteria(null)
+            this.updatePlayingTarget(null)
 
             // Clear jobs
             this.setJobsFn({start: null, end: null})
@@ -146,7 +148,7 @@
             // Unlock all mutexes
             this.unlockHotKey('backspace')
 
-            // End session clearing
+            // - End of session clearing -
 
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
@@ -341,6 +343,8 @@
                 'clearFailMessage',
                 'setPlaylistModal',
                 'clearCurrentTrack',
+                'updatePlayingCriteria',
+                'updatePlayingTarget',
                 'toggleSettings',
                 'loadTheme',
                 'toggleNightMode',
