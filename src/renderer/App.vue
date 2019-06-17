@@ -564,11 +564,11 @@
                 this.clearAllErrorMessage()
 
                 // Check if Dir or audio dropped or processing arg
-                let objs = this.resolveObjectFiles(obj) // typeof ev != 'object' ? [ev] : ev.dataTransfer.files
+                let objs = this.resolveObjectFiles(obj)
 
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder
-                    let is_obj_folder = this.isObjectFolder(objs[i]) // typeof objs[i] != 'object' ? !fs.statSync(objs[i]).isFile() : objs[i].type == ''
+                    let is_obj_folder = this.isObjectFolder(objs[i])
 
                     if (is_obj_folder) {
                         // Only call load if actual folder track(s) are loaded
@@ -590,14 +590,14 @@
                         }
                     } else {
                         // Find out whether it is a sound file
-                        let is_sound_file = this.isObjectAudioFile(objs[i]) // typeof objs[i] != 'object' ? ['mp3', 'ogg', 'wav', 'm4a'].includes(objs[i].slice(objs[i].lastIndexOf('.')+1)) : objs[i].type == 'audio/mp3'
+                        let is_sound_file = this.isObjectAudioFile(objs[i])
 
                         if (is_sound_file) {
                             // Only call load if actual track(s) are loaded
                             this.setLoading(true)
 
                             // Obtain sound filepath
-                            let filepath = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                            let filepath = this.resolveObjectPath(objs[i])
 
                             // Scan and add Track
                             this.imports += 1
@@ -605,7 +605,7 @@
                             this.deref(filepath)
                         } else {
                             // Retrieve sound filepath
-                            let filepath = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                            let filepath = this.resolveObjectPath(objs[i])
 
                             this.imports -= 1
                             this.failed_imports.push(filepath)

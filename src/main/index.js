@@ -66,8 +66,15 @@ app.on('open-file', (event, arg) => {
 
     // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
     if (mainWindow != null) {
+        let tmp_open_files = openFiles
+
+        // Clear just `openFiles` to avoid sending over residual items
+        // ... We do it before the `mainWindow.webContents.send`
+        // ... and send a copy (of `openFiles`) over to the render
+        openFiles = []
+
         // Push only 'openFiles' since 'arg is pushed'
-        mainWindow.webContents.send('ack-startup-process-args', { startup_args: startup_args, files: openFiles })
+        mainWindow.webContents.send('ack-startup-process-args', { startup_args: startup_args, trigger_files: tmp_open_files })
     } else {
         // If the window was closed we launch a new one to include the dropped item(s)
         if (app.isReady()) createWindow()
