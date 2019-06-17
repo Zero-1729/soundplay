@@ -35,6 +35,7 @@ mac:
 win:
     icon: static/icons/icon_256x256.ico
     target: nsis
+
 linux:
     icon: static/icons/icon_256x256.png
     category: Audio
