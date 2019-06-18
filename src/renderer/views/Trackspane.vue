@@ -729,37 +729,39 @@
         overflow-x hidden
         display block
 
-    tr th:first-child
+    tr#track-item
+        width 100%
+        display inline-flex
+
+    tr th:first-child, tr td:first-child
         width 40%
+        padding-left 10px
 
     tr th:nth-child(2)
         width 20%
 
     tr th:nth-child(3)
-        width 25%
+        width 24%
 
     tr th:last-child
-        width 15%
-
-    tr td:first-child
-        width 40%
+        width 16%
 
     tr td:nth-child(2)
         width 20%
+        padding-left 12px
 
     tr td:nth-child(3)
         width 25%
+        padding-left 10px
 
     tr td:last-child
         width 15%
+        padding-left 4px
+        padding-right 12px
 
     thead
         display table
         width calc(100vw - 250px)
-
-    tr
-        td:last-child
-            padding-right 12px
 
     th
         padding-bottom 20px
@@ -782,14 +784,11 @@
     .hover *
         cursor pointer
 
-    td, th
-        user-select none
-        padding-left 10px
-
     td:first-child, th:first-child
         padding-left 10px
 
     td, th
+        user-select none
         padding-left 1.6px
 
     td
