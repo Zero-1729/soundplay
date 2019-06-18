@@ -58,6 +58,9 @@ const windowState = WindowManager.init(app.getPath('userData'))
 // Array for storing dropped files when new window triggered
 var openFiles = []
 
+// For storing the current background color of the app's theme
+var windowBackgroundColor = windowState.backgroundColor
+
 app.on('open-file', (event, arg) => {
     event.preventDefault()
 
@@ -87,14 +90,15 @@ function createWindow () {
     */
 
     mainWindow = new BrowserWindow({
-        minHeight: 550,
-        height: windowState ? windowState.windowBounds.height : 600,
+        minHeight: 600,
+        height: windowState.windowBounds.height,
         useContentSize: true,
-        minWidth: 1060,
-        width: windowState ? windowState.windowBounds.width : 1100,
-        fullScreen: windowState ? windowState.isFullScreen : false,
-        x: windowState ? windowState.windowBounds.x : null,
-        y: windowState ? windowState.windowBounds.y : null,
+        minWidth: 1100,
+        width: windowState.windowBounds.width,
+        fullScreen: windowState.isFullScreen,
+        x: windowState.windowBounds.x,
+        y: windowState.windowBounds.y,
+        backgroundColor: windowState.backgroundColor,
         titleBarStyle: 'hiddenInset',
         icon: process.platform == 'win' ? Icons['ico'] : Icons['256'],
         webPreferences: {
@@ -123,6 +127,15 @@ function createWindow () {
         // Reset Open files
         openFiles = []
     })
+
+    // For syncing window bckground color
+    ipcMain.on('sync-background-color', (event, arg) => {
+        // Keep track of the windows background color so we can save it after the seesion
+        windowBackgroundColor = arg
+
+        // Reset the window background color
+        mainWindow.setBackgroundColor(windowBackgroundColor)
+    })
 }
 
 app.on('ready', createWindow)
@@ -131,7 +144,8 @@ app.on('window-all-closed', () => {
     // This ensures the state is always saved after each window is closed
     WindowManager.sync({
         isFullScreen: mainWindow.isFullScreen(),
-        windowBounds: mainWindow.getBounds()
+        windowBounds: mainWindow.getBounds(),
+        backgroundColor: windowBackgroundColor
     })
 
     if (process.platform !== 'darwin') {
@@ -145,7 +159,8 @@ app.on('quit', () => {
         // Window state still needs to be updated to the latest state before the session ended
         WindowManager.sync({
             isFullScreen: mainWindow.isFullScreen(),
-            windowBounds: mainWindow.getBounds()
+            windowBounds: mainWindow.getBounds(),
+            backgroundColor: windowBackgroundColor
         })
     }
 })
