@@ -10,6 +10,9 @@
             </transition>
         </span>
 
+        <!-- App EQ Component -->
+        <equalizer></equalizer>
+
         <transition name="rise">
             <div class="status-message" v-show="!statusMessage.isEmpty">
                 <div class="cancel-btn" @click="clearStatusMessage">
@@ -82,17 +85,14 @@
     import AudioSTS             from './components/Toolset/AudioSTS.vue'
     import Search               from './components/Search/SearchBar.vue'
     import Sidepane             from './components/Sidepane/Sidepane.vue'
+    import Equalizer            from './components/Equalizer.vue'
 
-    const schedule = require('node-schedule')
-
-    import {
-            mapActions,
+    import { mapActions,
             mapGetters }        from 'vuex'
 
     import FS                   from './utils/dirwalker'
 
-    import {
-            Id,
+    import { Id,
             ClassName }         from './utils/htmlQuery'
 
     import { isNightTime,
@@ -104,6 +104,7 @@
             ipcRenderer } = require('electron')
 
     const jsm             = require('jsmediatags')
+    const schedule        = require('node-schedule')
 
     const fs              = require('fs')
     const path            = require('path')
@@ -113,7 +114,8 @@
             Search,
             AudioTS,
             AudioSTS,
-            Sidepane
+            Sidepane,
+            Equalizer
         },
         data() {
             return {

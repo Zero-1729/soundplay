@@ -1,5 +1,5 @@
 <template>
-    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}" @click="clearModals">
+    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}" @click="clearAllHovering">
             <thead>
                 <tr>
                 <th @click="sort('title')">
@@ -187,7 +187,8 @@
                 'clearStatusMessage',
                 'clearErrorMessage',
                 'clearWarnMessage',
-                'clearFailMessage'
+                'clearFailMessage',
+                'toggleAudioEQVisibility'
             ]),
 
             isSameSource(track) {
@@ -242,13 +243,17 @@
                 this.unlockHotKey('backspace')
             },
 
-            clearModals() {
+            clearAllHovering() {
                 // Clear all error messages when user engages the tracks
                 // ... to avoid any annoying persisted error messages
                 this.clearStatusMessage()
                 this.clearErrorMessage()
                 this.clearWarnMessage()
                 this.clearFailMessage()
+
+                if (this.appAudioEQ.visible) {
+                    this.toggleAudioEQVisibility()
+                }
             },
 
             sort(kind) {
@@ -684,7 +689,8 @@
                 'enterLock',
                 'openPlaylistModal',
                 'allPlaylists',
-                'appIsLoading'
+                'appIsLoading',
+                'appAudioEQ'
             ]),
 
             keymap() {

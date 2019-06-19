@@ -71,7 +71,28 @@ const state = {
                 end_job: null
             }
         },
-        audio: {},
+        audio: {
+            eq: {
+                // Flat preset is the default
+                preamp: 12,
+                Hz_60: 0,
+                Hz_170: 0,
+                Hz_310: 0,
+                Hz_600: 0,
+                KHz_1: 0,
+                KHz_3: 0,
+                KHz_6: 0,
+                KHz_12: 0,
+                KHz_14: 0,
+                KHz_16: 0,
+
+                // Variable to assert whether the EQ is 'on' or 'off'
+                enabled: false,
+
+                // Whether its visible or not
+                visible: false
+            }
+        },
         isOpen: false,
         currentSetting: 'general'
     },
@@ -487,19 +508,20 @@ const mutations = {
     },
 
     // Audio
-    UPDATE_EXCLUDED_FOLDER (state, name) {
-        // Avoid adding duplicates
-        if (!(state.settings.general.excludedFolders.indexOf(name) != -1)) {
-            state.settings.general.excludedFolders.push(name)
-        }
+    SET_AUDIO_EQ (state, eq) {
+        state.settings.audio.eq = eq
     },
 
-    REMOVE_EXCLUDED_FOLDER (state, name) {
-        state.settings.general.excludedFolders = remove(state.settings.general.excludedFolders, name)
+    SET_AUDIO_EQ_LEVEL (state, arg) {
+        state.settings.audio.eq[arg.level] = arg.value
     },
 
-    CLEAR_EXCLUDED_FOLDER (state) {
-        state.settings.general.excludedFolders = []
+    TOGGLE_AUDIO_EQ (state, value) {
+        state.settings.audio.eq.enabled = value
+    },
+
+    SET_AUDIO_EQ_VISIBILITY (state) {
+        state.settings.audio.eq.visible = !state.settings.audio.eq.visible
     },
 
     // General
@@ -721,6 +743,22 @@ const actions = {
         commit('CLEAR_EXCLUDED_FOLDER')
     },
 
+    setAudioEQ: ({ commit }, eq) => {
+        commit('SET_AUDIO_EQ', eq)
+    },
+
+    setAudioEQLevel: ({ commit }, arg) => {
+        commit("SET_AUDIO_EQ_LEVEL", arg)
+    },
+
+    toggleAudioEQ: ({ commit }, value) => {
+        commit("TOGGLE_AUDIO_EQ", value)
+    },
+
+    toggleAudioEQVisibility: ({ commit }) => {
+        commit("SET_AUDIO_EQ_VISIBILITY")
+    },
+
     // Settings Open var action
     toggleSettings: ({ commit }) => {
         commit('TOGGLE_SETTINGS')
@@ -836,6 +874,11 @@ const getters = {
 
     settingsOpen (state) {
         return state.settings.isOpen
+    },
+
+    // Audio
+    appAudioEQ (state) {
+        return state.settings.audio.eq
     },
 
     // Modals

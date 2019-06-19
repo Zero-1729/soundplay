@@ -28,6 +28,12 @@
 }
 
 
+/* App EQ */
+.eq-container .eq-inner-container .eq input.preamp::-webkit-slider-thumb, .eq-container .eq-inner-container .eq .Hz-container input.Hz-item::-webkit-slider-thumb, .eq-container .eq-inner-container .eq .KHz-container input.KHz-item::-webkit-slider-thumb {
+    background: dodgerblue;
+}
+
+
 /* Search Component colors */
 .div-hor.holder input#search-input:focus {
     border-color: rgb(78,149,255);

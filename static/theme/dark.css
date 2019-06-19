@@ -33,6 +33,17 @@ body {
     border-color: #d24136;
 }
 
+/* App EQ */
+.eq-container {
+    background: #262626;
+    color: #cecece;
+    box-shadow: -6px 5px 15px 0px #171717;
+}
+
+.eq-container .eq-inner-container .eq input.preamp, .eq-container .eq-inner-container .eq .Hz-container input.Hz-item, .eq-container .eq-inner-container .eq .KHz-container input.KHz-item {
+    background: #4e4e4e;
+}
+
 
 /* Search Component colors */
 .search-icon path{
