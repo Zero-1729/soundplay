@@ -24,6 +24,18 @@
             <div class="eq">
                 <div class="preamp-container">
                     <input type="range" class="preamp" v-model="Preamp" :disabled="appAudioEQ.enabled == false">
+                    <div class="etches">
+                        <!-- I know its not the best solution -->
+                        <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+20 dB</p>
+                        <p>-</p>
+                        <p>-</p>
+                        <p>-</p>
+                        <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 dB</p>
+                        <p>-</p>
+                        <p>-</p>
+                        <p>-</p>
+                        <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-20 dB</p>
+                    </div>
                 </div>
                 <p class="preamp-text">Preamp</p>
 
@@ -322,6 +334,14 @@
                     height 25%
                     margin 50px -40px 0 -50px
                     transform rotate(90deg)
+                    .etches
+                        right 39px
+                        transform rotate(270deg)
+                        position absolute
+                        bottom -8px
+                        p
+                            margin 5.8px
+                            font-size 8px
                 p.preamp-text
                     height 0px
                     margin 0
