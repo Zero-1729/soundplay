@@ -73,18 +73,20 @@ const state = {
         },
         audio: {
             eq: {
-                // Flat preset is the default
-                preamp: 12,
-                Hz_60: 0,
-                Hz_170: 0,
-                Hz_310: 0,
-                Hz_600: 0,
-                KHz_1: 0,
-                KHz_3: 0,
-                KHz_6: 0,
-                KHz_12: 0,
-                KHz_14: 0,
-                KHz_16: 0,
+                channels: {
+                    // Flat preset is the default
+                    preamp: 12,
+                    Hz_60: 0,
+                    Hz_170: 0,
+                    Hz_310: 0,
+                    Hz_600: 0,
+                    KHz_1: 0,
+                    KHz_3: 0,
+                    KHz_6: 0,
+                    KHz_12: 0,
+                    KHz_14: 0,
+                    KHz_16: 0
+                },
 
                 // Variable to assert whether the EQ is 'on' or 'off'
                 enabled: false,
@@ -508,12 +510,22 @@ const mutations = {
     },
 
     // Audio
-    SET_AUDIO_EQ (state, eq) {
-        state.settings.audio.eq = eq
+    SET_ALL_AUDIO_EQ_CHANNELS (state, channels) {
+        state.settings.audio.eq.channels.preamp = channels.preamp
+        state.settings.audio.eq.channels.Hz_60  = channels.Hz_60
+        state.settings.audio.eq.channels.Hz_170 = channels.Hz_170
+        state.settings.audio.eq.channels.Hz_310 = channels.Hz_310
+        state.settings.audio.eq.channels.Hz_600 = channels.Hz_600
+        state.settings.audio.eq.channels.KHz_1  = channels.KHz_1
+        state.settings.audio.eq.channels.KHz_3  = channels.KHz_3
+        state.settings.audio.eq.channels.KHz_6  = channels.KHz_6
+        state.settings.audio.eq.channels.KHz_12 = channels.KHz_12
+        state.settings.audio.eq.channels.KHz_14 = channels.KHz_14
+        state.settings.audio.eq.channels.KHz_16 = channels.KHz_16
     },
 
     SET_AUDIO_EQ_LEVEL (state, arg) {
-        state.settings.audio.eq[arg.level] = arg.value
+        state.settings.audio.eq.channels[arg.channel] = arg.value
     },
 
     TOGGLE_AUDIO_EQ (state, value) {
@@ -743,8 +755,8 @@ const actions = {
         commit('CLEAR_EXCLUDED_FOLDER')
     },
 
-    setAudioEQ: ({ commit }, eq) => {
-        commit('SET_AUDIO_EQ', eq)
+    setAllAudioEQChannels: ({ commit }, channels) => {
+        commit('SET_ALL_AUDIO_EQ_CHANNELS', channels)
     },
 
     setAudioEQLevel: ({ commit }, arg) => {

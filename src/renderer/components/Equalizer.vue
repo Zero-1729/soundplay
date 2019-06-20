@@ -10,10 +10,10 @@
             </h4>
 
             <h4 class="enable-text">Enable</h4>
-            <input type="checkbox" class="enable-checkbox" @click="handler_toggleAudioEQ">
+            <input type="checkbox" class="enable-checkbox" @click="handler_toggleAudioEQ" :checked="appAudioEQ.enabled">
 
             <div class="preset-input">
-                <select @change="setEQ()" @click="handle_force_checked">
+                <select @change="setEQ()" :disabled="appAudioEQ.enabled == false">
                     <option v-for="preset in presets">
                         {{ preset }}
                     </option>
@@ -23,41 +23,41 @@
         <div class="eq-inner-container" :class="{'disabled': appAudioEQ.enabled == false, 'enabled': appAudioEQ.enabled == true}">
             <div class="eq">
                 <div class="preamp-container">
-                    <input type="range" class="preamp" @click="setEQLevel('Preamp', null)" v-model="Preamp">
+                    <input type="range" class="preamp" v-model="Preamp" :disabled="appAudioEQ.enabled == false">
                 </div>
                 <p class="preamp-text">Preamp</p>
 
                 <div class="Hz-container">
                     <label class="label-three">600</label>
-                    <input type="range" class="Hz-item" @click="setEQLevel('Hz', 600)" :disabled="appAudioEQ.enabled == false" v-model="Hz_600">
+                    <input type="range" class="Hz-item" :disabled="appAudioEQ.enabled == false" v-model="Hz_600">
 
                     <label class="label-three">310</label>
-                    <input type="range" class="Hz-item" @click="setEQLevel('Hz', 310)" :disabled="appAudioEQ.enabled == false" v-model="Hz_310">
+                    <input type="range" class="Hz-item" :disabled="appAudioEQ.enabled == false" v-model="Hz_310">
 
                     <label class="label-three">170</label>
-                    <input type="range" class="Hz-item" @click="setEQLevel('Hz', 170)" :disabled="appAudioEQ.enabled == false" v-model="Hz_170">
+                    <input type="range" class="Hz-item" :disabled="appAudioEQ.enabled == false" v-model="Hz_170">
 
                     <label class="label-two">60</label>
-                    <input type="range" class="Hz-item" @click="setEQLevel('Hz', 60)" :disabled="appAudioEQ.enabled == false" v-model="Hz_60">
+                    <input type="range" class="Hz-item" :disabled="appAudioEQ.enabled == false" v-model="Hz_60">
                 </div>
                 <div class="KHz-container">
                     <label class="label-three">16K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 16)" :disabled="appAudioEQ.enabled == false" v-model="KHz_16">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_16">
 
                     <label class="label-three">14K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 14)" :disabled="appAudioEQ.enabled == false" v-model="KHz_14">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_14">
 
                     <label class="label-three">12K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 12)" :disabled="appAudioEQ.enabled == false" v-model="KHz_12">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_12">
 
                     <label class="label-two">6K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 6)" :disabled="appAudioEQ.enabled == false" v-model="KHz_6">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_6">
 
                     <label class="label-two">3K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 3)" :disabled="appAudioEQ.enabled == false" v-model="KHz_3">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_3">
 
                     <label class="label-two">1K</label>
-                    <input type="range" class="KHz-item" @click="setEQLevel('KHz', 1)" :disabled="appAudioEQ.enabled == false" v-model="KHz_1">
+                    <input type="range" class="KHz-item" :disabled="appAudioEQ.enabled == false" v-model="KHz_1">
                 </div>
             </div>
         </div>
@@ -103,17 +103,11 @@
             ...mapActions([
                 'toggleAudioEQ',
                 'setAudioEQLevel',
-                'setAudioEQ'
+                'setAllAudioEQChannels'
             ]),
 
             handler_toggleAudioEQ() {
                 this.toggleAudioEQ(event.target.checked)
-            },
-
-            handle_force_checked() {
-                ClassNameSingle('enable-checkbox').checked = true
-
-                this.toggleAudioEQ(true)
             },
 
             resetChannels() {
@@ -122,11 +116,11 @@
                 this.setEQ(TagNameSingle('select').value)
             },
 
-            setEQLevel(range, level) {
+            setEQLevel(range, level, value) {
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    level: range + '_' + level,
-                    value: this.translateValue(event.target.value)
+                    channel: level != null ? range + '_' + level : range,
+                    value: this.translateValue(value)
                 })
 
                 // Unlock mutex
@@ -137,7 +131,7 @@
                 // Setting preset for EQ
                 let preset = !value ? event.target.value : value
 
-                this.setAudioEQ(presetEQs[preset])
+                this.setAllAudioEQChannels(presetEQs[preset])
             },
 
             flipValue(val) {
@@ -162,48 +156,103 @@
             ]),
 
             // EQ channels
-            Preamp() {
-                return this.reverseValue(this.appAudioEQ.preamp)
+            Preamp: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.preamp)
+                },
+                set (value) {
+                    this.setEQLevel('preamp', null, value)
+                }
             },
 
-            Hz_60() {
-                return this.reverseValue(this.appAudioEQ.Hz_60)
+            Hz_60: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.Hz_60)
+                },
+                set(value) {
+                    this.setEQLevel('Hz', 60, value)
+                }
             },
 
-            Hz_170() {
-                return this.reverseValue(this.appAudioEQ.Hz_170)
+            Hz_170: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.Hz_170)
+                },
+                set(value) {
+                    this.setEQLevel('Hz', 170, value)
+                }
             },
 
-            Hz_310() {
-                return this.reverseValue(this.appAudioEQ.Hz_310)
+            Hz_310: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.Hz_310)
+                },
+                set(value) {
+                    this.setEQLevel('Hz', 310, value)
+                }
             },
 
-            Hz_600() {
-                return this.reverseValue(this.appAudioEQ.Hz_600)
+            Hz_600: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.Hz_600)
+                },
+                set(value) {
+                    this.setEQLevel('Hz', 600, value)
+                }
             },
 
-            KHz_1() {
-                return this.reverseValue(this.appAudioEQ.KHz_1)
+            KHz_1: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_1)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 1, value)
+                }
             },
 
-            KHz_3() {
-                return this.reverseValue(this.appAudioEQ.KHz_3)
+            KHz_3: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_3)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 3, value)
+                }
             },
 
-            KHz_6() {
-                return this.reverseValue(this.appAudioEQ.KHz_6)
+            KHz_6: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_6)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 6, value)
+                }
             },
 
-            KHz_12() {
-                return this.reverseValue(this.appAudioEQ.KHz_12)
+            KHz_12: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_12)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 12, value)
+                }
             },
 
-            KHz_14() {
-                return this.reverseValue(this.appAudioEQ.KHz_14)
+            KHz_14: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_14)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 14, value)
+                }
             },
 
-            KHz_16() {
-                return this.reverseValue(this.appAudioEQ.KHz_16)
+            KHz_16: {
+                get() {
+                    return this.reverseValue(this.appAudioEQ.channels.KHz_16)
+                },
+                set(value) {
+                    this.setEQLevel('KHz', 16, value)
+                }
             }
         }
     }
