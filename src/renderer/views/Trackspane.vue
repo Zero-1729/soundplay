@@ -3,16 +3,16 @@
             <thead>
                 <tr>
                 <th @click="sort('title')">
-                    <p>Title</p>
+                    <p :class="{'default-cursor': filteredPool.length == 0}">Title</p>
                 </th>
                 <th @click="sort('artist')">
-                    <p>Artist</p>
+                    <p :class="{'default-cursor': filteredPool.length == 0}">Artist</p>
                 </th>
                 <th @click="sort('album')">
-                    <p>Album</p>
+                    <p :class="{'default-cursor': filteredPool.length == 0}">Album</p>
                 </th>
                 <th @click="sort('genre')">
-                    <p>Genre</p>
+                    <p :class="{'default-cursor': filteredPool.length == 0}">Genre</p>
                 </th>
             </tr>
             </thead>
@@ -725,7 +725,7 @@
 
     .tracklist
         position absolute
-        top 96px
+        top 110px
         left 250px
         width calc(100vw - 250px)
 
@@ -819,7 +819,7 @@
         align-items center
         justify-content center
         width inherit
-        height 80vh
+        height 75vh
         animation slide 0.2s ease-in
         h4
             text-align center
@@ -864,6 +864,9 @@
         left 0
         bottom 2.5px
         transition background 0.3s ease-out
+
+    .default-cursor
+        cursor default
 
     .drop-in-left-active, .drop-in-left-leave-to
         transition all 0.4s
