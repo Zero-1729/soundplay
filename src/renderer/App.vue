@@ -136,6 +136,11 @@
             this.clearWarnMessage()
             this.clearFailMessage()
 
+            // Hide App Audio EQ if it was opened in a previous session
+            if (this.appAudioEQ.visible) {
+                this.toggleAudioEQVisibility()
+            }
+
             // Clear playing track, criteria and target
             this.clearCurrentTrack()
             this.updatePlayingCriteria(null)
@@ -360,7 +365,8 @@
                 'setNightMode',
                 'setJobsFn',
                 'setLoading',
-                'unlockHotKey'
+                'unlockHotKey',
+                'toggleAudioEQVisibility'
             ]),
 
             isEmpty(item) {
@@ -641,7 +647,8 @@
                 'appTheme',
                 'appNightMode',
                 'appAutoNightMode',
-                'appAutoNightModeTime'
+                'appAutoNightModeTime',
+                'appAudioEQ'
             ])
         },
     }
