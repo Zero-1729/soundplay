@@ -203,10 +203,16 @@
                     return this.appTheme
                 },
                 set(value) {
-                    // If we change back to night mode we have to also toggle out from night mode
-                    // ... we need to keep 'nightmode' toggle aware of the current theme
-                    if (value == 'light') {
+                    // The night mode toggle should only be triggered if we change to the 'nightmode' theme
+                    // ... else, we toggle it off, to ensure it is (theme) responsive
+                    if (this.currentNightModeTheme != value) {
                         this.setNightMode(false)
+                    } else {
+                        // Force night mode to be toggled
+                        // ... that is, if it matches the night mode theme
+                        if (this.currentNightModeTheme == value) {
+                            this.setNightMode(true)
+                        }
                     }
 
                     this.changeTheme(value)
