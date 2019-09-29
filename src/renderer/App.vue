@@ -162,6 +162,20 @@
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_update)
 
+            // Respond to media key presses
+            ipcRenderer.on('media-keys-press', (event, arg) => {
+                if (arg == 0) {
+                    // Play/Pause
+                    console.log("detected play/pause")
+                } else if (arg == -1) {
+                    // Previous
+                    console.log('detected previous')
+                } else if (arg == 1) {
+                    // Next
+                    console.log('detected next')
+                }
+            })
+
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
 

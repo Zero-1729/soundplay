@@ -2,6 +2,7 @@ import {
         app,
         BrowserWindow,
         nativeImage,
+        globalShortcut,
         Menu,
         shell,
         ipcMain
@@ -136,6 +137,27 @@ function createWindow () {
         // Reset the window background color
         mainWindow.setBackgroundColor(windowBackgroundColor)
     })
+
+    // Register Media key shortcuts
+    const mpp = globalShortcut.register('mediaplaypause', () => {
+        console.log('Media Play/Pause is pressed')
+
+        mainWindow.webContents.send('media-keys-press', 0)
+    })
+
+    const mp = globalShortcut.register('mediaprevioustrack', () => {
+        console.log('Media Previous is pressed')
+
+        mainWindow.webContents.send('media-keys-press', -1)
+    })
+
+    const mn = globalShortcut.register('medianexttrack', () => {
+        console.log('Media Next is pressed')
+
+        mainWindow.webContents.send('media-keys-press', 1)
+    })
+
+    if (!(mpp || mp || np)) { console.log('Media keys registration failed') }
 }
 
 app.on('ready', createWindow)
@@ -151,6 +173,10 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
+})
+
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
 })
 
 app.on('quit', () => {
