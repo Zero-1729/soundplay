@@ -140,20 +140,14 @@ function createWindow () {
 
     // Register Media key shortcuts
     const mpp = globalShortcut.register('mediaplaypause', () => {
-        console.log('Media Play/Pause is pressed')
-
         mainWindow.webContents.send('media-keys-press', 0)
     })
 
     const mp = globalShortcut.register('mediaprevioustrack', () => {
-        console.log('Media Previous is pressed')
-
         mainWindow.webContents.send('media-keys-press', -1)
     })
 
     const mn = globalShortcut.register('medianexttrack', () => {
-        console.log('Media Next is pressed')
-
         mainWindow.webContents.send('media-keys-press', 1)
     })
 
