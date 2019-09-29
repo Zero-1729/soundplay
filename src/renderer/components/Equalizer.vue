@@ -83,7 +83,7 @@
     import { TagNameSingle,
             ClassNameSingle }   from './../utils/htmlQuery'
 
-    const presetEQs  = require('./../utils/preset_eqs.json')
+    const presetEQs  = require('./../data/preset_eqs.json')
 
     export default {
         data() {
