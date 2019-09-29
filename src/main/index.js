@@ -239,7 +239,46 @@ const template = [
         ]
     },
     {
-        label: 'view',
+        label: 'Controls',
+        submenu: [
+            {
+                label: 'Play/Pause',
+                click() {},
+            },
+            {
+                label: 'Stop',
+                click() {}
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Previous',
+                click() {}
+            },
+            {
+                label: 'Next',
+                click() {}
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toogle Shuffle',
+                click() {}
+            },
+            {
+                label: 'Toggle Loop Single',
+                click() {}
+            },
+            {
+                label: 'Toggle Loop All',
+                click() {}
+            }
+        ]
+    },
+    {
+        label: 'View',
         submenu: [
             {
                 role: 'reload'
@@ -270,7 +309,7 @@ const template = [
         ]
     },
     {
-        label: 'window',
+        label: 'Window',
         submenu: [
             {
                 role: 'togglefullscreen'
