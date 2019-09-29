@@ -1,7 +1,7 @@
 <template>
     <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}" @click="clearAllHovering">
-            <thead>
-                <tr>
+        <thead>
+            <tr>
                 <th @click="sort('title')">
                     <p :class="{'default-cursor': filteredPool.length == 0}">Title</p>
                 </th>
@@ -15,17 +15,17 @@
                     <p :class="{'default-cursor': filteredPool.length == 0}">Genre</p>
                 </th>
             </tr>
-            </thead>
-            <div class="empty-pool-info" v-if="filteredPool.length == 0">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="578 291 86 86" width="86" height="86">
-                    <path d=" M 578 334 C 578 310.268 597.268 291 621 291 C 644.732 291 664 310.268 664 334 C 664 357.732 644.732 377 621 377 C 597.268 377 578 357.732 578 334 Z  M 612.042 334 C 612.042 329.056 616.056 325.042 621 325.042 C 625.944 325.042 629.958 329.056 629.958 334 C 629.958 338.944 625.944 342.958 621 342.958 C 616.056 342.958 612.042 338.944 612.042 334 Z " fill-rule="evenodd" />
-                </svg>
-                <h4>{{ allTracks.length > 0 ? 'No Tracks found' : 'Drag and Drop sound files here to add sound' }}</h4>
-            </div>
+        </thead>
+        <div class="empty-pool-info" v-if="filteredPool.length == 0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="578 291 86 86" width="86" height="86">
+                <path d=" M 578 334 C 578 310.268 597.268 291 621 291 C 644.732 291 664 310.268 664 334 C 664 357.732 644.732 377 621 377 C 597.268 377 578 357.732 578 334 Z  M 612.042 334 C 612.042 329.056 616.056 325.042 621 325.042 C 625.944 325.042 629.958 329.056 629.958 334 C 629.958 338.944 625.944 342.958 621 342.958 C 616.056 342.958 612.042 338.944 612.042 334 Z " fill-rule="evenodd" />
+            </svg>
+            <h4>{{ allTracks.length > 0 ? 'No Tracks found' : 'Drag and Drop sound files here to add sound' }}</h4>
+        </div>
 
-            <tbody>
-                <transition-group :name="trackTransition" tag="tbody">
-                <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
+        <tbody>
+            <transition-group :name="trackTransition" tag="tbody">
+            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
                 v-if="allTracks.length > 0"
                 @contextmenu.prevent
                 @mousedown.right.capture="showTrackOptions(track)"
@@ -50,22 +50,22 @@
                     </td>
                 </tr>
             </transition-group>
-            </tbody>
+        </tbody>
 
-            <div class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
-                <h4>New Playlist</h4>
-                <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
+        <div class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
+            <h4>New Playlist</h4>
+            <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
                 @focus="focused = true"
                 @blur="focused = false"/>
-            </div>
-        </table>
+        </div>
+    </table>
 </template>
 
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
     import { Id,
-            QuerySelectorAll }       from './../utils/htmlQuery'
+            QuerySelectorAll }        from './../utils/htmlQuery'
 
     const { buildMap,
             getIndexFromKey } = require('./../utils/object')

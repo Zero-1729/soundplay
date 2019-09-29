@@ -4,6 +4,7 @@
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
         <Sidepane></Sidepane>
+
         <span>
             <transition name="faded-slide-in">
                 <router-view></router-view>
