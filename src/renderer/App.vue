@@ -287,6 +287,33 @@
                     this.setNightMode(true)
                 }
             }
+
+            // Media controls
+            // Playback
+            ipcRenderer.on('media-playpause', (event, arg) => {})
+            ipcRenderer.on('media-prev', (event, arg) => {})
+            ipcRenderer.on('media-next', (event, arg) => {})
+
+            ipcRenderer.on('toggle-shuffle', (event, arg) => {})
+            ipcRenderer.on('toggle-loop', (event, arg) => {})
+
+            // Audio
+            ipcRenderer.on('toggle-mute', (event, arg) => {
+                this.toggleMute()
+            })
+
+            ipcRenderer.on('volume', (event, arg) => {
+                // store current Volume
+                let cv = this.appAudioPrefs.volume
+                let newVal = arg == -1 ? cv - 0.0625 : cv + 0.0625
+
+                // Step is 6.25, 16 volume bars (as in MacOS)
+                if (arg == -1) {
+                    this.updateVolume(newVal < 0 ? 0 : newVal)
+                } else {
+                    this.updateVolume(newVal > 1 ? 1 : newVal)
+                }
+            })
         },
         watch: {
             '$route' (cur, old) {
@@ -374,6 +401,8 @@
                 'clearCurrentTrack',
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
+                'updateVolume',
+                'toggleMute',
                 'toggleSettings',
                 'loadTheme',
                 'toggleNightMode',
@@ -663,7 +692,8 @@
                 'appNightMode',
                 'appAutoNightMode',
                 'appAutoNightModeTime',
-                'appAudioEQ'
+                'appAudioEQ',
+                'appAudioPrefs'
             ])
         },
     }
