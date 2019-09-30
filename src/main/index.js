@@ -239,41 +239,78 @@ const template = [
         ]
     },
     {
-        label: 'Controls',
+        label: 'Playback',
         submenu: [
             {
                 label: 'Play/Pause',
-                click() {},
-            },
-            {
-                label: 'Stop',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('media-playpause', null)
+                },
             },
             {
                 type: 'separator'
             },
             {
                 label: 'Previous',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('media-prev', null)
+                }
             },
             {
                 label: 'Next',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('media-next', null)
+                }
             },
             {
                 type: 'separator'
             },
             {
                 label: 'Toogle Shuffle',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('toggle-Shuffle', null)
+                }
             },
             {
                 label: 'Toggle Loop Single',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('toggle-loop', 'single')
+                }
             },
             {
                 label: 'Toggle Loop All',
-                click() {}
+                click() {
+                    mainWindow.webContents.send('toggle-loop', 'all')
+                }
+            }
+        ]
+    },
+    {
+        label: 'Audio',
+        submenu: [
+            {
+                label: 'Mute',
+                accelerator: 'CmdOrCtrl+M',
+                click() {
+                    mainWindow.webContents.send('toggle-mute', null)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Volume Up',
+                accelerator: 'CmdOrCtrl+=',
+                click() {
+                    mainWindow.webContents.send('volume', 1)
+                }
+            },
+            {
+                label: 'Volume Down',
+                accelerator: 'CmdOrCtrl+-',
+                click() {
+                    mainWindow.webContents.send('volume', -1)
+                }
             }
         ]
     },
@@ -393,7 +430,7 @@ if (process.platform == 'darwin') {
     )
 
     // Window
-    template[3].submenu.push(
+    template[5].submenu.push(
         {
             type: 'separator'
         },
