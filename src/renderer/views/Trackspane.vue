@@ -76,6 +76,7 @@
             ipcRenderer }     = require('electron')
 
     export default {
+        props: ['player'],
         data() {
             return {
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
@@ -426,6 +427,7 @@
                                 vm.clearCurrentTrack()
 
                                 // Pause Player here
+                                this.player.clear()
                             }
 
                             if (vm.selectedTracks.length > 0) {
@@ -436,10 +438,10 @@
                                     vm.deleteSelectedTracks()
                                 }
                             } else {
-                                if (this.isSameSource(track)) {
+                                if (vm.isSameSource(track)) {
                                     // To avoid still darkening the criteria post deletion
-                                    this.playingCriteriaLock = true
-                                    this.updatePlayingCriteria(null)
+                                    vm.playingCriteriaLock = true
+                                    vm.updatePlayingCriteria(null)
                                 }
 
                                 vm.deleteTrack(track)
@@ -569,6 +571,7 @@
                     this.updatePlayingCriteria(null)
 
                     // Pause player
+                    this.player.clear()
                 }
 
                 if (this.currentCriteria == 'playlist') {
@@ -616,6 +619,13 @@
                 if (this.selectedTracks.includes(this.currentTracks) && !this.backspaceLock) {
                     this.playingCriteriaLock = true
                     this.clearCurrentTrack()
+                    this.updatePlayingCriteria(null)
+                }
+
+                // Delete current track if deleted
+                if (this.isSameSource(this.filteredPool[this.index])) {
+                    this.clearCurrentTrack()
+                    this.player.clear()
                     this.updatePlayingCriteria(null)
                 }
 
@@ -780,7 +790,7 @@
     td, th
         text-align left
         padding 0.2rem 0.1rem
-        transition background 0.125s ease-in
+        transition background 0.025s ease-in
         height 18px
         word-break break-all
 

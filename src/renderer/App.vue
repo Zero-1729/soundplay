@@ -1,5 +1,6 @@
 <template>
     <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
+        <Panel :track="currentTrack" :pos="currentPos" :player="player"></Panel>
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
@@ -7,7 +8,7 @@
 
         <span>
             <transition name="faded-slide-in">
-                <router-view></router-view>
+                <router-view :player="player"></router-view>
             </transition>
         </span>
 
@@ -82,6 +83,10 @@
 </template>
 
 <script>
+    window.ws = require('wavesurfer.js')
+    window.fs = require('fs')
+
+    import Panel                from './components/Player/Panel.vue'
     import AudioTS              from './components/Toolset/AudioTS.vue'
     import AudioSTS             from './components/Toolset/AudioSTS.vue'
     import Search               from './components/Search/SearchBar.vue'
@@ -92,6 +97,8 @@
             mapGetters }        from 'vuex'
 
     import FS                   from './utils/dirwalker'
+
+    import Player               from './utils/player'
 
     import { Id,
             ClassName }         from './utils/htmlQuery'
@@ -112,6 +119,7 @@
 
     export default {
         components: {
+            Panel,
             Search,
             AudioTS,
             AudioSTS,
@@ -124,7 +132,9 @@
                 imported_folders: [],
                 failed_imports: [],
                 imports: 0,
-                imports_count: 0
+                imports_count: 0,
+                player: null,
+                currentPos: '-'
             }
         },
         created() {
@@ -168,6 +178,7 @@
                 if (arg == 0) {
                     // Play/Pause
                     console.log("detected play/pause")
+                    this.player.playpause()
                 } else if (arg == -1) {
                     // Previous
                     console.log('detected previous')
@@ -290,7 +301,9 @@
 
             // Media controls
             // Playback
-            ipcRenderer.on('media-playpause', (event, arg) => {})
+            ipcRenderer.on('media-playpause', (event, arg) => {
+                this.player.playpause()
+            })
             ipcRenderer.on('media-prev', (event, arg) => {})
             ipcRenderer.on('media-next', (event, arg) => {})
 
@@ -300,6 +313,7 @@
             // Audio
             ipcRenderer.on('toggle-mute', (event, arg) => {
                 this.toggleMute()
+                this.player.mute()
             })
 
             ipcRenderer.on('volume', (event, arg) => {
@@ -313,9 +327,66 @@
                 } else {
                     this.updateVolume(newVal > 1 ? 1 : newVal)
                 }
+
+                this.player.updateVolume(this.appAudioPrefs.volume)
+            })
+        },
+        mounted() {
+            // Create new player
+            this.player = new Player(this.currentTrack, {
+                window: window,
+                volume: this.appAudioPrefs.volume,
+                loop: this.appAudioPrefs.loop,
+                mute: this.appAudioPrefs.mute
+            })
+
+            // Lets watch for window resizes so we can redraw our wave
+            window.addEventListener('resize', () => {
+                if (this.player) this.player.device.drawBuffer()
+            })
+
+            this.player.device.on('ready', () => {
+                // When track fully loaded
+                if (this.currentTrack.img) {
+                    Id('album-art').src = this.currentTrack.img
+                }
+
+                this.editTrack({
+                    id: this.currentTrack.id,
+                    meta: 'duration',
+                    value: this.player.getDuration()
+                })
+
+                // We check for autoplay, if on, we immediately play track
+                this.player.device.play()
+
+                // We update the tracks peeks and duration from here
+            })
+
+            this.player.device.on('audioprocess', () => {
+                // When track playing
+
+                // So we update the current track position
+
+                this.currentPos = this.player.getCurrentPos()
+            })
+
+            this.player.device.on('finish', () => {
+                // When track is done playing
+
+                // So if no loop, we reset the waveform cursor to the begining
+
+                // Loop code here
+                // Possibly our shuffle code as well, or we updated/replace pool
+                // ... from the player
             })
         },
         watch: {
+            currentTrack (cur, old) {
+                if (cur) {
+                    this.player.playNew(cur.source)
+                }
+            },
             '$route' (cur, old) {
                 if (cur.path == '/') {
                     this.windowUpdated()
@@ -389,6 +460,7 @@
         methods: {
             ...mapActions([
                 'addTrack',
+                'editTrack',
                 'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
@@ -527,7 +599,8 @@
                     album: null,
                     genre: null,
                     year: null,
-                    source: fp
+                    source: fp,
+                    img: null
                 }
 
                 // Fill in the track template
@@ -543,7 +616,7 @@
                 // ... maybe we load it when track is going to play
                 // ... Or, we could write it to a file instead
                 // ... and read it when track is going to play?
-                // meta.art = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+                meta.img = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
                 meta.genre = this.isEmpty(tag.tags.genre) ? 'Unknown' : tag.tags.genre
 
@@ -565,7 +638,7 @@
                 // ... This allows us to still have access to the sound's filepath
                 new Promise((resolve, reject) => {
                     new jsm.Reader(track).setTagsToRead([
-                    'title', 'artist', 'album', 'genre', 'year'
+                    'title', 'artist', 'album', 'genre', 'year', 'picture'
                     ]).read({
                         onSuccess: (tag) => {
                             resolve({
@@ -679,6 +752,7 @@
         },
         computed: {
             ...mapGetters([
+                'currentTrack',
                 'currentCriteria',
                 'currentTarget',
                 'statusMessage',

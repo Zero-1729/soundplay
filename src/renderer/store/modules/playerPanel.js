@@ -75,6 +75,7 @@ const getters = {
     appAudioPrefs(state) {
         return {
             volume: state.volume,
+            lastVolume: state.lastVolume,
             mute: state.mute,
             loopSingle: state.loopSingle,
             loopAll: state.loopAll

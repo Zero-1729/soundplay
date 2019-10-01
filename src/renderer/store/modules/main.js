@@ -123,6 +123,7 @@ const mutations = {
             album: meta.album,
             genre: meta.genre,
             source: meta.source,
+            img: meta.img,
             favourite: false,
             plays: 0,
             peaks: null,
@@ -150,6 +151,11 @@ const mutations = {
             // ... we log the duplicated files to be reported later
             state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
         }
+    },
+
+    EDIT_TRACK (state, obj) {
+        let index = getIndexFromKey(state.music, 'id', obj.id)
+        state.music[index][obj.meta] = obj.value
     },
 
     DELETE_TRACK (state, track) {
@@ -582,6 +588,10 @@ const mutations = {
 const actions = {
     addTrack: ({ commit }, info) => {
         commit('ADD_TRACK', info)
+    },
+
+    editTrack: ({ commit }, obj) => {
+        commit('EDIT_TRACK', obj)
     },
 
     deleteTrack: ({ commit }, track) => {
