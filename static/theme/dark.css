@@ -3,6 +3,22 @@ body {
     background: #2f2f2f;
 }
 
+/* Player */
+h4, .duration p {
+    color: white;
+}
+
+svg path.stroked {
+    stroke: #dedede;
+}
+svg path.filled {
+    fill: #dedede;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #525252;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */

@@ -1,5 +1,21 @@
 /* General App colors */
 
+/* Player */
+h4, .duration p {
+    color: #a0a0a0;
+}
+
+svg path.stroked {
+    stroke: #a0a0a0;
+}
+svg path.filled {
+    fill: #a0a0a0;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #f9f9f9;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */

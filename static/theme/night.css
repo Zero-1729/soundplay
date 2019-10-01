@@ -3,6 +3,22 @@ body {
     background: #0e2c42;
 }
 
+/* Player */
+h4, .duration p {
+    color: white;
+}
+
+svg path.stroked {
+    stroke: #dedede;
+}
+svg path.filled {
+    fill: #dedede;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #1e4058;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */
@@ -73,7 +89,7 @@ body {
 }
 
 #app .virtical-div .empty-listing h4 {
-    color: #122433;
+    color: #346588;
 }
 
 #app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
