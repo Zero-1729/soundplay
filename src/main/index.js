@@ -243,6 +243,7 @@ const template = [
         submenu: [
             {
                 label: 'Play/Pause',
+                accelerator: 'CmdOrCtrl+P',
                 click() {
                     mainWindow.webContents.send('media-playpause', null)
                 },
@@ -252,12 +253,14 @@ const template = [
             },
             {
                 label: 'Previous',
+                accelerator: 'CmdOrCtrl+left',
                 click() {
                     mainWindow.webContents.send('media-prev', null)
                 }
             },
             {
                 label: 'Next',
+                accelerator: 'CmdOrCtrl+right',
                 click() {
                     mainWindow.webContents.send('media-next', null)
                 }
@@ -267,18 +270,21 @@ const template = [
             },
             {
                 label: 'Toogle Shuffle',
+                accelerator: 'CmdOrCtrl+Shift+Z',
                 click() {
                     mainWindow.webContents.send('toggle-Shuffle', null)
                 }
             },
             {
                 label: 'Toggle Loop Single',
+                accelerator: 'CmdOrCtrl+L',
                 click() {
                     mainWindow.webContents.send('toggle-loop', 'single')
                 }
             },
             {
                 label: 'Toggle Loop All',
+                accelerator: 'CmdOrCtrl+Shift+L',
                 click() {
                     mainWindow.webContents.send('toggle-loop', 'all')
                 }
@@ -290,7 +296,7 @@ const template = [
         submenu: [
             {
                 label: 'Mute',
-                accelerator: 'CmdOrCtrl+M',
+                accelerator: 'CmdOrCtrl+Alt+M',
                 click() {
                     mainWindow.webContents.send('toggle-mute', null)
                 }
