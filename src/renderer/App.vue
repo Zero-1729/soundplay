@@ -816,6 +816,9 @@
         font-family Lato
         font-size 12px
 
+    h4, p
+        user-select none
+
     input:focus, p:focus, select:focus, button, button:focus
         outline none
 
