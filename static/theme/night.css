@@ -4,7 +4,7 @@ body {
 }
 
 /* Player */
-h4, .duration p {
+.track-info h4, .track-info .middle .duration p {
     color: white;
 }
 
