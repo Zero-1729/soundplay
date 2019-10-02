@@ -23,11 +23,11 @@
                             <path class="filled" d=" M 34.702 30.458 L 34.702 29 L 34.702 27.542 C 34.702 27.373 34.82 27.305 34.967 27.389 L 36.229 28.118 L 37.492 28.847 C 37.638 28.932 37.638 29.068 37.492 29.153 L 36.229 29.882 L 34.967 30.611 C 34.82 30.695 34.702 30.627 34.702 30.458 Z "/>
                         </svg>
                         <div class="loop">
-                            <svg class="loop-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && !appAudioPrefs.loopAll, hide: appAudioPrefs.loopAll, on: appAudioPrefs.loopSingle}">
+                            <svg class="loop-icon" @click="setLoop('single')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && !appAudioPrefs.loopAll, hide: appAudioPrefs.loopAll, on: appAudioPrefs.loopSingle}">
                                 <path class="filled" d=" M 23.75 21 L 19.05 21 L 19.05 21 C 16.263 21 14 22.904 14 25.25 L 14 25.25 C 14 27.596 16.263 29.5 19.05 29.5 L 30.95 29.5 C 33.737 29.5 36 27.596 36 25.25 L 36 25.25 C 36 22.904 33.737 21 30.95 21 L 28 21 L 28 20 L 23.75 20 L 23.75 21 Z  M 18.862 20 L 31.138 20 C 34.373 20 37 22.352 37 25.25 L 37 25.25 C 37 28.148 34.373 30.5 31.138 30.5 L 18.862 30.5 C 15.627 30.5 13 28.148 13 25.25 L 13 25.25 C 13 22.352 15.627 20 18.862 20 L 18.862 20 Z " fill-rule="evenodd"/>
                                 <path class="filled" d=" M 23 22.254 L 23 20.491 L 23 18.728 C 23 18.524 23.143 18.442 23.319 18.544 L 24.844 19.425 L 26.368 20.306 C 26.544 20.408 26.544 20.574 26.368 20.676 L 24.844 21.557 L 23.319 22.438 C 23.143 22.54 23 22.457 23 22.254 Z "/>
                             </svg>
-                            <svg class="loop-icon alt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && appAudioPrefs.loopAll, hide: appAudioPrefs.loopSingle || !appAudioPrefs.loopAll, on: appAudioPrefs.loopAll}">
+                            <svg class="loop-icon alt" @click="setLoop('all')"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && appAudioPrefs.loopAll, hide: appAudioPrefs.loopSingle || !appAudioPrefs.loopAll, on: appAudioPrefs.loopAll}">
                                 <path class="filled" d=" M 19.75 30.5 L 18.862 30.5 C 15.627 30.5 13 28.148 13 25.25 L 13 25.25 C 13 22.352 15.627 20 18.862 20 L 18.862 20 L 25.75 20 L 25.75 21 L 19.05 21 L 19.05 21 C 16.263 21 14 22.904 14 25.25 L 14 25.25 C 14 27.596 16.263 29.5 19.05 29.5 L 30.95 29.5 C 33.737 29.5 36 27.596 36 25.25 L 36 25.25 C 36 22.904 33.737 21 30.95 21 L 30 21 L 30 20 L 31.138 20 C 34.373 20 37 22.352 37 25.25 L 37 25.25 C 37 28.148 34.373 30.5 31.138 30.5 L 24 30.5 L 24 29.5 L 19.75 29.5 L 19.75 30.5 Z " fill-rule="evenodd"/>
                                 <path class="filled" d=" M 24 22.254 L 24 20.491 L 24 18.728 C 24 18.524 24.143 18.442 24.319 18.544 L 25.844 19.425 L 27.368 20.306 C 27.544 20.408 27.544 20.574 27.368 20.676 L 25.844 21.557 L 24.319 22.438 C 24.143 22.54 24 22.457 24 22.254 Z "/>
                                 <path class="filled" d=" M 26 31.772 L 26 30.009 L 26 28.246 C 26 28.043 25.857 27.96 25.681 28.062 L 24.156 28.943 L 22.632 29.824 C 22.456 29.926 22.456 30.092 22.632 30.194 L 24.156 31.075 L 25.681 31.956 C 25.857 32.058 26 31.976 26 31.772 Z "/>
@@ -82,7 +82,8 @@
                 'toggleMute',
                 'setVolume',
                 'updateVolume',
-                'restoreVolume'
+                'restoreVolume',
+                'setLoop'
             ]),
             handleMute(ev) {
                 this.toggleMute()
@@ -186,10 +187,13 @@
                         display flex
                         .loop
                             position relative
+                            .loop-icon
+                                cursor pointer
                             svg
                                 position absolute
                             svg.show
                                 opacity 1
+                                z-index 999
                             svg.hide
                                 opacity 0
                             svg.on

@@ -375,6 +375,9 @@
                 // When track is done playing
 
                 // So if no loop, we reset the waveform cursor to the begining
+                if (this.appAudioPrefs.loopSingle) {
+                    this.player.play()
+                }
 
                 // Loop code here
                 // Possibly our shuffle code as well, or we updated/replace pool
