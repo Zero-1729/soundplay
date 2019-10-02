@@ -740,7 +740,7 @@
         width calc(100vw - 250px)
 
     tbody
-        height calc(100vh - 120px)
+        height calc(100vh - 135px)
         overflow-y auto
         overflow-x hidden
         display block
