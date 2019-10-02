@@ -17,23 +17,18 @@ export default class Player {
             cursorColor: props.cursorColor,
             pixelRatio    : props.window.devicePixelRatio,
             minPxPerSec   : 20,
-            reflection: true,
             height: 25,
             cursorWidth: 1,
             cursorHeight: 0.8,
-            hideScrollbar : false,
-            volume: props.volume,
-            loop: props.loop,
-            mute: props.mute,
+            hideScrollbar : true,
             audioRate     : 1,
-            loopSelection: false,
             normalize     : false,
-            audioContext  : null,
-            dragSelection : true,
-            loopSelection : true,
-            interact      : true,
-            autoCenter    : true
+            interact      : true
         })
+
+        this.device.setVolume(props.volume)
+        if (props.mute) this.device.setMute(true)
+    }
 
     setProgressColor(color) {
         this.device.setProgressColor(color)
