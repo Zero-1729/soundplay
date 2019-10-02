@@ -428,7 +428,8 @@
                 // Light -> #ffffff
                 // Dark -> #2f2f2f2
                 // Night -> #0e2c42
-                let color = cur == 'light' ? '#ffffff' : cur == 'night' ? '#0e2c42' : '#2f2f2f'
+                let color = cur == 'light' ? 'white' :
+                    cur == 'night' ? '#0e2c42' : '#2f2f2f'
 
                 ipcRenderer.send('sync-background-color', color)
 
