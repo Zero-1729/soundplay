@@ -135,7 +135,8 @@ function createWindow () {
         windowBackgroundColor = arg
 
         // Reset the window background color
-        mainWindow.setBackgroundColor(arg)
+        // Seems to have no effect when app is loaded
+        // mainWindow.setBackgroundColor(arg)
     })
 
     // Register Media key shortcuts

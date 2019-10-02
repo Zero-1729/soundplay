@@ -1,4 +1,7 @@
 /* General App colors */
+body {
+    background: #ffffff;
+}
 
 /* Player */
 .track-info h4, .track-info .middle .duration p {
