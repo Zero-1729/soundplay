@@ -84,7 +84,6 @@
 
 <script>
     window.ws = require('wavesurfer.js')
-    window.fs = require('fs')
 
     import Panel                from './components/Player/Panel.vue'
     import AudioTS              from './components/Toolset/AudioTS.vue'
@@ -116,6 +115,8 @@
 
     const fs              = require('fs')
     const path            = require('path')
+
+    const waveColors      = require('./data/wavecolors.json')
 
     export default {
         components: {
@@ -336,10 +337,13 @@
                 window: window,
                 volume: this.appAudioPrefs.volume,
                 loop: this.appAudioPrefs.loop,
-                mute: this.appAudioPrefs.mute
+                mute: this.appAudioPrefs.mute,
+                progressColor: waveColors[this.appTheme].progressColor,
+                cursorColor:  waveColors[this.appTheme].cursorColor,
+                waveColor:  waveColors[this.appTheme].waveColor
             })
 
-            // Lets watch for window resizes so we can redraw our wave
+            window.player = this.player
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
