@@ -179,14 +179,11 @@
             ipcRenderer.on('media-keys-press', (event, arg) => {
                 if (arg == 0) {
                     // Play/Pause
-                    console.log("detected play/pause")
                     this.player.playpause()
                 } else if (arg == -1) {
                     // Previous
-                    console.log('detected previous')
                 } else if (arg == 1) {
                     // Next
-                    console.log('detected next')
                 }
             })
 
