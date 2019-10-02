@@ -532,6 +532,7 @@
                 }
 
                 // Redraw waveform here
+                if (this.player) this.player.device.drawBuffer()
             },
 
             closeModals() {
