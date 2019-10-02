@@ -123,7 +123,6 @@ const mutations = {
             album: meta.album,
             genre: meta.genre,
             source: meta.source,
-            img: meta.img,
             favourite: false,
             plays: 0,
             peaks: null,

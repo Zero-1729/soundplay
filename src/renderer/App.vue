@@ -1,6 +1,6 @@
 <template>
     <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
-        <Panel :track="currentTrack" :pos="currentPos" :player="player"></Panel>
+        <Panel :track="currentTrack" :pos="currentPos" :player="player" :loading="loadingTrack" :foundArt="foundArt"></Panel>
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
@@ -134,7 +134,9 @@
                 imports: 0,
                 imports_count: 0,
                 player: null,
-                currentPos: '-'
+                currentPos: '-',
+                loadingTrack: false,
+                foundArt: false
             }
         },
         created() {
@@ -344,20 +346,41 @@
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
-                if (this.currentTrack.img) {
-                    Id('album-art').src = this.currentTrack.img
-                }
+                // We set the loading flag here
+                this.loadingTrack = true
 
-                this.editTrack({
-                    id: this.currentTrack.id,
-                    meta: 'duration',
-                    value: this.player.getDuration()
+                new jsm.Reader(this.currentTrack.source).setTagsToRead(['picture']).read({
+                    onSuccess: (tag) => {
+                        if (tag.tags.picture) {
+                            Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+
+                            this.foundArt = true
+                        } else {
+                            this.foundArt = false
+                        }
+
+                        // Only add track meta when track doesn't have 'duration set'
+                        if (!this.currentTrack.duration) {
+                            this.editTrack({
+                                id: this.currentTrack.id,
+                                meta: 'duration',
+                                value: this.player.getDuration()
+                            })
+                        }
+
+                        // We check for autoplay, if on, we immediately play track
+                        this.player.device.play()
+
+                        // We update the tracks peeks here
+
+                        // Unset 'loading' flag here
+                        this.loadingTrack = false
+                    },
+                    onError: (err) => {
+                        // Decide What do to with error later
+                        console.log(err)
+                    }
                 })
-
-                // We check for autoplay, if on, we immediately play track
-                this.player.device.play()
-
-                // We update the tracks peeks and duration from here
             })
 
             this.player.device.on('audioprocess', () => {
@@ -600,8 +623,7 @@
                     album: null,
                     genre: null,
                     year: null,
-                    source: fp,
-                    img: null
+                    source: fp
                 }
 
                 // Fill in the track template
@@ -612,12 +634,6 @@
                 meta.artist = this.isEmpty(tags.artist) ? 'Unknown' : tags.artist
 
                 meta.album = this.isEmpty(tags.album) || tags.album === '' ? 'Unknown' : tags.album
-
-                // Too large to store
-                // ... maybe we load it when track is going to play
-                // ... Or, we could write it to a file instead
-                // ... and read it when track is going to play?
-                meta.img = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
                 meta.genre = this.isEmpty(tags.genre) ? 'Unknown' : tags.genre
 
