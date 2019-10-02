@@ -34,6 +34,17 @@ export default class Player {
             interact      : true,
             autoCenter    : true
         })
+
+    setProgressColor(color) {
+        this.device.setProgressColor(color)
+    }
+
+    setCursorColor(color) {
+        this.device.setCursorColor(color)
+    }
+
+    setWaveColor(color) {
+        this.device.setWaveColor(color)
     }
 
     clear() {

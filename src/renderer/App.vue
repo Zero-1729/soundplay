@@ -431,6 +431,10 @@
                 let color = cur == 'light' ? '#ffffff' : cur == 'night' ? '#0e2c42' : '#2f2f2f'
 
                 ipcRenderer.send('sync-background-color', color)
+
+                this.player.setProgressColor(waveColors[cur].progressColor)
+                this.player.setCursorColor(waveColors[cur].cursorColor)
+                this.player.setWaveColor(waveColors[cur].waveColor)
             },
 
             imports (cur, old) {
