@@ -47,6 +47,10 @@ export default class Player {
         this.device.setWaveColor(color)
     }
 
+    reset() {
+        this.device.seekTo(0)
+    }
+
     clear() {
         this.device.pause()
         this.device.empty()

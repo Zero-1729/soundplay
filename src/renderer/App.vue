@@ -394,6 +394,7 @@
 
             this.player.device.on('finish', () => {
                 // When track is done playing
+                this.player.reset()
 
                 // So if no loop, we reset the waveform cursor to the begining
                 if (this.appAudioPrefs.loopSingle) {
