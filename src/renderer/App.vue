@@ -593,7 +593,7 @@
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
-                var tag = obj.tag
+                var tags = obj.tags
                 var fp = obj.track_name
 
                 // We build our track template here
@@ -610,11 +610,11 @@
                 // Fill in the track template
                 let raw_filename = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
 
-                meta.title = this.isEmpty(tag.tags.title) ? raw_filename.split('.')[0] : tag.tags.title
+                meta.title = this.isEmpty(tags.title) ? raw_filename.split('.')[0] : tags.title
 
-                meta.artist = this.isEmpty(tag.tags.artist) ? 'Unknown' : tag.tags.artist
+                meta.artist = this.isEmpty(tags.artist) ? 'Unknown' : tags.artist
 
-                meta.album = this.isEmpty(tag.tags.album) || tag.tags.album === '' ? 'Unknown' : tag.tags.album
+                meta.album = this.isEmpty(tags.album) || tags.album === '' ? 'Unknown' : tags.album
 
                 // Too large to store
                 // ... maybe we load it when track is going to play
@@ -622,9 +622,9 @@
                 // ... and read it when track is going to play?
                 meta.img = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
-                meta.genre = this.isEmpty(tag.tags.genre) ? 'Unknown' : tag.tags.genre
+                meta.genre = this.isEmpty(tags.genre) ? 'Unknown' : tags.genre
 
-                meta.year = this.isEmpty(tag.tags.year) ? 'Unknown' : tag.tags.year
+                meta.year = this.isEmpty(tags.year) ? 'Unknown' : tags.year
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
@@ -646,7 +646,7 @@
                     ]).read({
                         onSuccess: (tag) => {
                             resolve({
-                                tag: tag,
+                                tags: tag.tags,
                                 track_name: track
                             })
                         },
