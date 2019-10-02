@@ -306,7 +306,11 @@
             ipcRenderer.on('media-next', (event, arg) => {})
 
             ipcRenderer.on('toggle-shuffle', (event, arg) => {})
-            ipcRenderer.on('toggle-loop', (event, arg) => {})
+            ipcRenderer.on('toggle-loop', (event, arg) => {
+                if (arg == 'single') {
+                    this.setLoop('single')
+                }
+            })
 
             // Audio
             ipcRenderer.on('toggle-mute', (event, arg) => {
@@ -509,6 +513,7 @@
                 'setNightMode',
                 'setJobsFn',
                 'setLoading',
+                'setLoop',
                 'unlockHotKey',
                 'toggleAudioEQVisibility'
             ]),
