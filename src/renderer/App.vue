@@ -341,9 +341,6 @@
             })
 
             // Lets watch for window resizes so we can redraw our wave
-            window.addEventListener('resize', () => {
-                if (this.player) this.player.device.drawBuffer()
-            })
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
