@@ -89,6 +89,10 @@ svg path.filled {
     color: #a0a0a0;
 }
 
+#app .virtical-div .entity.greyedText p {
+    color: #cccccc;
+}
+
 #app .virtical-div .empty-listing h4 {
     color: #c5c5c5;
 }

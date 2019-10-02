@@ -1,7 +1,7 @@
 <template>
     <div class="virtical-div">
         <div class="virtical-div-holder">
-            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: item == playingTarget}">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: item == playingTarget && playingCriteria == currentCriteria}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
@@ -227,6 +227,7 @@
                 'currentCriteria',
                 'currentTarget',
                 'playingTarget',
+                'playingCriteria',
                 'settingsOpen',
                 'currentSetting',
                 'allArtists',
