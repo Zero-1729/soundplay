@@ -811,6 +811,8 @@
         column-width 200px
         white-space nowrap
         text-overflow ellipsis
+        display flex
+        align-items center
         overflow hidden
         position relative
         animation slide 0.2s ease-in
