@@ -83,8 +83,6 @@
 </template>
 
 <script>
-    window.ws = require('wavesurfer.js')
-
     import Panel                from './components/Player/Panel.vue'
     import AudioTS              from './components/Toolset/AudioTS.vue'
     import AudioSTS             from './components/Toolset/AudioSTS.vue'

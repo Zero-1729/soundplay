@@ -492,8 +492,34 @@
             },
 
             setIndex(track) {
-                if (event.ctrlKey) {
-                    // When the user re-clicks a track whilst holding 'ctrl'
+                /* (Meta like on MacOS):-
+
+                    Batch addition, from index of initial item to index of
+                    current item
+
+                    Meta:-
+
+                    singl select addition, only adds the current clicked track
+                    to the `selected` Array
+
+                    Or
+
+                    Cancels inclusion, if already present
+
+                */
+                if (event.shiftKey) {
+                    // Log index limit
+                    let lim = this.filteredPool.indexOf(track)+1
+
+                    // Flush selection
+                    this.selectedTracks = []
+
+                    // Then add one-by-one
+                    for (let i = this.index;i < lim;i++) {
+                        this.selectedTracks.push(this.filteredPool[i])
+                    }
+                } else if (event.metaKey) {
+                    // When the user re-clicks a track whilst holding 'meta'
                     // ... it indicates a cancelation of its addition
                     if (this.selectedTracks.includes(track)) {
                         let index = this.selectedTracks.indexOf(track)
