@@ -135,11 +135,13 @@
             },
 
             handle_open_dialog() {
-                let name = remote.dialog.showOpenDialog({
-                    properties: ['openDirectory']
-                })
+                let vm = this
 
-                this.setMusicFolder(name[0])
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory']
+                }, (items) => {
+                    vm.setMusicFolder(items[0])
+                })
             },
 
             handle_hovered_folder(folder) {
