@@ -8,7 +8,7 @@
 
         <span>
             <transition name="faded-slide-in">
-                <router-view :player="player"></router-view>
+                <router-view :player="player" @appLoading="setAppLoading"></router-view>
             </transition>
         </span>
 
@@ -127,6 +127,7 @@
         },
         data() {
             return {
+                appIsLoading: false,
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
@@ -160,9 +161,6 @@
 
             // Clear jobs
             this.setJobsFn({start: null, end: null})
-
-            // Clear loading state
-            this.setLoading(false)
 
             // Unlock all mutexes
             this.unlockHotKey('backspace')
@@ -210,11 +208,14 @@
                         // Log number of files to import
                         this.imports += items.length
                         this.imports_count += items.length
-                        vm.setLoading(true)
 
                         // Make sure we check whether the user canceled the dialog first
                         // ... before we start performing any actions
                         if (items.length > 0) {
+                            // Only make App display load effect when tracks
+                            // ... actually inmported
+                            vm.appIsLoading = true
+
                             for (var i = 0;i < items.length;i++) {
                                 vm.deref(items[i])
                             }
@@ -236,7 +237,9 @@
                                 // Log number files to import
                                 vm.imports += tracks.length
                                 vm.imports_count += tracks.length
-                                vm.setLoading(true)
+
+                                // We now activate App loading effect
+                                vm.appIsLoading = true
 
                                 for (var j = 0;j < tracks.length;j++) {
                                     vm.deref(tracks[j])
@@ -443,7 +446,8 @@
 
             imports (cur, old) {
                 if (cur == 0 || cur < 0) {
-                    this.setLoading(false)
+                    // Removing App loading effect when all tracks imported
+                    this.appIsLoading = false
 
                     // Log the number of imports that had issues
                     let import_issues_count = this.failed_imports.length - this.error_imports.length - this.failMessage.items.length
@@ -512,11 +516,14 @@
                 'toggleNightMode',
                 'setNightMode',
                 'setJobsFn',
-                'setLoading',
                 'setLoop',
                 'unlockHotKey',
                 'toggleAudioEQVisibility'
             ]),
+
+            setAppLoading(val) {
+                this.appIsLoading = val
+            },
 
             isEmpty(item) {
                 return item == undefined || item == ''
@@ -735,7 +742,7 @@
 
                     if (is_obj_folder) {
                         // Only call load if actual folder track(s) are loaded
-                        this.setLoading(true)
+                        this.appIsLoading = true
 
                         // Get folder path
                         let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
@@ -757,7 +764,7 @@
 
                         if (is_sound_file) {
                             // Only call load if actual track(s) are loaded
-                            this.setLoading(true)
+                            this.appIsLoading = true
 
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])

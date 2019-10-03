@@ -76,7 +76,7 @@
             ipcRenderer }     = require('electron')
 
     export default {
-        props: ['player'],
+        props: ['player', 'appIsLoading'],
         data() {
             return {
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
@@ -184,7 +184,6 @@
                 'lockHotKey',
                 'unlockHotKey',
                 'setPlaylistModal',
-                'setLoading',
                 'clearStatusMessage',
                 'clearErrorMessage',
                 'clearWarnMessage',
@@ -201,7 +200,6 @@
             },
 
             addNewPlaylist() {
-                //this.openModal = false
                 this.setPlaylistModal(false)
                 this.unlockHotKey('backspace')
 
@@ -236,7 +234,6 @@
             closePlaylistModal() {
                 // Clear the input's value and close the modal
                 Id('playlist-input').value = ''
-                //this.openModal = false
                 this.setPlaylistModal(false)
 
                 // Since we are bluring the modal
@@ -725,7 +722,6 @@
                 'enterLock',
                 'openPlaylistModal',
                 'allPlaylists',
-                'appIsLoading',
                 'appAudioEQ'
             ]),
 

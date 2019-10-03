@@ -109,8 +109,7 @@ const state = {
         cached: {
             mainRoute: '/',
             childRoute: '/'
-        },
-        loading: false
+        }
     }
 }
 
@@ -430,10 +429,6 @@ const mutations = {
         }
     },
 
-    SET_LOADING (state, value) {
-        state.vars.loading = value
-    },
-
     // Settings mutations
     // UI
     CHANGE_THEME (state, name) {
@@ -693,10 +688,6 @@ const actions = {
         commit('CACHE_ROUTE', routeObj)
     },
 
-    setLoading: ({ commit }, value) => {
-        commit('SET_LOADING', value)
-    },
-
     // Settings Actions
     setCurrentSetting: ({ commit }, name) => {
         commit('SET_CURRENT_SETTING', name)
@@ -845,9 +836,6 @@ const getters = {
         return state.vars.cached
     },
 
-    appIsLoading (state) {
-        return state.vars.loading
-    },
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting

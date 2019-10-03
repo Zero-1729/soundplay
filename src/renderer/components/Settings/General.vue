@@ -103,7 +103,8 @@
             },
             allTracks(cur, old) {
                 if (cur.length == 0) {
-                    this.setLoading(false)
+                    this.$emit('appLoading', false)
+
                     this.updateStatusMessage({
                         heading: 'Successfully deleted all sounds',
                         isEmpty: false
