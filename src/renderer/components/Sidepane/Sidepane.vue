@@ -23,7 +23,7 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
-    const { remote } = require('electron')
+    const { remote }          = require('electron')
 
     const { ClassNameSingle } = require('./../../utils/htmlQuery')
     const { buildMap }        = require('./../../utils/object')
@@ -59,8 +59,8 @@
                 'deleteArtist',
                 'deleteAlbum',
                 'deleteGenre',
-                'lockHotKeys',
-                'unlockHotKeys',
+                'lockHotKey',
+                'unlockHotKey',
                 'cacheRoute',
                 'setCurrentSetting'
             ]),
@@ -117,18 +117,20 @@
                     }
 
                     // Fake a Mutex type global lock on backspace
-                    this.lockHotKeys('backspace')
+                    this.lockHotKey('backspace')
                 }
             },
 
             handlePlaylistRename() {
-                if (event.target.innerText.length > 0) {
+                // We only update the playlist name if the user actually
+                // ... changed the name, and is not empty
+                if (event.target.innerText.length > 0 && this.cachedText != event.target.innerText) {
                     this.renamePlaylist({
                         old: this.cachedText,
                         current: event.target.innerText
                     })
                 } else {
-                    // Revert playlist name
+                    // Revert playlist name if the playlist has totally been cleared
                     // ... and clear cached Name for later
                     event.target.innerText = this.cachedText
                     this.cachedText = ''
@@ -138,10 +140,10 @@
                 event.target.contentEditable = false
 
                 // Fake a Mutex type global unlock on backspace
-                this.unlockHotKeys('backspace')
+                this.unlockHotKey('backspace')
 
-                // Lock the enter hotkeys to avoid reseting the 'currentTrack'
-                this.lockHotKeys('enter')
+                // Unlock the enter hotkey to avoid reseting the 'currentTrack'
+                this.unlockHotKey('enter')
             },
 
             clearEditable() {
