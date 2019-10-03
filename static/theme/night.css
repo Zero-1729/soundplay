@@ -234,7 +234,7 @@ input#settings-input {
     border-bottom-color: #bbbbbb;
 }
 
-.flex .dialog-button:hover {
+.flex .dialog-button.furthest:hover {
     background: #3ca735;
 }
 

@@ -29,7 +29,7 @@
                         </svg>
                     </button>
                     <button class="dialog-button dialog-button-alt further"
-                    :class="{'greyed-button': appMusicFolder == null}"
+                    :class="{'greyed-button': appMusicFolder == null, widthless: appMusicFolder}"
                     @click="removeMusicFolder">
                         <p>{{ appMusicFolder ? appMusicFolder : 'None' }}</p>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="8" height="8">
@@ -245,9 +245,15 @@
             margin-top 2px
             height 75%
 
+    .dialog-button
+        transition width 0.3s ease-in
+
     .dialog-button-alt.greyed-button
         opacity 0.4
         cursor default
+
+    .dialog-button.dialog-button-alt.further.widthless
+        width unset
 
     .dialog-button.dialog-button-alt.further
             margin-left 15px
