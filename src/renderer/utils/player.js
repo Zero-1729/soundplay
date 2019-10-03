@@ -81,7 +81,14 @@ export default class Player {
         this.device.empty()
 
         fs.readFile(path, (err, buffer) => {
-            this.device.loadArrayBuffer(buffer.buffer)
+            if (buffer) {
+                this.device.loadArrayBuffer(buffer.buffer)
+
+                return true
+            }
+
+            // I.e. Track has been renamed or deleted
+            return false
         })
     }
 

@@ -414,7 +414,14 @@
         watch: {
             currentTrack (cur, old) {
                 if (cur) {
-                    this.player.playNew(cur.source)
+                    let ret = this.player.playNew(cur.source)
+
+                    if (!ret) {
+                        // If track has been renamed or deleted on the machine
+                        // ... We delete it for now
+                        this.deleteTrack(cur)
+                        this.clearCurrentTrack()
+                    }
                 }
             },
             '$route' (cur, old) {
@@ -497,6 +504,7 @@
             ...mapActions([
                 'addTrack',
                 'editTrack',
+                'deleteTrack',
                 'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
