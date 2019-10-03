@@ -122,8 +122,7 @@
                 'removeMusicFolder',
                 'lockHotKey',
                 'unlockHotKey',
-                'updateStatusMessage',
-                'setLoading'
+                'updateStatusMessage'
             ]),
 
             handle_delete_all_tracks() {
