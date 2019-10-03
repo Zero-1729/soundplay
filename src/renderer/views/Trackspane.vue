@@ -149,6 +149,16 @@
                 this.filterPool()
             },
 
+            focused (cur, prev) {
+                // We don't want the tracks to unexpectedly be loaded
+                // ... when a new playlist is created
+                if (cur) {
+                    this.lockHotKey('enter')
+                } else {
+                    this.unlockHotKey('enter')
+                }
+            },
+
             currentTrack () {
                 // When Tracks are clicked, the currentCriteria becomes
                 // ... the playing one

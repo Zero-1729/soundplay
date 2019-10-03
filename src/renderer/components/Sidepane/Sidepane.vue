@@ -172,6 +172,9 @@
                             label: 'Rename',
                             click() {
                                 vm.cachePlaylistName(forcedEvent)
+
+                                // lock (enter) HotKey
+                                vm.lockHotKey('enter')
                             }
                         },
                         {
