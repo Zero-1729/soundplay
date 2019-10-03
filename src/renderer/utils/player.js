@@ -80,16 +80,21 @@ export default class Player {
         this.device.stop()
         this.device.empty()
 
+        // To signal whether path/source of the sound file still exists
+        let retVal = true
+
         fs.readFile(path, (err, buffer) => {
             if (buffer) {
                 this.device.loadArrayBuffer(buffer.buffer)
 
-                return true
+                retVal = true
+            } else {
+                // I.e. Track has been renamed or deleted
+                retVal = false
             }
-
-            // I.e. Track has been renamed or deleted
-            return false
         })
+
+        return retVal
     }
 
     play() {
