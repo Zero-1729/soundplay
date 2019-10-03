@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <p class="info">
-                    Delete all tracks in player
+                    Delete all tracks (and playlists) in App
                 </p>
             </div>
         </div>
@@ -130,7 +130,8 @@
 
                 // Pause player here
                 this.updatePlayingCriteria(null)
-                this.deleteAllTracks()
+                // Destructive version, which deletes even playlists
+                this.deleteAllTracks(true)
             },
 
             handle_open_dialog() {

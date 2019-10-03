@@ -280,13 +280,23 @@ const mutations = {
         }
     },
 
-    DELETE_ALL_TRACKS (state) {
+    DELETE_ALL_TRACKS (state, destructive) {
         state.albums = []
         state.artists = []
         state.genres = []
 
         if (state.music.length > 0) {
             state.music = []
+        }
+
+        if (destructive) {
+            // Deleted from settings
+            state.playlists = []
+        } else {
+            // Empty playlist
+            for (var i = 0;i < state.playlists.length;i++) {
+                state.playlists[i].tracks = []
+            }
         }
     },
 
@@ -604,8 +614,8 @@ const actions = {
         commit('DELETE_GENRE', genre)
     },
 
-    deleteAllTracks: ({ commit }) => {
-        commit('DELETE_ALL_TRACKS')
+    deleteAllTracks: ({ commit }, kind) => {
+        commit('DELETE_ALL_TRACKS', kind)
     },
 
     deleteRelicTracks: ({ commit }, period) => {
