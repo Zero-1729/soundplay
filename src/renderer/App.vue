@@ -426,6 +426,10 @@
             this.player.device.on('finish', () => {
                 // When track is done playing
                 this.player.reset()
+                this.currentPos = this.player.getCurrentPos()
+
+                // Store index of currentTrack
+                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
 
                 // So if no loop, we reset the waveform cursor to the begining
                 if (this.appAudioPrefs.loopSingle) {
@@ -433,6 +437,20 @@
                 }
 
                 // Loop code here
+                // If last track, we simply reset to first
+                // Get index of current playing track
+                if (this.appAudioPrefs.loopAll) {
+                    if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                        this.updateCurrentTrack(this.filteredPool[0])
+                        this.player.playNew(this.currentTrack.source)
+                    }
+                }
+
+                if ((cindex < this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.player.playNew(this.currentTrack.source)
+                }
+
                 // Possibly our shuffle code as well, or we updated/replace pool
                 // ... from the player
 
