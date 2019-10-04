@@ -7,6 +7,7 @@ export default class Player {
         this.currentTrack = track
         this.autoPlays = props.autoplay
         this.oldPool = props.pool // For shuffle/unshuffle
+        this.active = false // Flag for
 
         this.device = new ws.create({
             container: "#waveform",
@@ -28,6 +29,10 @@ export default class Player {
 
         this.device.setVolume(props.volume)
         if (props.mute) this.device.setMute(true)
+    }
+
+    activate() {
+        this.active = true
     }
 
     setProgressColor(color) {

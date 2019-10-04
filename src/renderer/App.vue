@@ -8,7 +8,7 @@
 
         <span>
             <transition name="faded-slide-in">
-                <router-view :player="player" @appLoading="setAppLoading"></router-view>
+                <router-view :player="player" @appLoading="setAppLoading" :index="index" @mutateIndex="updateIndex"></router-view>
             </transition>
         </span>
 
@@ -103,6 +103,8 @@
     import { isNightTime,
             reformatTo24Hours } from './utils/time'
 
+    import { getIndexFromKey }  from './utils/object'
+
     const {
             remote,
             dialog,
@@ -127,6 +129,7 @@
         },
         data() {
             return {
+                index: -1,
                 appIsLoading: false,
                 error_imports: [],
                 imported_folders: [],
@@ -171,18 +174,6 @@
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_update)
-
-            // Respond to media key presses
-            ipcRenderer.on('media-keys-press', (event, arg) => {
-                if (arg == 0) {
-                    // Play/Pause
-                    this.player.playpause()
-                } else if (arg == -1) {
-                    // Previous
-                } else if (arg == 1) {
-                    // Next
-                }
-            })
 
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
@@ -303,15 +294,50 @@
             // Media controls
             // Playback
             ipcRenderer.on('media-playpause', (event, arg) => {
-                this.player.playpause()
+                if (this.player.active) {
+                    this.player.playpause()
+                } else {
+                    if (this.index == -1) {
+                        // Set current track to first track if newly launched
+                        this.updateCurrentTrack(this.filteredPool[0])
+                        this.player.playNew(this.currentTrack.source)
+                    } else {
+                        // If not we play the track currently active (indexed)
+                        this.updateCurrentTrack(this.filteredPool[this.index])
+                        this.player.playNew(this.currentTrack.source)
+                    }
+
+                    this.player.activate()
+                }
             })
-            ipcRenderer.on('media-prev', (event, arg) => {})
-            ipcRenderer.on('media-next', (event, arg) => {})
+
+            ipcRenderer.on('media-prev', (event, arg) => {
+                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+
+                if (cindex > 0) {
+                    this.updateCurrentTrack(this.filteredPool[cindex-1])
+                    this.player.playNew(this.currentTrack.source)
+                }
+            })
+
+            ipcRenderer.on('media-next', (event, arg) => {
+                // Get index of current playing track
+                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+
+                // Check if a next track exists
+                if (cindex < this.filteredPool.length-1) {
+                    // If true, we just play it!
+                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.player.playNew(this.currentTrack.source)
+                }
+            })
 
             ipcRenderer.on('toggle-shuffle', (event, arg) => {})
             ipcRenderer.on('toggle-loop', (event, arg) => {
                 if (arg == 'single') {
                     this.setLoop('single')
+                } else {
+                    this.setLoop('all')
                 }
             })
 
@@ -348,7 +374,7 @@
                 waveColor:  waveColors[this.appTheme].waveColor
             })
 
-            window.player = this.player
+            // Lets watch for 'spacebar' event to trigger player's 'play/pause'
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
@@ -409,6 +435,13 @@
                 // Loop code here
                 // Possibly our shuffle code as well, or we updated/replace pool
                 // ... from the player
+
+                // When track is finished playing and all tracks in pool cleared?
+                if (this.filteredPool.length == 0) {
+                    // Player cleared and current Track
+                    this.player.clear()
+                    this.updateCurrentTrack(null)
+                }
             })
         },
         watch: {
@@ -505,6 +538,7 @@
                 'addTrack',
                 'editTrack',
                 'deleteTrack',
+                'updateCurrentTrack',
                 'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
@@ -528,6 +562,10 @@
                 'unlockHotKey',
                 'toggleAudioEQVisibility'
             ]),
+
+            updateIndex(val) {
+                this.index = val
+            },
 
             setAppLoading(val) {
                 this.appIsLoading = val
@@ -797,6 +835,7 @@
                 'currentTrack',
                 'currentCriteria',
                 'currentTarget',
+                'filteredPool',
                 'statusMessage',
                 'errorMessage',
                 'warnMessage',

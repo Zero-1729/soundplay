@@ -76,11 +76,10 @@
             ipcRenderer }     = require('electron')
 
     export default {
-        props: ['player', 'appIsLoading'],
+        props: ['player', 'appIsLoading', 'index'],
         data() {
             return {
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
-                index: -1,
                 selectedTracks: [],
                 focused: false,
                 hoveredElm: null,
@@ -100,6 +99,14 @@
             })
         },
         watch: {
+            'player.active' (cur, prev) {
+                // play/pause triggers first track in (current) pool
+                // to be played, if app is newly launched
+                if (!prev && this.index == -1) {
+                    this.$emit('mutateIndex', 0)
+                }
+            },
+
             filteredPool (cur, old) {
                 // I.e no tracks
                 if (cur.length == 0) {
@@ -140,7 +147,7 @@
 
                 // reset current highlighted track to nothing
                 // ... each time the target is changed
-                this.index = -1
+                this.$emit('mutateIndex', -1)
             },
 
             allTracks () {
@@ -379,7 +386,7 @@
 
                                 if (vm.currentTarget == 'Favourites') {
                                     vm.filterPool()
-                                    vm.index = -1
+                                    this.$emit('mutateIndex', -1)
                                 }
                             }
                         }
@@ -490,10 +497,10 @@
                 // We are dealing with the rendered pool not the one in the store
                 // ... hence the use of 'filteredPool' and not 'currentPool'
                 if (this.index == -1 && this.filteredPool.length > 0) {
-                    this.index = 0
+                    this.$emit('mutateIndex', 0)
                 } else {
                     if (index <= this.filteredPool.length - 1 && index >= 0) {
-                        this.index = index
+                        this.$emit('mutateIndex', index)
                     }
                 }
             },
@@ -541,7 +548,7 @@
                         this.selectedTracks.push(track)
                     }
                 } else {
-                    this.index = this.filteredPool.indexOf(track)
+                    this.$emit('mutateIndex', this.filteredPool.indexOf(track))
                     this.selectedTracks = []
                 }
             },
@@ -699,7 +706,7 @@
                             // So we improvise and call out the current highlighted track
                             this.deleteTrack(this.filteredPool[this.index])
                             // Reset the previous index to the track above the deleted ones below
-                            this.index = this.index - 1
+                            this.$emit('mutateIndex', this.index - 1)
                         }
                     }
                 }
@@ -712,7 +719,7 @@
                     // Lets update the pool if we are in the favourites listing
                     if (this.currentTarget == 'Favourites') {
                         this.filterPool()
-                        this.index = -1
+                        this.$emit('mutateIndex', -1)
                     }
                 }
             }
