@@ -175,7 +175,7 @@ tbody tr:hover td, tbody tr:hover div {
     color: #cecece;
 }
 
-.playingTrack td {
+#track-item.playingTrack td {
     background: #275473;
     color: #dedede;
 }

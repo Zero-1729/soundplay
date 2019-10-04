@@ -168,7 +168,7 @@ tr:nth-child(odd) {
     color: #cecece;
 }
 
-.playingTrack td {
+#track-item.playingTrack td {
     background: #545454;
     color: #b7b8b9;
 }
