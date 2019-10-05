@@ -170,6 +170,12 @@
 
             // - End of session clearing -
 
+            window.addEventListener('keydown', (ev) => {
+                if (ev.code == 'Space') {
+                    this.triggerPlaypause(ev)
+                }
+            })
+
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
@@ -294,21 +300,7 @@
             // Media controls
             // Playback
             ipcRenderer.on('media-playpause', (event, arg) => {
-                if (this.player.active) {
-                    this.player.playpause()
-                } else {
-                    if (this.index == -1) {
-                        // Set current track to first track if newly launched
-                        this.updateCurrentTrack(this.filteredPool[0])
-                        this.player.playNew(this.currentTrack.source)
-                    } else {
-                        // If not we play the track currently active (indexed)
-                        this.updateCurrentTrack(this.filteredPool[this.index])
-                        this.player.playNew(this.currentTrack.source)
-                    }
-
-                    this.player.activate()
-                }
+                this.triggerPlay()
             })
 
             ipcRenderer.on('media-prev', (event, arg) => {
@@ -580,6 +572,34 @@
                 'unlockHotKey',
                 'toggleAudioEQVisibility'
             ]),
+
+            triggerPlay() {
+                if (this.player.active) {
+                    this.player.playpause()
+                } else {
+                    if (this.index == -1) {
+                        // Set current track to first track if newly launched
+                        this.updateCurrentTrack(this.filteredPool[0])
+                        this.player.playNew(this.currentTrack.source)
+                    } else {
+                        // If not we play the track currently active (indexed)
+                        this.updateCurrentTrack(this.filteredPool[this.index])
+                        this.player.playNew(this.currentTrack.source)
+                    }
+
+                    this.player.activate()
+                }
+            },
+
+            triggerPlaypause(ev) {
+                // Find out if any input field are currently in use
+                // if not we go ahead and trigger play
+                if (!(this.enterLock && this.backspaceLock)) {
+                    ev.preventDefault()
+                    // Remember the 'enter/backspace' is locked when any input is currently focused
+                    this.triggerPlay()
+                }
+            },
 
             updateIndex(val) {
                 this.index = val
@@ -859,6 +879,8 @@
                 'warnMessage',
                 'failMessage',
                 'cachedRoutes',
+                'enterLock',
+                'backspaceLock',
                 'openPlaylistModal',
                 'appExcludedFolders',
                 'appTheme',
