@@ -420,40 +420,46 @@
             this.player.device.on('finish', () => {
                 // When track is done playing
                 this.player.reset()
+                // We reset the waveform cursor to the begining
                 this.currentPos = this.player.getCurrentPos()
 
                 // Store index of currentTrack
                 let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
 
-                // So if no loop, we reset the waveform cursor to the begining
-                if (this.appAudioPrefs.loopSingle) {
-                    this.player.play()
-                }
-
                 // Loop code here
-                // If last track, we simply reset to first
-                // Get index of current playing track
-                if (this.appAudioPrefs.loopAll) {
-                    if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
-                        this.updateCurrentTrack(this.filteredPool[0])
-                        this.player.playNew(this.currentTrack.source)
-                    }
-                }
+                if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
+                    // So if loop (single) enabled, we simply play again
+                    if (this.appAudioPrefs.loopSingle) {
+                        this.player.play()
+                    } else {
+                        // I.e. Loop All
 
-                if ((cindex < this.filteredPool.length - 1) && this.filteredPool.length > 0) {
-                    this.updateCurrentTrack(this.filteredPool[cindex+1])
-                    this.player.playNew(this.currentTrack.source)
+                        // If last track, we simply reset to first
+                        if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                            this.updateCurrentTrack(this.filteredPool[0])
+                            this.player.playNew(this.currentTrack.source)
+                        }
+                    }
+                } else {
+                    // I.e. If no loops we go ahead and play the next track
+
+                    // When track is finished playing and all tracks in pool cleared?
+                    if (this.filteredPool.length == 0) {
+                        // Player cleared and current Track
+                        this.player.clear()
+                        this.updateCurrentTrack(null)
+                    } else {
+                        // If not cleared, and havent hit the floor of the pool
+                        // ... i.e. last track, we proceed to play the next
+                        if ((cindex < this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                            this.updateCurrentTrack(this.filteredPool[cindex+1])
+                            this.player.playNew(this.currentTrack.source)
+                        }
+                    }
                 }
 
                 // Possibly our shuffle code as well, or we updated/replace pool
                 // ... from the player
-
-                // When track is finished playing and all tracks in pool cleared?
-                if (this.filteredPool.length == 0) {
-                    // Player cleared and current Track
-                    this.player.clear()
-                    this.updateCurrentTrack(null)
-                }
             })
         },
         watch: {
