@@ -89,7 +89,7 @@
                 'currentCriteria',
                 'filteredPool',
                 'currentTarget'
-            ]),
+            ])
         }
     }
 </script>

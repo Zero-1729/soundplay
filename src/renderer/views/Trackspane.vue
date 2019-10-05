@@ -656,32 +656,32 @@
             },
 
             deleteSelectedTracks() {
-                if (this.selectedTracks.includes(this.currentTracks) && !this.backspaceLock) {
-                    this.playingCriteriaLock = true
-                    this.clearCurrentTrack()
-                    this.updatePlayingCriteria(null)
-                }
+                // Only trigger if '(search) input' is blurred
+                // We don't want the tracks disappearing randomly while typing
+                if (!this.backspaceLock) {
+                    if (this.selectedTracks.includes(this.currentTracks)) {
+                        this.playingCriteriaLock = true
+                        this.clearCurrentTrack()
+                        this.updatePlayingCriteria(null)
+                    }
 
-                // Delete current track if deleted
-                if (this.isSameSource(this.filteredPool[this.index])) {
-                    this.clearCurrentTrack()
-                    this.player.clear()
-                    this.updatePlayingCriteria(null)
-                }
+                    // Delete current track if deleted
+                    if (this.isSameSource(this.filteredPool[this.index])) {
+                        this.clearCurrentTrack()
+                        this.player.clear()
+                        this.updatePlayingCriteria(null)
+                    }
 
-                // We want to only remove the track from the playlist
-                // ... instead of deleting it entirely
-                if (this.currentCriteria == 'playlist' && !this.backspaceLock) {
-                    this.removeFromPlaylist({
-                        playlist: this.currentTarget.name,
-                        track: this.filteredPool[this.index]
-                    })
+                    // We want to only remove the track from the playlist
+                    // ... instead of deleting it entirely
+                    if (this.currentCriteria == 'playlist') {
+                        this.removeFromPlaylist({
+                            playlist: this.currentTarget.name,
+                            track: this.filteredPool[this.index]
+                        })
 
-                    this.filterPool()
-                } else {
-                    // Only trigger if 'search-input' is blurred
-                    // We don't want the tracks disappearing randomly while typing
-                    if (!this.backspaceLock) {
+                        this.filterPool()
+                    } else {
                         if (this.selectedTracks.length > 0) {
                             if (this.selectedTracks.length == this.filteredPool.length) {
                                 this.deleteTracks()
