@@ -32,6 +32,12 @@
         name: 'sidepane',
         data() {
             return {
+                all: {
+                    'playlist': null,
+                    'artist': null,
+                    'album': null,
+                    'genre': null
+                },
                 hoveredElm: null,
                 cachedText: '',
                 settingsNames: [
@@ -46,9 +52,20 @@
                 ]
             }
         },
+        created() {
+            this.all['playlist'] = this.allPlaylists
+            this.all['artist'] = this.allArtists
+            this.all['album'] = this.allAlbums
+            this.all['genre'] = this.allGenres
+        },
         mounted() {
             if (ClassNameSingle('activeTarget')) {
                 ClassNameSingle('activeTarget').scrollIntoViewIfNeeded()
+            }
+        },
+        wacth: {
+            currentTarget (cur, prev) {
+                console.log('here')
             }
         },
         methods: {
@@ -116,6 +133,9 @@
                         this.cachedText = event.target.innerText
                     }
 
+                    // Fake sellect all
+                    document.execCommand('selectAll', false, null)
+
                     // Fake a Mutex type global lock on backspace
                     this.lockHotKey('backspace')
                 }
@@ -131,10 +151,11 @@
                     })
                 } else {
                     // Revert playlist name if the playlist has totally been cleared
-                    // ... and clear cached Name for later
                     event.target.innerText = this.cachedText
-                    this.cachedText = ''
                 }
+
+                // ... and clear cached Name for later
+                this.cachedText = ''
 
                 // Revert 'p' to an uneditable elm
                 event.target.contentEditable = false
@@ -149,7 +170,7 @@
             clearEditable() {
                 // In case the user blurs before hitting enter
                 // ... We assume they changed their mind about renaming
-                if (this.currentCriteria == 'playlist') {
+                if (this.currentCriteria == 'playlist' && this.cachedText != '') {
                     event.target.innerText = this.cachedText
                     this.cachedText = ''
                 }
@@ -252,7 +273,7 @@
                     '90s Music',
                     '2000s Music',
                     'Favourites'
-                ] : eval('this.all'+this.currentCriteria[0].toUpperCase() + this.currentCriteria.slice(1)+'s')
+                ] : this.all[this.currentCriteria]
             },
 
             currentOptions() {
