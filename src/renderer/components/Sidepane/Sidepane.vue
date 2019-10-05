@@ -303,6 +303,10 @@
                 cursor pointer
                 font-weight bold
                 user-select none
+                text-overflow ellipsis
+                overflow hidden
+                white-space nowrap
+                width 135px
 
         .empty-listing
             padding-top 100px
