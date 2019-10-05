@@ -112,7 +112,7 @@
         padding-left 16px
         border-radius 5px
         border none
-        transition 0.1s ease-in
+        transition border 0.2s ease-in
 
     input:focus
         border-width 2px
