@@ -23,7 +23,7 @@ svg path.filled {
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #94acbd;
+    background: #134569;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -97,7 +97,7 @@ svg path.filled {
 }
 
 #app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
-    background: #346588;
+    background: #163f5d;
 }
 
 
