@@ -3,7 +3,8 @@ const state = {
     lastVolume: 0.5,
     mute: false,
     loopSingle: false,
-    loopAll: false
+    loopAll: false,
+    shuffle: false
 }
 
 const mutations = {
@@ -45,6 +46,10 @@ const mutations = {
 
             state.loopAll = !state.loopAll
         }
+    },
+
+    TOGGLE_SHUFFLE (state) {
+        state.shuffle = !state.shuffle
     }
 }
 
@@ -68,6 +73,10 @@ const actions = {
 
     setLoop: ({ commit }, mode) => {
         commit("SET_LOOP", mode)
+    },
+
+    toggleShuffle: ({ commit }) => {
+        commit("TOGGLE_SHUFFLE")
     }
 }
 
@@ -78,7 +87,8 @@ const getters = {
             lastVolume: state.lastVolume,
             mute: state.mute,
             loopSingle: state.loopSingle,
-            loopAll: state.loopAll
+            loopAll: state.loopAll,
+            shuffle: state.shuffle
         }
     }
 }

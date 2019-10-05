@@ -17,7 +17,7 @@
                         <p>{{ currentTrack.duration ? pos + ' / ' + currentTrack.duration : '- / -'}}</p>
                     </div>
                     <div class="controls">
-                        <svg class="shuffle-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{on: appAudioPrefs.shuffle}">
+                        <svg class="shuffle-icon" @click="toggleShuffle" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{on: appAudioPrefs.shuffle}">
                             <path class="stroked" d=" M 26.148 27.236 C 28.417 29.615 28.873 29.386 31.511 29.386 Q 36.716 29.386 35.511 29.386" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
                             <path class="stroked" d=" M 23 23 C 22.219 22.188 21.209 21 18.571 21 Q 12.366 21 13.571 21" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
                             <path class="stroked" d=" M 13.398 29 Q 13.552 29 19.398 29 C 25.154 29 23.937 21 30.398 21 Q 35.603 21 34.398 21" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
@@ -104,7 +104,8 @@
                 'setVolume',
                 'updateVolume',
                 'restoreVolume',
-                'setLoop'
+                'setLoop',
+                'toggleShuffle'
             ]),
             handleMute(ev) {
                 this.toggleMute()
@@ -213,6 +214,13 @@
                             font-size 11px
                     .controls
                         display flex
+                        .shuffle-icon
+                            cursor pointer
+                        .shuffle-icon.on
+                            path.stroked
+                                stroke dodgerblue
+                            path.filled
+                                fill dodgerblue
                         .loop
                             position relative
                             .loop-icon

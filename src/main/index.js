@@ -273,7 +273,7 @@ const template = [
                 label: 'Toogle Shuffle',
                 accelerator: 'CmdOrCtrl+Shift+Z',
                 click() {
-                    mainWindow.webContents.send('toggle-Shuffle', null)
+                    mainWindow.webContents.send('toggle-shuffle', null)
                 }
             },
             {

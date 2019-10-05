@@ -324,7 +324,9 @@
                 }
             })
 
-            ipcRenderer.on('toggle-shuffle', (event, arg) => {})
+            ipcRenderer.on('toggle-shuffle', (event, arg) => {
+                this.toggleShuffle()
+            })
             ipcRenderer.on('toggle-loop', (event, arg) => {
                 if (arg == 'single') {
                     this.setLoop('single')
@@ -563,6 +565,7 @@
                 'updatePlayingTarget',
                 'updateVolume',
                 'toggleMute',
+                'toggleShuffle',
                 'toggleSettings',
                 'loadTheme',
                 'toggleNightMode',
