@@ -609,7 +609,9 @@
                         this.updateCurrentTrack(this.filteredPool[this.index])
                         this.player.playNew(this.currentTrack.source)
                     }
+                }
 
+                if (!this.player.active) {
                     this.player.activate()
                 }
             },
