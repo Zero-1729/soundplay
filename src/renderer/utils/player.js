@@ -58,6 +58,12 @@ export default class Player {
 
     updateVolume(val) {
         this.device.setVolume(val)
+
+        if (val == 0) {
+            this.device.setMute(true)
+        } else {
+            this.device.setMute(false)
+        }
     }
 
     formatTime(time) {
@@ -111,8 +117,8 @@ export default class Player {
     }
 
     // Audio actions
-    mute() {
-        this.device.toggleMute()
+    shuffle(pool, currentTrack) {
+        // Shuffle algo
     }
 
     shuffle() {}

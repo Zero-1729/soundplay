@@ -63,11 +63,6 @@
                 ClassNameSingle('activeTarget').scrollIntoViewIfNeeded()
             }
         },
-        wacth: {
-            currentTarget (cur, prev) {
-                console.log('here')
-            }
-        },
         methods: {
             ...mapActions([
                 'changeTarget',

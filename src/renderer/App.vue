@@ -170,6 +170,7 @@
 
             // - End of session clearing -
 
+            // Lets watch for 'spacebar' event to trigger player's 'play/pause'
             window.addEventListener('keydown', (ev) => {
                 if (ev.code == 'Space') {
                     this.triggerPlaypause(ev)
@@ -327,6 +328,7 @@
             ipcRenderer.on('toggle-shuffle', (event, arg) => {
                 this.toggleShuffle()
             })
+
             ipcRenderer.on('toggle-loop', (event, arg) => {
                 if (arg == 'single') {
                     this.setLoop('single')
@@ -338,7 +340,6 @@
             // Audio
             ipcRenderer.on('toggle-mute', (event, arg) => {
                 this.toggleMute()
-                this.player.mute()
             })
 
             ipcRenderer.on('volume', (event, arg) => {
@@ -352,8 +353,6 @@
                 } else {
                     this.updateVolume(newVal > 1 ? 1 : newVal)
                 }
-
-                this.player.updateVolume(this.appAudioPrefs.volume)
             })
         },
         mounted() {
@@ -367,8 +366,6 @@
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor
             })
-
-            // Lets watch for 'spacebar' event to trigger player's 'play/pause'
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
@@ -463,6 +460,20 @@
             })
         },
         watch: {
+            'appAudioPrefs.mute' (cur, prev) {
+                // If muted we make volume nil,
+                // ... if not we restore the last volume level befor the mute
+                if (!cur) {
+                    this.restoreVolume()
+                } else {
+                    this.setVolume(0)
+                }
+            },
+
+            'appAudioPrefs.volume' (cur, prev) {
+                this.player.updateVolume(cur)
+            },
+
             currentTrack (cur, old) {
                 if (cur) {
                     let ret = this.player.playNew(cur.source)
@@ -475,6 +486,7 @@
                     }
                 }
             },
+
             '$route' (cur, old) {
                 if (cur.path == '/') {
                     this.windowUpdated()
@@ -570,6 +582,8 @@
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
                 'updateVolume',
+                'setVolume',
+                'restoreVolume',
                 'toggleMute',
                 'toggleShuffle',
                 'toggleSettings',
