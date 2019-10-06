@@ -571,32 +571,43 @@
             },
 
             selectTracksF() {
-                // Add first highlighted track
-                // To avoid duplicating previously added tracks
-                if (!this.selectedTracks.includes(this.filteredPool[this.index])) {
+                // Lets see that the current track is added
+                if (!this.selectedTracks.includes(this.filteredPool[this.index]))
+                {
+                    // Add first highlighted track
+                    // ... but only if it is not already included
                     this.selectedTracks.push(this.filteredPool[this.index])
+                }
+
+
+                // Check if a next track exists
+                if (this.index + 1 < this.filteredPool.length-1) {
+                    // Add the next Track
+                    this.selectedTracks.push(this.filteredPool[this.index+1])
                 }
 
                 // Move index
                 this.mutateIndexF(false)
-
-                // Add new selected Track
-                this.selectedTracks.push(this.filteredPool[this.index])
             },
 
             selectTracksB() {
-                // Add first highlighted track
-                // To avoid duplicating previously added tracks
+                // Lets see that the current track is added
                 if (!this.selectedTracks.includes(this.filteredPool[this.index]))
                 {
+                    // Add first highlighted track
+                    // ... but only if it is not already included
                     this.selectedTracks.push(this.filteredPool[this.index])
+                }
+
+
+                // Check if a previous track exists
+                if (this.index - 1 > 0) {
+                    // Add the previous Track
+                    this.selectedTracks.push(this.filteredPool[this.index-1])
                 }
 
                 // Move index
                 this.mutateIndexB(false)
-
-                // Add new selected Track
-                this.selectedTracks.push(this.filteredPool[this.index])
             },
 
             selectAll() {
@@ -659,12 +670,6 @@
                 // Only trigger if '(search) input' is blurred
                 // We don't want the tracks disappearing randomly while typing
                 if (!this.backspaceLock) {
-                    if (this.selectedTracks.includes(this.currentTracks)) {
-                        this.playingCriteriaLock = true
-                        this.clearCurrentTrack()
-                        this.updatePlayingCriteria(null)
-                    }
-
                     // Delete current track if deleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
                         this.clearCurrentTrack()
