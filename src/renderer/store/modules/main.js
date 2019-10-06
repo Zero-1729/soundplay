@@ -20,7 +20,7 @@ const { TagName,
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
     '90s': (n) => { return n >= 1990 && n <= 1999 },
-    '2000s': (n) => { return n >= 2000 && n <= 2005 }
+    '2000s': (n) => { return n >= 2000 && n <= 2009 }
 }
 
 const state = {
