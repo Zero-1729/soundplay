@@ -19,6 +19,10 @@ svg path.filled {
     fill: #525252;
 }
 
+input[type="range"].slider {
+    background: #525252;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */

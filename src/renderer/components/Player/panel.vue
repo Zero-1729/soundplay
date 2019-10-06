@@ -48,7 +48,7 @@
                                 <path class="filled" d=" M 16.879 22.025 L 18.194 22.025 L 23.427 19.068 C 24.868 18.254 26.039 18.937 26.039 20.592 L 26.039 29.408 C 26.039 31.063 24.868 31.746 23.427 30.932 L 18.194 27.975 L 16.879 27.975 C 16.739 27.975 16.625 27.862 16.625 27.721 L 16.625 22.279 C 16.625 22.138 16.739 22.025 16.879 22.025 Z "/>
                             </g>
                         </svg>
-                        <input type="range" min="0" max="100" step="6.25" value="appAudioPrefs.volume" class="slider" @change="handleVolume">
+                        <input type="range" min="0" max="100" step="6.25" v-model="volume" class="slider">
                     </div>
                 </div>
             </div>
@@ -83,9 +83,6 @@
             window.$vue = this
         },
         watch: {
-            appAudioPrefs (cur,prev) {
-                console.log(cur)
-            },
             loading (cur, prev) {
                 if (this.foundArt) {
                     this.showArt = true
@@ -95,33 +92,21 @@
                 } else {
                     this.showArt = false
                 }
-            },
-            deepWatch: true
+            }
         },
         methods: {
             ...mapActions([
-                'toggleMute',
-                'setVolume',
-                'updateVolume',
-                'restoreVolume',
                 'setLoop',
+                'toggleMute',
                 'toggleShuffle'
             ]),
+
             handleMute(ev) {
                 this.toggleMute()
-
-                // If muted we make volume nil,
-                // ... if not we restore the last volume level befor the mute
-                if (!this.appAudioPrefs.mute) {
-                    this.restoreVolume()
-                    this.player.updateVolume(this.appAudioPrefs.lastVolume)
-                } else {
-                    this.setVolume(0)
-                    this.player.mute()
-                }
             },
-            handleVolume(ev) {
-                let volume = ev.target.value / 100
+
+            handleVolume(val) {
+                let volume = val / 100
 
                 if (this.appAudioPrefs.mute && volume > 0) {
                     this.toggleMute(false)
@@ -130,7 +115,6 @@
                 // We only mutate the value when its not mutated
                 if (!this.appAudioPrefs.mute) {
                     this.updateVolume(volume)
-                    this.player.updateVolume(volume)
                 }
             }
         },
@@ -138,6 +122,7 @@
             ...mapGetters([
                 'appAudioPrefs'
             ]),
+
             currentTrack() {
                 return this.track ? this.track : {
                     title: '-',
@@ -146,8 +131,13 @@
                     duraction: '-'
                 }
             },
-            volume() {
-                return this.appAudioPrefs.volume
+            volume: {
+                set(val) {
+                    this.handleVolume(val)
+                },
+                get() {
+                    return this.appAudioPrefs.volume * 100
+                }
             }
         }
     }
@@ -216,11 +206,6 @@
                         display flex
                         .shuffle-icon
                             cursor pointer
-                        .shuffle-icon.on
-                            path.stroked
-                                stroke dodgerblue
-                            path.filled
-                                fill dodgerblue
                         .loop
                             position relative
                             .loop-icon
@@ -232,9 +217,6 @@
                                 z-index 999
                             svg.hide
                                 opacity 0
-                            svg.on
-                                path
-                                    fill dodgerblue
                 .lower
                     position absolute
                     width calc(100% - 160px)
@@ -258,15 +240,21 @@
                             cursor pointer
                         g.on
                             opacity 1
-                        g.on.triggered
-                            path
-                                fill dodgerblue
                         g.off
                             opacity 0
-                    input
+                    input[type="range"]
+                        overflow hidden
                         width 90px
                         height 5px
                         cursor pointer
                         align-self center
                         outline none
+                        -webkit-appearance none
+                        border-radius 25px
+                    input[type="range"]::-webkit-slider-runnable-track
+                        -webkit-appearance none
+                    input[type="range"]::-webkit-slider-thumb
+                        -webkit-appearance none
+                        width 12px
+                        height 5px
 </style>
