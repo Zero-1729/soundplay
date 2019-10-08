@@ -5,11 +5,11 @@
     stroke: dodgerblue;
 }
 
-.middle .controls .shuffle-icon.on path.stroked {
+.middle .controls .shuffle-icon.on path.filled {
     fill: dodgerblue;
 }
 
-.middle .controls .loop .loop-icon svg.on path {
+.middle .controls .loop svg.loop-icon.on path.filled {
     fill: dodgerblue;
 }
 
