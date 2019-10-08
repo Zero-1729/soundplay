@@ -372,6 +372,10 @@
                 // We set the loading flag here
                 this.loadingTrack = true
 
+                if (!this.player.active) {
+                    this.player.activate()
+                }
+
                 new jsm.Reader(this.currentTrack.source).setTagsToRead(['picture']).read({
                     onSuccess: (tag) => {
                         if (tag.tags.picture) {
@@ -615,10 +619,6 @@
                         this.updateCurrentTrack(this.filteredPool[this.index])
                         this.player.playNew(this.currentTrack.source)
                     }
-                }
-
-                if (!this.player.active) {
-                    this.player.activate()
                 }
             },
 
