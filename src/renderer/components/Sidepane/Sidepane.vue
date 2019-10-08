@@ -32,12 +32,6 @@
         name: 'sidepane',
         data() {
             return {
-                all: {
-                    'playlist': null,
-                    'artist': null,
-                    'album': null,
-                    'genre': null
-                },
                 hoveredElm: null,
                 cachedText: '',
                 settingsNames: [
@@ -51,12 +45,6 @@
                     '/audio'
                 ]
             }
-        },
-        created() {
-            this.all['playlist'] = this.allPlaylists
-            this.all['artist'] = this.allArtists
-            this.all['album'] = this.allAlbums
-            this.all['genre'] = this.allGenres
         },
         mounted() {
             if (ClassNameSingle('activeTarget')) {
@@ -257,6 +245,22 @@
                 'allPlaylists'
             ]),
 
+            playlist() {
+                return this.allPlaylists
+            },
+
+            artist() {
+                return this.allArtists
+            },
+
+            album() {
+                return this.allAlbums
+            },
+
+            genre() {
+                return this.allGenres
+            },
+
             settingsRoutes() {
                 return buildMap(this.settingsNames, this.settingsPaths)
             },
@@ -268,7 +272,7 @@
                     '90s Music',
                     '2000s Music',
                     'Favourites'
-                ] : this.all[this.currentCriteria]
+                ] : this[this.currentCriteria]
             },
 
             currentOptions() {
