@@ -423,6 +423,8 @@
                 // Store index of currentTrack
                 let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
 
+                let loopAllLock = false
+
                 // Loop code here
                 if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
                     // So if loop (single) enabled, we simply play again
@@ -435,6 +437,8 @@
                         if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.currentTrack.source)
+
+                            loopAllLock = true
                         }
                     }
                 } else {
@@ -445,14 +449,16 @@
                         // Player cleared and current Track
                         this.player.clear()
                         this.updateCurrentTrack(null)
-                    } else {
-                        // If not cleared, and havent hit the floor of the pool
-                        // ... i.e. last track, we proceed to play the next
-                        if ((cindex < this.filteredPool.length - 1) && this.filteredPool.length > 0) {
-                            this.updateCurrentTrack(this.filteredPool[cindex+1])
-                            this.player.playNew(this.currentTrack.source)
-                        }
                     }
+                }
+
+                // If not cleared, and havent hit the floor of the pool
+                // ... i.e. last track, we proceed to play the next
+                if ((cindex < this.filteredPool.length - 1) &&
+                    (this.filteredPool.length > 0) &&
+                    !loopAllLock) {
+                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.player.playNew(this.currentTrack.source)
                 }
 
                 // Possibly our shuffle code as well, or we updated/replace pool
