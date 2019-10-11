@@ -729,8 +729,8 @@
                 let tracks = []
 
                 new FS(dir).forEachFile((file) => {
-                    let format = file.split('.')
-                    format = format[format.length-1]
+                    // file extension starts after last '.'
+                    let format = file.slice(file.lastIndexOf('.') + 1)
 
                     // All supported formats
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
@@ -759,9 +759,9 @@
                 }
 
                 // Fill in the track template
-                let raw_filename = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
+                let raw_name = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
 
-                meta.title = this.isEmpty(tags.title) ? raw_filename.split('.')[0] : tags.title
+                meta.title = this.isEmpty(tags.title) ? raw_name.slice(0, raw_name.lastIndexOf('.')) : tags.title
 
                 meta.artist = this.isEmpty(tags.artist) ? 'Unknown' : tags.artist
 
