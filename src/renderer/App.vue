@@ -440,6 +440,9 @@
 
                 // Loop code here
                 if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
+                    // Lock loop, so that next track wouldn't be played
+                    loopAllLock = true
+
                     // So if loop (single) enabled, we simply play again
                     if (this.appAudioPrefs.loopSingle) {
                         this.player.play()
@@ -450,8 +453,6 @@
                         if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.currentTrack.source)
-
-                            loopAllLock = true
                         }
                     }
                 } else {
