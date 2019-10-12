@@ -24,7 +24,7 @@
         </div>
 
         <tbody>
-            <transition-group :name="trackTransition" tag="tbody">
+            <transition-group :name="trackTransition" tag="tbody" class="trackslist">
             <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
                 v-if="allTracks.length > 0"
                 @contextmenu.prevent
@@ -64,8 +64,7 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
-    import { Id,
-            QuerySelectorAll }        from './../utils/htmlQuery'
+    import { Id }        from './../utils/htmlQuery'
 
     const { buildMap,
             getIndexFromKey } = require('./../utils/object')

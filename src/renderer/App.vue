@@ -98,7 +98,8 @@
     import Player               from './utils/player'
 
     import { Id,
-            ClassName }         from './utils/htmlQuery'
+            ClassName,
+            ClassNameSingle }   from './utils/htmlQuery'
 
     import { isNightTime,
             reformatTo24Hours } from './utils/time'
@@ -174,6 +175,14 @@
             window.addEventListener('keydown', (ev) => {
                 if (ev.code == 'Space') {
                     this.triggerPlaypause(ev)
+                }
+
+                if (ev.code == 'ArrowUp' || ev.code == 'ArrowDown') {
+                    // Only check tbody activeTrack to scroll if it exists
+                    // That way we don't block any future use of 'Up'/'Down'
+                    if (ClassNameSingle('activeTrack')) {
+                        this.handleTBScroll(ev)
+                    }
                 }
             })
 
@@ -634,6 +643,44 @@
 
             updateIndex(val) {
                 this.index = val
+            },
+
+            handleTBScroll(ev) {
+                // Avoid performing default behaviour of scrolling in tbody
+                ev.preventDefault()
+
+                // Grab 'activeTrack' & 'tbody' props
+                let t  = ClassNameSingle('activeTrack').getBoundingClientRect()
+                let tl = ClassNameSingle('trackslist').getBoundingClientRect()
+
+                // log top & bottom distance difference
+                let scrollTopDiff    = tl.top - t.top
+                let scrollBottomDiff = tl.bottom - t.bottom
+
+                // Only scroll Up/Down if its about to leave current view
+                let scrollUp   = (scrollTopDiff < 0 && scrollTopDiff > -26) ||
+                                (scrollTopDiff > 0 && scrollTopDiff < 25)
+                let scrollDown = (scrollBottomDiff > 0 && scrollBottomDiff < 25) ||
+                                (scrollBottomDiff < 0 && scrollBottomDiff > -25)
+
+                // Only trigger scroll if Arrow key corresponds to scroll
+                // ... direction
+                let shouldScrollUp   = ev.code == 'ArrowUp' && scrollUp
+                let shouldScrollDown = ev.code == 'ArrowDown' && scrollDown
+
+                if (shouldScrollUp) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth",
+                        block: "end"
+                    })
+                }
+
+                if (shouldScrollDown) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                }
             },
 
             setAppLoading(val) {
