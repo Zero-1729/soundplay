@@ -17,35 +17,36 @@
                         <p>{{ currentTrack.duration ? pos + ' / ' + currentTrack.duration : '- / -'}}</p>
                     </div>
                     <div class="controls">
-                        <svg class="shuffle-icon" @click="toggleShuffle" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{on: appAudioPrefs.shuffle}">
-                            <path class="stroked" d=" M 26.148 27.236 C 28.417 29.615 28.873 29.386 31.511 29.386 Q 36.716 29.386 35.511 29.386" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
-                            <path class="stroked" d=" M 23 23 C 22.219 22.188 21.209 21 18.571 21 Q 12.366 21 13.571 21" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
-                            <path class="stroked" d=" M 13.398 29 Q 13.552 29 19.398 29 C 25.154 29 23.937 21 30.398 21 Q 35.603 21 34.398 21" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
-                            <path class="filled" d=" M 34.702 22.458 L 34.702 21 L 34.702 19.542 C 34.702 19.373 34.82 19.305 34.967 19.389 L 36.229 20.118 L 37.492 20.847 C 37.638 20.932 37.638 21.068 37.492 21.153 L 36.229 21.882 L 34.967 22.611 C 34.82 22.695 34.702 22.627 34.702 22.458 Z "/>
-                            <path class="filled" d=" M 34.702 30.458 L 34.702 29 L 34.702 27.542 C 34.702 27.373 34.82 27.305 34.967 27.389 L 36.229 28.118 L 37.492 28.847 C 37.638 28.932 37.638 29.068 37.492 29.153 L 36.229 29.882 L 34.967 30.611 C 34.82 30.695 34.702 30.627 34.702 30.458 Z "/>
+                        <svg class="shuffle-icon" @click="toggleShuffle" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 27 14" width="19pt" height="14pt" :class="{on: appAudioPrefs.shuffle}">
+                            <path class="stroked" d=" M 14.16 9.236 C 16.429 11.615 16.884 11.386 19.523 11.386 Q 24.728 11.386 23.523 11.386" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
+                            <path class="stroked" d=" M 11.012 5 C 10.23 4.188 9.221 3 6.582 3 Q 0.377 3 1.582 3" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
+                            <path class="stroked" d=" M 1.41 11 Q 1.564 11 7.41 11 C 13.166 11 11.948 3 18.41 3 Q 23.615 3 22.41 3" fill="none" vector-effect="non-scaling-stroke" stroke-width="1" stroke-linejoin="miter" stroke-linecap="round" stroke-miterlimit="3"/>
+                            <path class="filled" d=" M 22.714 4.458 L 22.714 3 L 22.714 1.542 C 22.714 1.373 22.832 1.305 22.978 1.389 L 24.241 2.118 L 25.504 2.847 C 25.65 2.932 25.65 3.068 25.504 3.153 L 24.241 3.882 L 22.978 4.611 C 22.832 4.695 22.714 4.627 22.714 4.458 Z " />
+                            <path class="filled" d=" M 22.714 12.458 L 22.714 11 L 22.714 9.542 C 22.714 9.373 22.832 9.305 22.978 9.389 L 24.241 10.118 L 25.504 10.847 C 25.65 10.932 25.65 11.068 25.504 11.153 L 24.241 11.882 L 22.978 12.611 C 22.832 12.695 22.714 12.627 22.714 12.458 Z " />
                         </svg>
                         <div class="loop">
-                            <svg class="loop-icon" @click="setLoop('single')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && !appAudioPrefs.loopAll, hide: appAudioPrefs.loopAll, on: appAudioPrefs.loopSingle}">
-                                <path class="filled" d=" M 23.75 21 L 19.05 21 L 19.05 21 C 16.263 21 14 22.904 14 25.25 L 14 25.25 C 14 27.596 16.263 29.5 19.05 29.5 L 30.95 29.5 C 33.737 29.5 36 27.596 36 25.25 L 36 25.25 C 36 22.904 33.737 21 30.95 21 L 28 21 L 28 20 L 23.75 20 L 23.75 21 Z  M 18.862 20 L 31.138 20 C 34.373 20 37 22.352 37 25.25 L 37 25.25 C 37 28.148 34.373 30.5 31.138 30.5 L 18.862 30.5 C 15.627 30.5 13 28.148 13 25.25 L 13 25.25 C 13 22.352 15.627 20 18.862 20 L 18.862 20 Z " fill-rule="evenodd"/>
-                                <path class="filled" d=" M 23 22.254 L 23 20.491 L 23 18.728 C 23 18.524 23.143 18.442 23.319 18.544 L 24.844 19.425 L 26.368 20.306 C 26.544 20.408 26.544 20.574 26.368 20.676 L 24.844 21.557 L 23.319 22.438 C 23.143 22.54 23 22.457 23 22.254 Z "/>
+                            <svg class="loop-icon" @click="setLoop('single')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 26 15" width="20pt" height="14pt" :class="{show: !appAudioPrefs.loopSingle && !appAudioPrefs.loopAll, hide: appAudioPrefs.loopAll, on: appAudioPrefs.loopSingle}">
+                                    <path class="filled" d=" M 11.75 3.85 L 7.05 3.85 L 7.05 3.85 C 4.263 3.85 2 5.754 2 8.1 L 2 8.1 C 2 10.446 4.263 12.35 7.05 12.35 L 18.95 12.35 C 21.737 12.35 24 10.446 24 8.1 L 24 8.1 C 24 5.754 21.737 3.85 18.95 3.85 L 16 3.85 L 16 2.85 L 11.75 2.85 L 11.75 3.85 Z  M 6.862 2.85 L 19.138 2.85 C 22.373 2.85 25 5.202 25 8.1 L 25 8.1 C 25 10.998 22.373 13.35 19.138 13.35 L 6.862 13.35 C 3.627 13.35 1 10.998 1 8.1 L 1 8.1 C 1 5.202 3.627 2.85 6.862 2.85 L 6.862 2.85 Z " fill-rule="evenodd" />
+                                    <path class="filled" d=" M 11 5.104 L 11 3.341 L 11 1.578 C 11 1.374 11.143 1.292 11.319 1.394 L 12.844 2.275 L 14.368 3.156 C 14.544 3.258 14.544 3.424 14.368 3.526 L 12.844 4.407 L 11.319 5.288 C 11.143 5.39 11 5.307 11 5.104 Z " />
+                                </svg>
                             </svg>
-                            <svg class="loop-icon alt" @click="setLoop('all')"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt" :class="{show: !appAudioPrefs.loopSingle && appAudioPrefs.loopAll, hide: appAudioPrefs.loopSingle || !appAudioPrefs.loopAll, on: appAudioPrefs.loopAll}">
-                                <path class="filled" d=" M 19.75 30.5 L 18.862 30.5 C 15.627 30.5 13 28.148 13 25.25 L 13 25.25 C 13 22.352 15.627 20 18.862 20 L 18.862 20 L 25.75 20 L 25.75 21 L 19.05 21 L 19.05 21 C 16.263 21 14 22.904 14 25.25 L 14 25.25 C 14 27.596 16.263 29.5 19.05 29.5 L 30.95 29.5 C 33.737 29.5 36 27.596 36 25.25 L 36 25.25 C 36 22.904 33.737 21 30.95 21 L 30 21 L 30 20 L 31.138 20 C 34.373 20 37 22.352 37 25.25 L 37 25.25 C 37 28.148 34.373 30.5 31.138 30.5 L 24 30.5 L 24 29.5 L 19.75 29.5 L 19.75 30.5 Z " fill-rule="evenodd"/>
-                                <path class="filled" d=" M 24 22.254 L 24 20.491 L 24 18.728 C 24 18.524 24.143 18.442 24.319 18.544 L 25.844 19.425 L 27.368 20.306 C 27.544 20.408 27.544 20.574 27.368 20.676 L 25.844 21.557 L 24.319 22.438 C 24.143 22.54 24 22.457 24 22.254 Z "/>
-                                <path class="filled" d=" M 26 31.772 L 26 30.009 L 26 28.246 C 26 28.043 25.857 27.96 25.681 28.062 L 24.156 28.943 L 22.632 29.824 C 22.456 29.926 22.456 30.092 22.632 30.194 L 24.156 31.075 L 25.681 31.956 C 25.857 32.058 26 31.976 26 31.772 Z "/>
+                            <svg class="loop-icon alt" @click="setLoop('all')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 1 26 12" width="20pt" height="14pt" :class="{show: !appAudioPrefs.loopSingle && appAudioPrefs.loopAll, hide: appAudioPrefs.loopSingle || !appAudioPrefs.loopAll, on: appAudioPrefs.loopAll}">
+                                <path class="filled" d=" M 7.75 12.75 L 6.862 12.75 C 3.627 12.75 1 10.398 1 7.5 L 1 7.5 C 1 4.602 3.627 2.25 6.862 2.25 L 6.862 2.25 L 13.75 2.25 L 13.75 3.25 L 7.05 3.25 L 7.05 3.25 C 4.263 3.25 2 5.154 2 7.5 L 2 7.5 C 2 9.846 4.263 11.75 7.05 11.75 L 18.95 11.75 C 21.737 11.75 24 9.846 24 7.5 L 24 7.5 C 24 5.154 21.737 3.25 18.95 3.25 L 18 3.25 L 18 2.25 L 19.138 2.25 C 22.373 2.25 25 4.602 25 7.5 L 25 7.5 C 25 10.398 22.373 12.75 19.138 12.75 L 12 12.75 L 12 11.75 L 7.75 11.75 L 7.75 12.75 Z " fill-rule="evenodd" />
+                                <path class="filled" d=" M 12 4.504 L 12 2.741 L 12 0.978 C 12 0.774 12.143 0.692 12.319 0.794 L 13.844 1.675 L 15.368 2.556 C 15.544 2.658 15.544 2.824 15.368 2.926 L 13.844 3.807 L 12.319 4.688 C 12.143 4.79 12 4.707 12 4.504 Z " />
+                                <path class="filled" d=" M 14 14.022 L 14 12.259 L 14 10.496 C 14 10.293 13.857 10.21 13.681 10.312 L 12.156 11.193 L 10.632 12.074 C 10.456 12.176 10.456 12.342 10.632 12.444 L 12.156 13.325 L 13.681 14.206 C 13.857 14.308 14 14.226 14 14.022 Z " />
                             </svg>
                         </div>
                     </div>
                     <div class="volume">
-                        <svg @click="handleMute" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 50 50" width="35pt" height="35pt">
+                        <svg @click="handleMute" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 19 14" width="13pt" height="10pt">
                             <g :class="{off: appAudioPrefs.mute}">
-                                <path class="filled" d=" M 16.754 22.025 L 18.069 22.025 L 23.302 19.068 C 24.743 18.254 25.914 18.937 25.914 20.592 L 25.914 29.408 C 25.914 31.063 24.743 31.746 23.302 30.932 L 18.069 27.975 L 16.754 27.975 C 16.614 27.975 16.5 27.862 16.5 27.721 L 16.5 22.279 C 16.5 22.138 16.614 22.025 16.754 22.025 Z "/>
-                                <path class="stroked" d=" M 29 22.414 Q 30.38 23.364 30.38 25 Q 30.38 26.636 29 27.586" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
-                                <path class="stroked" d=" M 30.379 19.483 Q 33.138 21.51 33.138 25 Q 33.138 28.49 30.379 30.517" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
+                                <path class="filled" d=" M 1.254 4.025 L 2.569 4.025 L 7.802 1.068 C 9.243 0.254 10.414 0.937 10.414 2.592 L 10.414 11.408 C 10.414 13.063 9.243 13.746 7.802 12.932 L 2.569 9.975 L 1.254 9.975 C 1.114 9.975 1 9.862 1 9.721 L 1 4.279 C 1 4.138 1.114 4.025 1.254 4.025 Z " />
+                                <path class="stroked" d=" M 13.5 4.414 Q 14.88 5.364 14.88 7 Q 14.88 8.636 13.5 9.586" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
+                                <path class="stroked" d=" M 14.879 1.483 Q 17.638 3.51 17.638 7 Q 17.638 10.49 14.879 12.517" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
                             </g>
                             <g :class="{on: appAudioPrefs.mute, triggered: appAudioPrefs.mute, off: !appAudioPrefs.mute}">
-                                <path class="stroked" d=" M 29.375 22.846 L 31.375 25 L 33.375 27.154 L 29.375 22.846 Z  M 29.375 27.154 L 31.375 25 L 33.375 22.846 L 29.375 27.154 Z " fill-rule="evenodd" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
-                                <path class="filled" d=" M 16.879 22.025 L 18.194 22.025 L 23.427 19.068 C 24.868 18.254 26.039 18.937 26.039 20.592 L 26.039 29.408 C 26.039 31.063 24.868 31.746 23.427 30.932 L 18.194 27.975 L 16.879 27.975 C 16.739 27.975 16.625 27.862 16.625 27.721 L 16.625 22.279 C 16.625 22.138 16.739 22.025 16.879 22.025 Z "/>
+                                <path class="stroked" d=" M 13.75 4.846 L 15.75 7 L 17.75 9.154 L 13.75 4.846 Z  M 13.75 9.154 L 15.75 7 L 17.75 4.846 L 13.75 9.154 Z " fill-rule="evenodd" fill="none" vector-effect="non-scaling-stroke" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" stroke-miterlimit="3"/>
+                                <path class="filled" d=" M 1.254 4.025 L 2.569 4.025 L 7.802 1.068 C 9.243 0.254 10.414 0.937 10.414 2.592 L 10.414 11.408 C 10.414 13.063 9.243 13.746 7.802 12.932 L 2.569 9.975 L 1.254 9.975 C 1.114 9.975 1 9.862 1 9.721 L 1 4.279 C 1 4.138 1.114 4.025 1.254 4.025 Z " />
                             </g>
                         </svg>
                         <input type="range" min="0" max="100" step="6.25" v-model="volume" class="slider">
@@ -206,6 +207,7 @@
                         display flex
                         .shuffle-icon
                             cursor pointer
+                            margin-right 14px
                         .loop
                             position relative
                             .loop-icon
@@ -225,6 +227,8 @@
                     .waveform
                         height 100%
                         width 100%
+                        wave
+                            cursor pointer
                     .waveform.hide
                         wave
                             opacity 0
@@ -235,9 +239,10 @@
                     right 25px
                     svg
                         align-self center
+                        cursor pointer
+                        margin-right 8px
                         g
                             transition all 0.1s ease-in
-                            cursor pointer
                         g.on
                             opacity 1
                         g.off
