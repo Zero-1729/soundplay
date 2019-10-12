@@ -437,22 +437,26 @@
                 let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
 
                 let loopAllLock = false
+                let loopSingleLock = false
 
                 // Loop code here
                 if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
-                    // Lock loop, so that next track wouldn't be played
-                    loopAllLock = true
-
                     // So if loop (single) enabled, we simply play again
                     if (this.appAudioPrefs.loopSingle) {
+                        // Lock so that we only keep looping current track
+                        loopSingleLock = true
+
                         this.player.play()
                     } else {
                         // I.e. Loop All
-
                         // If last track, we simply reset to first
                         if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.currentTrack.source)
+
+                            // Only lock when we are sure we need to poceed to
+                            // play the next
+                            loopAllLock = true
                         }
                     }
                 } else {
@@ -470,7 +474,8 @@
                 // ... i.e. last track, we proceed to play the next
                 if ((cindex < this.filteredPool.length - 1) &&
                     (this.filteredPool.length > 0) &&
-                    !loopAllLock) {
+                    !loopAllLock &&
+                    !loopSingleLock) {
                     this.updateCurrentTrack(this.filteredPool[cindex+1])
                     this.player.playNew(this.currentTrack.source)
                 }
