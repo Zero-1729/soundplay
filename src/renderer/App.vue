@@ -682,6 +682,16 @@
                         block: "start"
                     })
                 }
+
+                // If no scroll is triggered
+                // we make one last attempt to scroll into view
+                // in case the user manually scrolled out of the view
+                if (!(shouldScrollUp || shouldScrollDown) &&
+                    ((t.y - tl.height > 110) || (t.y < tl.y))) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth"
+                    })
+                }
             },
 
             setAppLoading(val) {
