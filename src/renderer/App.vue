@@ -324,7 +324,15 @@
 
             ipcRenderer.on('media-next', (event, arg) => {
                 // Get index of current playing track
-                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+                let cindex
+
+                if (this.appAudioPrefs.shuffle) {
+                    // If shuffled, then grab next random index to play
+                    cindex = this.player.getNextRandom(this.currentTrack, this.filteredPool)
+                } else {
+                    //
+                    cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+                }
 
                 // Check if a next track exists
                 if (cindex < this.filteredPool.length-1) {
@@ -470,6 +478,12 @@
                     }
                 }
 
+                // Possibly our shuffle code as well, or we updated/replace pool
+                // ... from the player
+                if (this.appAudioPrefs.shuffle) {
+                    cindex = this.player.getNextRandom(this.currentTrack, this.filteredPool)
+                }
+
                 // If not cleared, and havent hit the floor of the pool
                 // ... i.e. last track, we proceed to play the next
                 if ((cindex < this.filteredPool.length - 1) &&
@@ -479,9 +493,6 @@
                     this.updateCurrentTrack(this.filteredPool[cindex+1])
                     this.player.playNew(this.currentTrack.source)
                 }
-
-                // Possibly our shuffle code as well, or we updated/replace pool
-                // ... from the player
             })
         },
         watch: {

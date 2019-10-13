@@ -1,12 +1,13 @@
 const ws = require('wavesurfer.js')
 const fs = require('fs')
 
+import { getIndexFromKey }  from './object'
+
 
 export default class Player {
     constructor(track, props) {
         this.currentTrack = track
         this.autoPlays = props.autoplay
-        this.oldPool = props.pool // For shuffle/unshuffle
         this.active = false // Flag for
 
         this.device = new ws.create({
@@ -114,17 +115,16 @@ export default class Player {
         this.device.playPause()
     }
 
-    // Audio actions
-    shuffle(pool, currentTrack) {
-        // Shuffle algo
+    getNextRandom(currentTrack, pool) {
+        let editedPool = pool
+        let index = getIndexFromKey(pool, 'id', currentTrack.id)
+
+        editedPool = pool.slice(0, index).concat(pool.slice(index+1))
+
+        if (editedPool.length == 1) {
+            return 0
+        } else {
+            return Math.round(Math.random() * editedPool.length)
+        }
     }
-
-    shuffle() {}
-
-    unShuffle() {}
-
-    // Looping is handled in 'audioprocess';
-    // so if loop single on, when audio is done we reload the same track
-    // When it is loopAll, we check the track's current indx in the pool, if it is last, we play first,
-    // if not we just leave the track finished, reset current Track
 }
