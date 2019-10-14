@@ -669,7 +669,7 @@
                 // Only trigger if '(search) input' is blurred
                 // We don't want the tracks disappearing randomly while typing
                 if (!this.backspaceLock) {
-                    // Delete current track if deleted
+                    // Delete current track if seleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
                         this.clearCurrentTrack()
                         this.player.clear()

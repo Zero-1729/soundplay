@@ -8,7 +8,8 @@ export default class Player {
     constructor(track, props) {
         this.currentTrack = track
         this.autoPlays = props.autoplay
-        this.active = false // Flag for
+        this.activated = false // Flag for state of player. i.e. newly launched
+        this.cleared = false // Flag for detecting whether current playing track was just deleted
 
         this.device = new ws.create({
             container: "#waveform",
@@ -33,7 +34,7 @@ export default class Player {
     }
 
     activate() {
-        this.active = true
+        this.activated = true
     }
 
     setProgressColor(color) {
@@ -55,6 +56,9 @@ export default class Player {
     clear() {
         this.device.pause()
         this.device.empty()
+
+        // Set cleared flag
+        this.cleared = true
     }
 
     updateVolume(val) {
@@ -101,6 +105,10 @@ export default class Player {
 
         if (buffer) {
             this.device.loadArrayBuffer(buffer.buffer)
+
+            // Reset, so we can 'play/pause'
+            this.cleared = false
+
             return true
         } else {
             return false
@@ -108,11 +116,12 @@ export default class Player {
     }
 
     play() {
-        this.device.play()
+        // Alias fn to trigger play
+        this.device.playPause()
     }
 
     playpause() {
-        this.device.playPause()
+        if (!this.cleared) this.device.playPause()
     }
 
     getNextRandom(currentTrack, pool) {

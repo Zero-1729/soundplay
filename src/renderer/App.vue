@@ -389,7 +389,7 @@
                 // We set the loading flag here
                 this.loadingTrack = true
 
-                if (!this.player.active) {
+                if (!this.player.activated) {
                     this.player.activate()
                 }
 
@@ -633,7 +633,7 @@
             ]),
 
             triggerPlay() {
-                if (this.player.active) {
+                if (this.player.activated && !this.player.cleared) {
                     this.player.playpause()
                 } else {
                     if (this.index == -1) {
@@ -641,9 +641,12 @@
                         this.updateCurrentTrack(this.filteredPool[0])
                         this.player.playNew(this.currentTrack.source)
                     } else {
-                        // If not we play the track currently active (indexed)
-                        this.updateCurrentTrack(this.filteredPool[this.index])
-                        this.player.playNew(this.currentTrack.source)
+                        // We only attempt to play a new track if it does exist
+                        if (this.filteredPool.length > 0) {
+                            // If not we play the track currently active (indexed)
+                            this.updateCurrentTrack(this.filteredPool[this.index])
+                            this.player.playNew(this.currentTrack.source)
+                        }
                     }
                 }
             },
