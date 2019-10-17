@@ -145,6 +145,9 @@
             }
         },
         created() {
+            // Print Welcome message
+            console.log("Welcome to Soundplay v0.2.0 (Alpha)")
+
             // - Session clearing code -
 
             // Clear all error messages when app is closed
