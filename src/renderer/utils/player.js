@@ -7,7 +7,7 @@ import { getIndexFromKey }  from './object'
 export default class Player {
     constructor(track, props) {
         this.currentTrack = track
-        this.autoPlays = props.autoplay
+        this.shuffle = props.shuffle // Only used to assert shuffle on when App newly launched
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing previously played tracks in shuffle mode

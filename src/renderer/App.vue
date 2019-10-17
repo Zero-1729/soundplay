@@ -417,7 +417,7 @@
                             })
                         }
 
-                        // We check for autoplay, if on, we immediately play track
+                        // We immediately play track
                         this.player.device.play()
 
                         // We update the tracks peeks here
