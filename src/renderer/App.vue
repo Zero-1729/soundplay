@@ -384,6 +384,7 @@
                 volume: this.appAudioPrefs.volume,
                 loop: this.appAudioPrefs.loop,
                 mute: this.appAudioPrefs.mute,
+                shuffle: this.appAudioPrefs.shuffle,
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor
@@ -395,7 +396,7 @@
                 this.loadingTrack = true
 
                 if (!this.player.activated) {
-                    this.player.activate()
+                    this.player.activate(this.currentTrack, this.filteredPool)
                 }
 
                 new jsm.Reader(this.currentTrack.source).setTagsToRead(['picture']).read({
@@ -513,6 +514,22 @@
 
             'appAudioPrefs.volume' (cur, prev) {
                 this.player.updateVolume(cur)
+            },
+
+            'appAudioPrefs.shuffle' (cur, prev) {
+                if (cur) {
+                    // create random indexes array for shuffled tracks
+                    this.player.fillRandoms(this.currentTrack, this.filteredPool)
+                } else {
+                    this.player.emptyRandoms()
+                }
+            },
+
+            filteredPool (cur, prev) {
+                if (this.currentTrack) {
+                    // recalc randoms
+                    this.player.fillRandoms(this.currentTrack, cur)
+                }
             },
 
             currentTrack (cur, old) {

@@ -1,7 +1,7 @@
 const ws = require('wavesurfer.js')
 const fs = require('fs')
 
-import { getIndexFromKey }  from './object'
+import { getIndexFromKey, removeObject }  from './object'
 
 
 export default class Player {
@@ -11,6 +11,7 @@ export default class Player {
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing previously played tracks in shuffle mode
+        this.randoms = [] // Shuffled indexes array
 
         this.device = new ws.create({
             container: "#waveform",
@@ -34,8 +35,12 @@ export default class Player {
         if (props.mute) this.device.setMute(true)
     }
 
-    activate() {
+    activate(currentTrack, pool) {
         this.activated = true
+
+        if (this.shuffle) {
+            this.fillRandoms(currentTrack, pool)
+        }
     }
 
     setProgressColor(color) {
@@ -138,10 +143,36 @@ export default class Player {
             this.playHistory = [index]
         }
 
-        if (editedPool.length == 1) {
-            return 0
+        // Check if randoms empty, so we can refill
+        if (this.randoms.length == 0) {
+            this.fillRandoms()
         } else {
-            return Math.round(Math.random() * editedPool.length)
+            // If not we just pop the last index
+            return this.randoms.pop()
         }
+    }
+
+    fillRandoms(currentTrack, pool) {
+        // Create a properly shuffled pool
+        // Exclude playing track, to avoid any collisions
+        let tmpPool = removeObject(pool, 'id', currentTrack.id)
+
+        // Durstenfeld Algo
+        for (var i = tmpPool.length - 1;i > 0;i--) {
+                let j = Math.floor(Math.random() * (i + 1))
+
+                let idx = tmpPool[i]
+
+                tmpPool[i] = tmpPool[j]
+                tmpPool[j] = idx
+        }
+
+        // Fill randoms with newly created (in place) shuffled indexes
+        this.randoms = tmpPool.map((item) => { return pool.indexOf(item) })
+    }
+
+    // We don't want indexes from previous 'pools' to persist
+    emptyRandoms() { this.randoms = [] }
+
     }
 }
