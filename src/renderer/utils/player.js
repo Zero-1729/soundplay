@@ -10,6 +10,7 @@ export default class Player {
         this.autoPlays = props.autoplay
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
+        this.playHistory = [] // For storing previously played tracks in shuffle mode
 
         this.device = new ws.create({
             container: "#waveform",
@@ -128,7 +129,14 @@ export default class Player {
         let editedPool = pool
         let index = getIndexFromKey(pool, 'id', currentTrack.id)
 
-        editedPool = pool.slice(0, index).concat(pool.slice(index+1))
+        // Register track in history
+        // History is limited to last ten tracks (~30 mins playtime)
+        // ... assuming each track is ~3 mins long
+        if (this.playHistory.length < 10) {
+            this.playHistory.push(index)
+        } else {
+            this.playHistory = [index]
+        }
 
         if (editedPool.length == 1) {
             return 0

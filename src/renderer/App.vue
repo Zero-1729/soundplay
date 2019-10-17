@@ -318,7 +318,11 @@
                 let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
 
                 if (cindex > 0) {
-                    this.updateCurrentTrack(this.filteredPool[cindex-1])
+                    if (this.appAudioPrefs.shuffle) {
+                        cindex = this.player.playHistory.pop()
+                    } else { cindex = cindex - 1 }
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.currentTrack.source)
                 }
             })
