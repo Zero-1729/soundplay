@@ -99,7 +99,8 @@
 
     import { Id,
             ClassName,
-            ClassNameSingle }   from './utils/htmlQuery'
+            ClassNameSingle,
+            QuerySelectorAll }  from './utils/htmlQuery'
 
     import { isNightTime,
             reformatTo24Hours } from './utils/time'
@@ -189,7 +190,7 @@
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
-            window.addEventListener('resize', this.handle_window_update)
+            window.addEventListener('resize', this.handle_window_resize)
 
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
@@ -525,7 +526,7 @@
 
             '$route' (cur, old) {
                 if (cur.path == '/') {
-                    this.windowUpdated()
+                    this.redrawWaveform()
 
                     if (!this.statusMessage.isEmpty) {
                         this.clearStatusMessage()
@@ -724,9 +725,10 @@
             handle_window_resize() {
                 if (this.$route.path == '/') {
                     this.resizeThead()
+                    this.redrawEllipses()
                 }
 
-                this.windowUpdated()
+                this.redrawWaveform()
             },
 
             resizeThead() {
@@ -744,7 +746,7 @@
                 }
             },
 
-            windowUpdated() {
+            redrawEllipses() {
                 // Resize width to allow ellipses
                 if (window.innerWidth > 1310) {
                     let length = ClassName('short').length
@@ -759,7 +761,9 @@
                         ClassName('short')[i].style.width = "100%"
                     }
                 }
+            },
 
+            redrawWaveform() {
                 // Redraw waveform here
                 if (this.player) this.player.device.drawBuffer()
             },
