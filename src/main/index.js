@@ -135,20 +135,21 @@ function createWindow () {
         windowBackgroundColor = arg
 
         // Reset the window background color
-        mainWindow.setBackgroundColor(windowBackgroundColor)
+        // Seems to have no effect when app is loaded
+        // mainWindow.setBackgroundColor(arg)
     })
 
     // Register Media key shortcuts
     const mpp = globalShortcut.register('mediaplaypause', () => {
-        mainWindow.webContents.send('media-keys-press', 0)
+        mainWindow.webContents.send('media-playpause', null)
     })
 
     const mp = globalShortcut.register('mediaprevioustrack', () => {
-        mainWindow.webContents.send('media-keys-press', -1)
+        mainWindow.webContents.send('media-prev', null)
     })
 
     const mn = globalShortcut.register('medianexttrack', () => {
-        mainWindow.webContents.send('media-keys-press', 1)
+        mainWindow.webContents.send('media-next', null)
     })
 
     if (!(mpp || mp || np)) { console.log('Media keys registration failed') }
@@ -239,7 +240,89 @@ const template = [
         ]
     },
     {
-        label: 'view',
+        label: 'Playback',
+        submenu: [
+            {
+                label: 'Play/Pause',
+                accelerator: 'CmdOrCtrl+P',
+                click() {
+                    mainWindow.webContents.send('media-playpause', null)
+                },
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Previous',
+                accelerator: 'CmdOrCtrl+left',
+                click() {
+                    mainWindow.webContents.send('media-prev', null)
+                }
+            },
+            {
+                label: 'Next',
+                accelerator: 'CmdOrCtrl+right',
+                click() {
+                    mainWindow.webContents.send('media-next', null)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toogle Shuffle',
+                accelerator: 'CmdOrCtrl+Shift+Z',
+                click() {
+                    mainWindow.webContents.send('toggle-shuffle', null)
+                }
+            },
+            {
+                label: 'Toggle Loop Single',
+                accelerator: 'CmdOrCtrl+L',
+                click() {
+                    mainWindow.webContents.send('toggle-loop', 'single')
+                }
+            },
+            {
+                label: 'Toggle Loop All',
+                accelerator: 'CmdOrCtrl+Shift+L',
+                click() {
+                    mainWindow.webContents.send('toggle-loop', 'all')
+                }
+            }
+        ]
+    },
+    {
+        label: 'Audio',
+        submenu: [
+            {
+                label: 'Mute',
+                accelerator: 'CmdOrCtrl+Alt+M',
+                click() {
+                    mainWindow.webContents.send('toggle-mute', null)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Volume Up',
+                accelerator: 'CmdOrCtrl+=',
+                click() {
+                    mainWindow.webContents.send('volume', 1)
+                }
+            },
+            {
+                label: 'Volume Down',
+                accelerator: 'CmdOrCtrl+-',
+                click() {
+                    mainWindow.webContents.send('volume', -1)
+                }
+            }
+        ]
+    },
+    {
+        label: 'View',
         submenu: [
             {
                 role: 'reload'
@@ -270,7 +353,7 @@ const template = [
         ]
     },
     {
-        label: 'window',
+        label: 'Window',
         submenu: [
             {
                 role: 'togglefullscreen'
@@ -354,7 +437,7 @@ if (process.platform == 'darwin') {
     )
 
     // Window
-    template[3].submenu.push(
+    template[5].submenu.push(
         {
             type: 'separator'
         },

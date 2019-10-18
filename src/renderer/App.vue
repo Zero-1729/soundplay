@@ -1,12 +1,14 @@
 <template>
     <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
+        <Panel :track="currentTrack" :pos="currentPos" :player="player" :loading="loadingTrack" :foundArt="foundArt"></Panel>
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
         <Sidepane></Sidepane>
+
         <span>
             <transition name="faded-slide-in">
-                <router-view></router-view>
+                <router-view :player="player" @appLoading="setAppLoading" :index="index" @mutateIndex="updateIndex"></router-view>
             </transition>
         </span>
 
@@ -81,6 +83,7 @@
 </template>
 
 <script>
+    import Panel                from './components/Player/Panel.vue'
     import AudioTS              from './components/Toolset/AudioTS.vue'
     import AudioSTS             from './components/Toolset/AudioSTS.vue'
     import Search               from './components/Search/SearchBar.vue'
@@ -92,11 +95,17 @@
 
     import FS                   from './utils/dirwalker'
 
+    import Player               from './utils/player'
+
     import { Id,
-            ClassName }         from './utils/htmlQuery'
+            ClassName,
+            ClassNameSingle,
+            QuerySelectorAll }  from './utils/htmlQuery'
 
     import { isNightTime,
             reformatTo24Hours } from './utils/time'
+
+    import { getIndexFromKey }  from './utils/object'
 
     const {
             remote,
@@ -109,8 +118,11 @@
     const fs              = require('fs')
     const path            = require('path')
 
+    const waveColors      = require('./data/wavecolors.json')
+
     export default {
         components: {
+            Panel,
             Search,
             AudioTS,
             AudioSTS,
@@ -119,14 +131,23 @@
         },
         data() {
             return {
+                index: -1,
+                appIsLoading: false,
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
                 imports: 0,
-                imports_count: 0
+                imports_count: 0,
+                player: null,
+                currentPos: '-',
+                loadingTrack: false,
+                foundArt: false
             }
         },
         created() {
+            // Print Welcome message
+            console.log("Welcome to Soundplay v0.2.0 (Alpha)")
+
             // - Session clearing code -
 
             // Clear all error messages when app is closed
@@ -149,32 +170,30 @@
             // Clear jobs
             this.setJobsFn({start: null, end: null})
 
-            // Clear loading state
-            this.setLoading(false)
-
             // Unlock all mutexes
             this.unlockHotKey('backspace')
 
             // - End of session clearing -
 
+            // Lets watch for 'spacebar' event to trigger player's 'play/pause'
+            window.addEventListener('keydown', (ev) => {
+                if (ev.code == 'Space') {
+                    this.triggerPlaypause(ev)
+                }
+
+                if (ev.code == 'ArrowUp' || ev.code == 'ArrowDown') {
+                    // Only check tbody activeTrack to scroll if it exists
+                    // That way we don't block any future use of 'Up'/'Down'
+                    if (ClassNameSingle('activeTrack')) {
+                        this.handleTBScroll(ev)
+                    }
+                }
+            })
+
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
-            window.addEventListener('resize', this.handle_window_update)
-
-            // Respond to media key presses
-            ipcRenderer.on('media-keys-press', (event, arg) => {
-                if (arg == 0) {
-                    // Play/Pause
-                    console.log("detected play/pause")
-                } else if (arg == -1) {
-                    // Previous
-                    console.log('detected previous')
-                } else if (arg == 1) {
-                    // Next
-                    console.log('detected next')
-                }
-            })
+            window.addEventListener('resize', this.handle_window_resize)
 
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
@@ -200,11 +219,14 @@
                         // Log number of files to import
                         this.imports += items.length
                         this.imports_count += items.length
-                        vm.setLoading(true)
 
                         // Make sure we check whether the user canceled the dialog first
                         // ... before we start performing any actions
                         if (items.length > 0) {
+                            // Only make App display load effect when tracks
+                            // ... actually inmported
+                            vm.appIsLoading = true
+
                             for (var i = 0;i < items.length;i++) {
                                 vm.deref(items[i])
                             }
@@ -226,7 +248,9 @@
                                 // Log number files to import
                                 vm.imports += tracks.length
                                 vm.imports_count += tracks.length
-                                vm.setLoading(true)
+
+                                // We now activate App loading effect
+                                vm.appIsLoading = true
 
                                 for (var j = 0;j < tracks.length;j++) {
                                     vm.deref(tracks[j])
@@ -286,11 +310,247 @@
                     this.setNightMode(true)
                 }
             }
+
+            // Media controls
+            // Playback
+            ipcRenderer.on('media-playpause', (event, arg) => {
+                this.triggerPlay()
+            })
+
+            ipcRenderer.on('media-prev', (event, arg) => {
+                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+
+                if (cindex > 0) {
+                    if (this.appAudioPrefs.shuffle) {
+                        cindex = this.player.playHistory.pop()
+                    } else { cindex = cindex - 1 }
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.currentTrack.source)
+                }
+            })
+
+            ipcRenderer.on('media-next', (event, arg) => {
+                // Get index of current playing track
+                let cindex
+
+                if (this.appAudioPrefs.shuffle) {
+                    // If shuffled, then grab next random index to play
+                    cindex = this.player.getNextRandom(this.currentTrack, this.filteredPool)
+                } else {
+                    //
+                    cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+                }
+
+                // Check if a next track exists
+                if (cindex < this.filteredPool.length-1) {
+                    // If true, we just play it!
+                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.player.playNew(this.currentTrack.source)
+                }
+            })
+
+            ipcRenderer.on('toggle-shuffle', (event, arg) => {
+                this.toggleShuffle()
+            })
+
+            ipcRenderer.on('toggle-loop', (event, arg) => {
+                if (arg == 'single') {
+                    this.setLoop('single')
+                } else {
+                    this.setLoop('all')
+                }
+            })
+
+            // Audio
+            ipcRenderer.on('toggle-mute', (event, arg) => {
+                this.toggleMute()
+            })
+
+            ipcRenderer.on('volume', (event, arg) => {
+                // store current Volume
+                let cv = this.appAudioPrefs.volume
+                let newVal = arg == -1 ? cv - 0.0625 : cv + 0.0625
+
+                // Step is 6.25, 16 volume bars (as in MacOS)
+                if (arg == -1) {
+                    this.updateVolume(newVal < 0 ? 0 : newVal)
+                } else {
+                    this.updateVolume(newVal > 1 ? 1 : newVal)
+                }
+            })
+        },
+        mounted() {
+            // Create new player
+            this.player = new Player(this.currentTrack, {
+                window: window,
+                volume: this.appAudioPrefs.volume,
+                loop: this.appAudioPrefs.loop,
+                mute: this.appAudioPrefs.mute,
+                shuffle: this.appAudioPrefs.shuffle,
+                progressColor: waveColors[this.appTheme].progressColor,
+                cursorColor:  waveColors[this.appTheme].cursorColor,
+                waveColor:  waveColors[this.appTheme].waveColor
+            })
+
+            this.player.device.on('ready', () => {
+                // When track fully loaded
+                // We set the loading flag here
+                this.loadingTrack = true
+
+                if (!this.player.activated) {
+                    this.player.activate(this.currentTrack, this.filteredPool)
+                }
+
+                new jsm.Reader(this.currentTrack.source).setTagsToRead(['picture']).read({
+                    onSuccess: (tag) => {
+                        if (tag.tags.picture) {
+                            Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+
+                            this.foundArt = true
+                        } else {
+                            this.foundArt = false
+                        }
+
+                        // Only add track meta when track doesn't have 'duration set'
+                        if (!this.currentTrack.duration) {
+                            this.editTrack({
+                                id: this.currentTrack.id,
+                                meta: 'duration',
+                                value: this.player.getDuration()
+                            })
+                        }
+
+                        // We immediately play track
+                        this.player.device.play()
+
+                        // We update the tracks peeks here
+
+                        // Unset 'loading' flag here
+                        this.loadingTrack = false
+                    },
+                    onError: (err) => {
+                        // Decide What do to with error later
+                        console.log(err)
+                    }
+                })
+            })
+
+            this.player.device.on('audioprocess', () => {
+                // When track playing
+
+                // So we update the current track position
+
+                this.currentPos = this.player.getCurrentPos()
+            })
+
+            this.player.device.on('finish', () => {
+                // When track is done playing
+                this.player.reset()
+                // We reset the waveform cursor to the begining
+                this.currentPos = this.player.getCurrentPos()
+
+                // Store index of currentTrack
+                let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
+
+                let loopAllLock = false
+                let loopSingleLock = false
+
+                // Loop code here
+                if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
+                    // So if loop (single) enabled, we simply play again
+                    if (this.appAudioPrefs.loopSingle) {
+                        // Lock so that we only keep looping current track
+                        loopSingleLock = true
+
+                        this.player.play()
+                    } else {
+                        // I.e. Loop All
+                        // If last track, we simply reset to first
+                        if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                            this.updateCurrentTrack(this.filteredPool[0])
+                            this.player.playNew(this.currentTrack.source)
+
+                            // Only lock when we are sure we need to poceed to
+                            // play the next
+                            loopAllLock = true
+                        }
+                    }
+                } else {
+                    // I.e. If no loops we go ahead and play the next track
+
+                    // When track is finished playing and all tracks in pool cleared?
+                    if (this.filteredPool.length == 0) {
+                        // Player cleared and current Track
+                        this.player.clear()
+                        this.updateCurrentTrack(null)
+                    }
+                }
+
+                // Possibly our shuffle code as well, or we updated/replace pool
+                // ... from the player
+                if (this.appAudioPrefs.shuffle) {
+                    cindex = this.player.getNextRandom(this.currentTrack, this.filteredPool)
+                }
+
+                // If not cleared, and havent hit the floor of the pool
+                // ... i.e. last track, we proceed to play the next
+                if ((cindex < this.filteredPool.length - 1) &&
+                    (this.filteredPool.length > 0) &&
+                    !loopAllLock &&
+                    !loopSingleLock) {
+                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.player.playNew(this.currentTrack.source)
+                }
+            })
         },
         watch: {
+            'appAudioPrefs.mute' (cur, prev) {
+                // If muted we make volume nil,
+                // ... if not we restore the last volume level befor the mute
+                if (!cur) {
+                    this.restoreVolume()
+                } else {
+                    this.setVolume(0)
+                }
+            },
+
+            'appAudioPrefs.volume' (cur, prev) {
+                this.player.updateVolume(cur)
+            },
+
+            'appAudioPrefs.shuffle' (cur, prev) {
+                if (cur) {
+                    // create random indexes array for shuffled tracks
+                    this.player.fillRandoms(this.currentTrack, this.filteredPool)
+                } else {
+                    this.player.emptyRandoms()
+                }
+            },
+
+            filteredPool (cur, prev) {
+                if (this.currentTrack) {
+                    // recalc randoms
+                    this.player.fillRandoms(this.currentTrack, cur)
+                }
+            },
+
+            currentTrack (cur, old) {
+                if (cur) {
+                    let ret = this.player.playNew(cur.source)
+
+                    if (!ret) {
+                        // If track has been renamed or deleted on the machine
+                        // ... We delete it for now
+                        this.deleteTrack(cur)
+                        this.clearCurrentTrack()
+                    }
+                }
+            },
+
             '$route' (cur, old) {
                 if (cur.path == '/') {
-                    this.windowUpdated()
+                    this.redrawWaveform()
 
                     if (!this.statusMessage.isEmpty) {
                         this.clearStatusMessage()
@@ -305,14 +565,20 @@
                 // Light -> #ffffff
                 // Dark -> #2f2f2f2
                 // Night -> #0e2c42
-                let color = cur == 'light' ? '#ffffff' : cur == 'night' ? '#0e2c42' : '#2f2f2f'
+                let color = cur == 'light' ? '#fff' :
+                    cur == 'night' ? '#0e2c42' : '#2f2f2f'
 
                 ipcRenderer.send('sync-background-color', color)
+
+                this.player.setProgressColor(waveColors[cur].progressColor)
+                this.player.setCursorColor(waveColors[cur].cursorColor)
+                this.player.setWaveColor(waveColors[cur].waveColor)
             },
 
             imports (cur, old) {
                 if (cur == 0 || cur < 0) {
-                    this.setLoading(false)
+                    // Removing App loading effect when all tracks imported
+                    this.appIsLoading = false
 
                     // Log the number of imports that had issues
                     let import_issues_count = this.failed_imports.length - this.error_imports.length - this.failMessage.items.length
@@ -361,6 +627,9 @@
         methods: {
             ...mapActions([
                 'addTrack',
+                'editTrack',
+                'deleteTrack',
+                'updateCurrentTrack',
                 'updateStatusMessage',
                 'updateErrorMessage',
                 'updateWarnMessage',
@@ -373,15 +642,105 @@
                 'clearCurrentTrack',
                 'updatePlayingCriteria',
                 'updatePlayingTarget',
+                'updateVolume',
+                'setVolume',
+                'restoreVolume',
+                'toggleMute',
+                'toggleShuffle',
                 'toggleSettings',
                 'loadTheme',
                 'toggleNightMode',
                 'setNightMode',
                 'setJobsFn',
-                'setLoading',
+                'setLoop',
                 'unlockHotKey',
                 'toggleAudioEQVisibility'
             ]),
+
+            triggerPlay() {
+                if (this.player.activated && !this.player.cleared) {
+                    this.player.playpause()
+                } else {
+                    if (this.index == -1) {
+                        // Set current track to first track if newly launched
+                        this.updateCurrentTrack(this.filteredPool[0])
+                        this.player.playNew(this.currentTrack.source)
+                    } else {
+                        // We only attempt to play a new track if it does exist
+                        if (this.filteredPool.length > 0) {
+                            // If not we play the track currently active (indexed)
+                            this.updateCurrentTrack(this.filteredPool[this.index])
+                            this.player.playNew(this.currentTrack.source)
+                        }
+                    }
+                }
+            },
+
+            triggerPlaypause(ev) {
+                // Find out if any input field are currently in use
+                // if not we go ahead and trigger play
+                if (!(this.enterLock && this.backspaceLock)) {
+                    ev.preventDefault()
+                    // Remember the 'enter/backspace' is locked when any input is currently focused
+                    this.triggerPlay()
+                }
+            },
+
+            updateIndex(val) {
+                this.index = val
+            },
+
+            handleTBScroll(ev) {
+                // Avoid performing default behaviour of scrolling in tbody
+                ev.preventDefault()
+
+                // Grab 'activeTrack' & 'tbody' props
+                let t  = ClassNameSingle('activeTrack').getBoundingClientRect()
+                let tl = ClassNameSingle('trackslist').getBoundingClientRect()
+
+                // log top & bottom distance difference
+                let scrollTopDiff    = tl.top - t.top
+                let scrollBottomDiff = tl.bottom - t.bottom
+
+                // Only scroll Up/Down if its about to leave current view
+                let scrollUp   = (scrollTopDiff < 0 && scrollTopDiff > -26) ||
+                                (scrollTopDiff > 0 && scrollTopDiff < 25)
+                let scrollDown = (scrollBottomDiff > 0 && scrollBottomDiff < 25) ||
+                                (scrollBottomDiff < 0 && scrollBottomDiff > -25)
+
+                // Only trigger scroll if Arrow key corresponds to scroll
+                // ... direction
+                let shouldScrollUp   = ev.code == 'ArrowUp' && scrollUp
+                let shouldScrollDown = ev.code == 'ArrowDown' && scrollDown
+
+                if (shouldScrollUp) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth",
+                        block: "end"
+                    })
+                }
+
+                if (shouldScrollDown) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                }
+
+                // If no scroll is triggered
+                // we make one last attempt to scroll into view
+                // in case the user manually scrolled out of the view
+                if (!(shouldScrollUp || shouldScrollDown) &&
+                    ((t.y - tl.height > 110) || (t.y < tl.y))) {
+                    ClassNameSingle('activeTrack').scrollIntoView({
+                        behavior: "smooth"
+                    })
+                }
+            },
+
+            setAppLoading(val) {
+                this.appIsLoading = val
+            },
 
             isEmpty(item) {
                 return item == undefined || item == ''
@@ -390,9 +749,10 @@
             handle_window_resize() {
                 if (this.$route.path == '/') {
                     this.resizeThead()
+                    this.redrawEllipses()
                 }
 
-                this.windowUpdated()
+                this.redrawWaveform()
             },
 
             resizeThead() {
@@ -410,7 +770,7 @@
                 }
             },
 
-            windowUpdated() {
+            redrawEllipses() {
                 // Resize width to allow ellipses
                 if (window.innerWidth > 1310) {
                     let length = ClassName('short').length
@@ -425,8 +785,11 @@
                         ClassName('short')[i].style.width = "100%"
                     }
                 }
+            },
 
+            redrawWaveform() {
                 // Redraw waveform here
+                if (this.player) this.player.device.drawBuffer()
             },
 
             closeModals() {
@@ -471,8 +834,8 @@
                 let tracks = []
 
                 new FS(dir).forEachFile((file) => {
-                    let format = file.split('.')
-                    format = format[format.length-1]
+                    // file extension starts after last '.'
+                    let format = file.slice(file.lastIndexOf('.') + 1)
 
                     // All supported formats
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
@@ -487,7 +850,7 @@
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
-                var tag = obj.tag
+                var tags = obj.tags
                 var fp = obj.track_name
 
                 // We build our track template here
@@ -501,23 +864,17 @@
                 }
 
                 // Fill in the track template
-                let raw_filename = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
+                let raw_name = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
 
-                meta.title = this.isEmpty(tag.tags.title) ? raw_filename.split('.')[0] : tag.tags.title
+                meta.title = this.isEmpty(tags.title) ? raw_name.slice(0, raw_name.lastIndexOf('.')) : tags.title
 
-                meta.artist = this.isEmpty(tag.tags.artist) ? 'Unknown' : tag.tags.artist
+                meta.artist = this.isEmpty(tags.artist) ? 'Unknown' : tags.artist
 
-                meta.album = this.isEmpty(tag.tags.album) || tag.tags.album === '' ? 'Unknown' : tag.tags.album
+                meta.album = this.isEmpty(tags.album) || tags.album === '' ? 'Unknown' : tags.album
 
-                // Too large to store
-                // ... maybe we load it when track is going to play
-                // ... Or, we could write it to a file instead
-                // ... and read it when track is going to play?
-                // meta.art = tag.tags.picture === undefined  || tag.tags.picture === '' ? null : "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+                meta.genre = this.isEmpty(tags.genre) ? 'Unknown' : tags.genre
 
-                meta.genre = this.isEmpty(tag.tags.genre) ? 'Unknown' : tag.tags.genre
-
-                meta.year = this.isEmpty(tag.tags.year) ? 'Unknown' : tag.tags.year
+                meta.year = this.isEmpty(tags.year) ? 'Unknown' : tags.year
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
@@ -535,11 +892,11 @@
                 // ... This allows us to still have access to the sound's filepath
                 new Promise((resolve, reject) => {
                     new jsm.Reader(track).setTagsToRead([
-                    'title', 'artist', 'album', 'genre', 'year'
+                    'title', 'artist', 'album', 'genre', 'year', 'picture'
                     ]).read({
                         onSuccess: (tag) => {
                             resolve({
-                                tag: tag,
+                                tags: tag.tags,
                                 track_name: track
                             })
                         },
@@ -605,7 +962,7 @@
 
                     if (is_obj_folder) {
                         // Only call load if actual folder track(s) are loaded
-                        this.setLoading(true)
+                        this.appIsLoading = true
 
                         // Get folder path
                         let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
@@ -627,7 +984,7 @@
 
                         if (is_sound_file) {
                             // Only call load if actual track(s) are loaded
-                            this.setLoading(true)
+                            this.appIsLoading = true
 
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
@@ -649,20 +1006,25 @@
         },
         computed: {
             ...mapGetters([
+                'currentTrack',
                 'currentCriteria',
                 'currentTarget',
+                'filteredPool',
                 'statusMessage',
                 'errorMessage',
                 'warnMessage',
                 'failMessage',
                 'cachedRoutes',
+                'enterLock',
+                'backspaceLock',
                 'openPlaylistModal',
                 'appExcludedFolders',
                 'appTheme',
                 'appNightMode',
                 'appAutoNightMode',
                 'appAutoNightModeTime',
-                'appAudioEQ'
+                'appAudioEQ',
+                'appAudioPrefs'
             ])
         },
     }
@@ -688,6 +1050,9 @@
     body
         font-family Lato
         font-size 12px
+
+    h4, p
+        user-select none
 
     input:focus, p:focus, select:focus, button, button:focus
         outline none

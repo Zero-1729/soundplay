@@ -1,4 +1,27 @@
 /* General App colors */
+body {
+    background: #ffffff;
+}
+
+/* Player */
+.track-info h4, .track-info .middle .duration p {
+    color: #a0a0a0;
+}
+
+svg path.stroked {
+    stroke: #a0a0a0;
+}
+svg path.filled {
+    fill: #a0a0a0;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #f9f9f9;
+}
+
+input[type="range"].slider {
+    background: #ececec;
+}
 
 /* - Scroll bars - */
 
@@ -70,6 +93,10 @@
     color: #a0a0a0;
 }
 
+#app .virtical-div .entity.greyedText p {
+    color: #cccccc;
+}
+
 #app .virtical-div .empty-listing h4 {
     color: #c5c5c5;
 }
@@ -113,7 +140,8 @@ td, th {
 }
 
 th {
-    background: #f2f2f2;
+    background: #e0e0e0;
+    color: #808088;
 }
 
 tr:nth-child(odd) {
@@ -139,7 +167,7 @@ tr:nth-child(odd) {
     color: grey;
 }
 
-.playingTrack td {
+#track-item.playingTrack td {
     background: #d8d8d8;
     color: grey;
 }
@@ -190,7 +218,7 @@ input#settings-input {
     border-bottom-color: grey;
 }
 
-.flex .dialog-button:hover {
+.flex .dialog-button.furthest:hover {
     background: #8bc34a;
 }
 

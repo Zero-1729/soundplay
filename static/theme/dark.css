@@ -3,6 +3,26 @@ body {
     background: #2f2f2f;
 }
 
+/* Player */
+.track-info h4, .track-info .middle .duration p {
+    color: white;
+}
+
+svg path.stroked {
+    stroke: #dedede;
+}
+svg path.filled {
+    fill: #dedede;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #525252;
+}
+
+input[type="range"].slider {
+    background: #525252;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */
@@ -71,6 +91,10 @@ body {
 
 #app .virtical-div .entity p {
     color: #cecece;
+}
+
+#app .virtical-div .entity.greyedText p {
+    color: #7c7c7c;
 }
 
 #app .virtical-div .empty-listing h4 {
@@ -148,7 +172,7 @@ tr:nth-child(odd) {
     color: #cecece;
 }
 
-.playingTrack td {
+#track-item.playingTrack td {
     background: #545454;
     color: #b7b8b9;
 }
@@ -207,14 +231,10 @@ input#settings-input {
     border-bottom-color: grey;
 }
 
-.flex .dialog-button:hover {
-    background: #3ca735;
-}
-
 .flex .dialog-button-alt:hover {
     background: #d24136;
 }
 
-.flex .dialog-button-alt:hover {
+.flex .dialog-button-alt.furthest:hover {
     background: #3ca735;
 }

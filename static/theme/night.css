@@ -3,11 +3,31 @@ body {
     background: #0e2c42;
 }
 
+/* Player */
+.track-info h4, .track-info .middle .duration p {
+    color: white;
+}
+
+svg path.stroked {
+    stroke: #dedede;
+}
+svg path.filled {
+    fill: #dedede;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #1e4058;
+}
+
+input[type="range"].slider {
+    background: #2a4558;
+}
+
 /* - Scroll bars - */
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #94acbd;
+    background: #134569;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -72,12 +92,16 @@ body {
     color: #cecece;
 }
 
+#app .virtical-div .entity.greyedText p {
+    color: #7c7c7c;
+}
+
 #app .virtical-div .empty-listing h4 {
-    color: #122433;
+    color: #346588;
 }
 
 #app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
-    background: #346588;
+    background: #163f5d;
 }
 
 
@@ -155,7 +179,7 @@ tbody tr:hover td, tbody tr:hover div {
     color: #cecece;
 }
 
-.playingTrack td {
+#track-item.playingTrack td {
     background: #275473;
     color: #dedede;
 }
@@ -214,7 +238,7 @@ input#settings-input {
     border-bottom-color: #bbbbbb;
 }
 
-.flex .dialog-button:hover {
+.flex .dialog-button.furthest:hover {
     background: #3ca735;
 }
 

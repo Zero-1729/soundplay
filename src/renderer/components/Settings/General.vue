@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <p class="info">
-                    Delete all tracks in player
+                    Delete all tracks (and playlists) in App
                 </p>
             </div>
         </div>
@@ -29,7 +29,7 @@
                         </svg>
                     </button>
                     <button class="dialog-button dialog-button-alt further"
-                    :class="{'greyed-button': appMusicFolder == null}"
+                    :class="{'greyed-button': appMusicFolder == null, widthless: appMusicFolder}"
                     @click="removeMusicFolder">
                         <p>{{ appMusicFolder ? appMusicFolder : 'None' }}</p>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="8" height="8">
@@ -103,7 +103,8 @@
             },
             allTracks(cur, old) {
                 if (cur.length == 0) {
-                    this.setLoading(false)
+                    this.$emit('appLoading', false)
+
                     this.updateStatusMessage({
                         heading: 'Successfully deleted all sounds',
                         isEmpty: false
@@ -121,8 +122,7 @@
                 'removeMusicFolder',
                 'lockHotKey',
                 'unlockHotKey',
-                'updateStatusMessage',
-                'setLoading'
+                'updateStatusMessage'
             ]),
 
             handle_delete_all_tracks() {
@@ -130,15 +130,18 @@
 
                 // Pause player here
                 this.updatePlayingCriteria(null)
-                this.deleteAllTracks()
+                // Destructive version, which deletes even playlists
+                this.deleteAllTracks(true)
             },
 
             handle_open_dialog() {
-                let name = remote.dialog.showOpenDialog({
-                    properties: ['openDirectory']
-                })
+                let vm = this
 
-                this.setMusicFolder(name[0])
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory']
+                }, (items) => {
+                    vm.setMusicFolder(items[0])
+                })
             },
 
             handle_hovered_folder(folder) {
@@ -244,9 +247,15 @@
             margin-top 2px
             height 75%
 
+    .dialog-button
+        transition width 0.3s ease-in
+
     .dialog-button-alt.greyed-button
         opacity 0.4
         cursor default
+
+    .dialog-button.dialog-button-alt.further.widthless
+        width unset
 
     .dialog-button.dialog-button-alt.further
             margin-left 15px

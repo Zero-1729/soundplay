@@ -20,7 +20,7 @@ const { TagName,
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
     '90s': (n) => { return n >= 1990 && n <= 1999 },
-    '2000s': (n) => { return n >= 2000 && n <= 2005 }
+    '2000s': (n) => { return n >= 2000 && n <= 2009 }
 }
 
 const state = {
@@ -109,8 +109,7 @@ const state = {
         cached: {
             mainRoute: '/',
             childRoute: '/'
-        },
-        loading: false
+        }
     }
 }
 
@@ -150,6 +149,11 @@ const mutations = {
             // ... we log the duplicated files to be reported later
             state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
         }
+    },
+
+    EDIT_TRACK (state, obj) {
+        let index = getIndexFromKey(state.music, 'id', obj.id)
+        state.music[index][obj.meta] = obj.value
     },
 
     DELETE_TRACK (state, track) {
@@ -276,13 +280,23 @@ const mutations = {
         }
     },
 
-    DELETE_ALL_TRACKS (state) {
+    DELETE_ALL_TRACKS (state, destructive) {
         state.albums = []
         state.artists = []
         state.genres = []
 
         if (state.music.length > 0) {
             state.music = []
+        }
+
+        if (destructive) {
+            // Deleted from settings
+            state.playlists = []
+        } else {
+            // Empty playlist
+            for (var i = 0;i < state.playlists.length;i++) {
+                state.playlists[i].tracks = []
+            }
         }
     },
 
@@ -423,10 +437,6 @@ const mutations = {
         } else {
             state.vars.cached.childRoute = routeObj.name
         }
-    },
-
-    SET_LOADING (state, value) {
-        state.vars.loading = value
     },
 
     // Settings mutations
@@ -584,6 +594,10 @@ const actions = {
         commit('ADD_TRACK', info)
     },
 
+    editTrack: ({ commit }, obj) => {
+        commit('EDIT_TRACK', obj)
+    },
+
     deleteTrack: ({ commit }, track) => {
         commit('DELETE_TRACK', track)
     },
@@ -600,8 +614,8 @@ const actions = {
         commit('DELETE_GENRE', genre)
     },
 
-    deleteAllTracks: ({ commit }) => {
-        commit('DELETE_ALL_TRACKS')
+    deleteAllTracks: ({ commit }, kind) => {
+        commit('DELETE_ALL_TRACKS', kind)
     },
 
     deleteRelicTracks: ({ commit }, period) => {
@@ -682,10 +696,6 @@ const actions = {
 
     cacheRoute: ({ commit }, routeObj) => {
         commit('CACHE_ROUTE', routeObj)
-    },
-
-    setLoading: ({ commit }, value) => {
-        commit('SET_LOADING', value)
     },
 
     // Settings Actions
@@ -836,9 +846,6 @@ const getters = {
         return state.vars.cached
     },
 
-    appIsLoading (state) {
-        return state.vars.loading
-    },
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting

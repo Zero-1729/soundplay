@@ -1,5 +1,31 @@
 /* General App colors */
 
+/* Player */
+.middle .controls .shuffle-icon.on path.stroked {
+    stroke: dodgerblue;
+}
+
+.middle .controls .shuffle-icon.on path.filled {
+    fill: dodgerblue;
+}
+
+.middle .controls .loop svg.loop-icon.on path.filled {
+    fill: dodgerblue;
+}
+
+.middle .volume svg g.on.triggered path.filled {
+    fill: dodgerblue;
+}
+
+.middle .volume svg g.on.triggered path.stroked {
+    stroke: dodgerblue;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+    background: white;
+    box-shadow: -90px 0 0 88px dodgerblue;
+}
+
 /* - Error messages - */
 .error-message {
     color: #ff7a70;
@@ -42,10 +68,6 @@
 
 /* SidePane Component colors */
 #app .virtical-div .entity-listing h4 {
-    color: #cecece;
-}
-
-#app .virtical-div .entity.greyedText p {
     color: #cecece;
 }
 
