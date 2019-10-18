@@ -1,6 +1,6 @@
 <template>
     <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
-        <Panel :track="currentTrack" :pos="currentPos" :player="player" :loading="loadingTrack" :foundArt="foundArt"></Panel>
+        <Panel :track="vars.currentTrack" :pos="vars.currentPos" :player="player" :loading="vars.loadingTrack" :foundArt="vars.foundArt"></Panel>
         <Search></Search>
         <AudioTS></AudioTS>
         <AudioSTS></AudioSTS>
@@ -8,7 +8,8 @@
 
         <span>
             <transition name="faded-slide-in">
-                <router-view :player="player" @appLoading="setAppLoading" :index="index" @mutateIndex="updateIndex"></router-view>
+                <router-view :player="player" @appLoading="setAppLoading" :index="vars.index" @mutateIndex="updateIndex">
+                </router-view>
             </transition>
         </span>
 
@@ -131,17 +132,19 @@
         },
         data() {
             return {
-                index: -1,
-                appIsLoading: false,
                 error_imports: [],
                 imported_folders: [],
                 failed_imports: [],
                 imports: 0,
                 imports_count: 0,
                 player: null,
-                currentPos: '-',
-                loadingTrack: false,
-                foundArt: false
+                vars: {
+                    index: -1,
+                    appIsLoading: false,
+                    currentPos: '-',
+                    loadingTrack: false,
+                    foundArt: false,
+                }
             }
         },
         created() {
@@ -396,7 +399,7 @@
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
-                this.loadingTrack = true
+                this.vars.loadingTrack = true
 
                 if (!this.player.activated) {
                     this.player.activate(this.currentTrack, this.filteredPool)
@@ -407,9 +410,9 @@
                         if (tag.tags.picture) {
                             Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
 
-                            this.foundArt = true
+                            this.vars.foundArt = true
                         } else {
-                            this.foundArt = false
+                            this.vars.foundArt = false
                         }
 
                         // Only add track meta when track doesn't have 'duration set'
@@ -427,7 +430,7 @@
                         // We update the tracks peeks here
 
                         // Unset 'loading' flag here
-                        this.loadingTrack = false
+                        this.vars.loadingTrack = false
                     },
                     onError: (err) => {
                         // Decide What do to with error later
@@ -441,14 +444,14 @@
 
                 // So we update the current track position
 
-                this.currentPos = this.player.getCurrentPos()
+                this.vars.currentPos = this.player.getCurrentPos()
             })
 
             this.player.device.on('finish', () => {
                 // When track is done playing
                 this.player.reset()
                 // We reset the waveform cursor to the begining
-                this.currentPos = this.player.getCurrentPos()
+                this.vars.currentPos = this.player.getCurrentPos()
 
                 // Store index of currentTrack
                 let cindex = getIndexFromKey(this.filteredPool, 'source', this.currentTrack.source)
@@ -578,7 +581,7 @@
             imports (cur, old) {
                 if (cur == 0 || cur < 0) {
                     // Removing App loading effect when all tracks imported
-                    this.appIsLoading = false
+                    this.vars.appIsLoading = false
 
                     // Log the number of imports that had issues
                     let import_issues_count = this.failed_imports.length - this.error_imports.length - this.failMessage.items.length
@@ -661,7 +664,7 @@
                 if (this.player.activated && !this.player.cleared) {
                     this.player.playpause()
                 } else {
-                    if (this.index == -1) {
+                    if (this.vars.index == -1) {
                         // Set current track to first track if newly launched
                         this.updateCurrentTrack(this.filteredPool[0])
                         this.player.playNew(this.currentTrack.source)
@@ -669,7 +672,7 @@
                         // We only attempt to play a new track if it does exist
                         if (this.filteredPool.length > 0) {
                             // If not we play the track currently active (indexed)
-                            this.updateCurrentTrack(this.filteredPool[this.index])
+                            this.updateCurrentTrack(this.filteredPool[this.vars.index])
                             this.player.playNew(this.currentTrack.source)
                         }
                     }
@@ -687,7 +690,7 @@
             },
 
             updateIndex(val) {
-                this.index = val
+                this.vars.index = val
             },
 
             handleTBScroll(ev) {
@@ -739,7 +742,7 @@
             },
 
             setAppLoading(val) {
-                this.appIsLoading = val
+                this.vars.appIsLoading = val
             },
 
             isEmpty(item) {
@@ -962,7 +965,7 @@
 
                     if (is_obj_folder) {
                         // Only call load if actual folder track(s) are loaded
-                        this.appIsLoading = true
+                        this.vars.appIsLoading = true
 
                         // Get folder path
                         let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
@@ -984,7 +987,7 @@
 
                         if (is_sound_file) {
                             // Only call load if actual track(s) are loaded
-                            this.appIsLoading = true
+                            this.vars.appIsLoading = true
 
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
