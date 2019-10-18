@@ -173,6 +173,4 @@ export default class Player {
 
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
-
-    }
 }
