@@ -232,6 +232,7 @@
                     .waveform.hide
                         wave
                             opacity 0
+                            cursor default
                 .volume
                     display flex
                     position absolute
