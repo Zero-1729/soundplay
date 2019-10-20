@@ -98,14 +98,14 @@
         watch: {
             newFolder(cur, old) {
                 if (cur == '') {
-                    this.unlockHotKey('enter')
+                    this.$emit('unlockHotKey', 'enter')
                 }
             },
             allTracks(cur, old) {
                 if (cur.length == 0) {
                     this.$emit('appLoading', false)
 
-                    this.updateStatusMessage({
+                    this.$emit('mutateStatusMessage', {
                         heading: 'Successfully deleted all sounds',
                         isEmpty: false
                     })
@@ -115,21 +115,17 @@
         methods: {
             ...mapActions([
                 'deleteAllTracks',
-                'updatePlayingCriteria',
                 'updateExcludedFolder',
                 'removeExcludedFolder',
                 'setMusicFolder',
-                'removeMusicFolder',
-                'lockHotKey',
-                'unlockHotKey',
-                'updateStatusMessage'
+                'removeMusicFolder'
             ]),
 
             handle_delete_all_tracks() {
                 // If all tracks are removed then we definitely know the current track is also
 
                 // Pause player here
-                this.updatePlayingCriteria(null)
+                this.$emit('mutatePlayingCriteria', null)
                 // Destructive version, which deletes even playlists
                 this.deleteAllTracks(true)
             },
@@ -149,7 +145,7 @@
             },
 
             handle_new_excluded_folder() {
-                this.lockHotKey('enter')
+                this.$emit('lockHotKey', 'enter')
                 this.updateExcludedFolder(this.newFolder)
                 this.newFolder = ''
             },

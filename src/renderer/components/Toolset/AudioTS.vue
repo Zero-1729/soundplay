@@ -38,6 +38,7 @@
 
     export default {
         name: 'audio-ts',
+        props: ['playingCriteria'],
         data() {
             return {
                 cachedPlayingCriteria: null
@@ -48,7 +49,7 @@
                 // We have to cache 'playingCriteria' manually
                 // ... resetting it each time the route is mutated
                 // ... to avoid it being reset to 'null'
-                this.updatePlayingCriteria(this.cachedPlayingCriteria)
+                this.$emit('mutatePlayingCriteria', this.cachedPlayingCriteria)
             },
 
             playingCriteria (cur, old) {
@@ -59,9 +60,7 @@
         methods: {
             ...mapActions([
                 'updateCriteria',
-                'updatePlayingCriteria',
                 'changeTarget',
-                'cacheRoute',
                 'setSettings'
             ]),
 
@@ -74,10 +73,7 @@
                 if (this.settingsOpen) {
                     this.setSettings(false)
 
-                    this.cacheRoute({
-                        type: 'main',
-                        name: '/'
-                    })
+                    this.$emit('cacheRoute', {type: 'main', name: '/'})
                 }
 
                 this.updateCriteria(criteria)
@@ -86,7 +82,6 @@
         computed: {
             ...mapGetters([
                 'currentCriteria',
-                'playingCriteria',
                 'settingsOpen'
             ])
         }

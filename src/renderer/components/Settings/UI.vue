@@ -161,9 +161,9 @@
             ...mapActions([
                 'loadTheme',
                 'changeTheme',
-                'setNightTheme',
                 'toggleNightMode',
                 'toggleAutoNightMode',
+                'setNightTheme',
                 'setAutoNightModeAm',
                 'setAutoNightModePm',
                 'setNightMode',

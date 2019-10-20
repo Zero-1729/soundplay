@@ -25,14 +25,14 @@
 
         <tbody>
             <transition-group :name="trackTransition" tag="tbody" class="trackslist">
-            <tr id="track-item" v-for="track in filteredPool" @dblclick="updateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
+            <tr id="track-item" v-for="track in filteredPool" @dblclick="mutateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
                 v-if="allTracks.length > 0"
                 @contextmenu.prevent
                 @mousedown.right.capture="showTrackOptions(track)"
                 @keydown.40="mutateIndex(1)"
                 @keydown.38="mutateIndex(-1)"
                 @click="setIndex(track)"
-                @keydown.enter.prevent="updateCurrentTrack(track)"
+                @keydown.enter.prevent="mutateCurrentTrack(track)"
                 :key="track.id">
                     <td>
                         <div class="fav-bar" :class="{fav: track.favourite}"></div>
@@ -75,7 +75,17 @@
             ipcRenderer }     = require('electron')
 
     export default {
-        props: ['player', 'appIsLoading', 'index'],
+        props: [
+            'player',
+            'appIsLoading',
+            'index',
+            'openPlaylistModal',
+            'backspaceLock',
+            'enterLock',
+            'playingCriteria',
+            'currentTrack',
+            'filteredPool'
+        ],
         data() {
             return {
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
@@ -93,8 +103,8 @@
 
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
-                this.setPlaylistModal(true)
-                this.lockHotKey('backspace')
+                this.$emit('setPlaylistModal', true)
+                this.$emit('lockHotKey', 'backspace')
             })
         },
         watch: {
@@ -169,23 +179,17 @@
                 // When Tracks are clicked, the currentCriteria becomes
                 // ... the playing one
                 if (!this.playingCriteriaLock) {
-                    this.updatePlayingCriteria(this.currentCriteria)
-                    this.updatePlayingTarget(this.currentTarget)
+                    this.$emit('mutatePlayingCriteria', this.currentCriteria)
+                    this.$emit('mutatePlayingTarget', this.currentTarget)
                 }
             }
         },
         methods: {
             ...mapActions([
-                'updateCurrentTrack',
-                'clearCurrentTrack',
-                'updatePool',
-                'updatePlayingCriteria',
-                'updatePlayingTarget',
+                'changeTarget',
                 'toggleFavourite',
                 'unfavouriteTrack',
-                'changeTarget',
                 'createPlaylist',
-                'addTrack',
                 'addTrackToPlaylist',
                 'removeFromPlaylist',
                 'deleteTrack',
@@ -197,15 +201,12 @@
                 'deleteGenre',
                 'setSortBy',
                 'setCurrentDirec',
-                'lockHotKey',
-                'unlockHotKey',
-                'setPlaylistModal',
-                'clearStatusMessage',
-                'clearErrorMessage',
-                'clearWarnMessage',
-                'clearFailMessage',
                 'toggleAudioEQVisibility'
             ]),
+
+            mutateCurrentTrack(track) {
+                this.$emit('mutateCurrentTrack', track)
+            },
 
             isSameSource(track) {
                 if (this.currentTrack) {
@@ -216,8 +217,8 @@
             },
 
             addNewPlaylist() {
-                this.setPlaylistModal(false)
-                this.unlockHotKey('backspace')
+                this.$emit('setPlaylistModal', false)
+                this.$emit('unlockHotKey', 'backspace')
 
                 this.createPlaylist(event.target.value)
 
@@ -250,20 +251,20 @@
             closePlaylistModal() {
                 // Clear the input's value and close the modal
                 Id('playlist-input').value = ''
-                this.setPlaylistModal(false)
+                this.$emit('setPlaylistModal', false)
 
                 // Since we are bluring the modal
                 // ... we should unlock the hotkey
-                this.unlockHotKey('backspace')
+                this.$emit('unlockHotKey', 'backspace')
             },
 
             clearAllHovering() {
                 // Clear all error messages when user engages the tracks
                 // ... to avoid any annoying persisted error messages
-                this.clearStatusMessage()
-                this.clearErrorMessage()
-                this.clearWarnMessage()
-                this.clearFailMessage()
+                this.$emit('clearStatusMessage')
+                this.$emit('clearErrorMessage')
+                this.$emit('clearWarnMessage')
+                this.$emit('clearFailMessage')
 
                 if (this.appAudioEQ.visible) {
                     this.toggleAudioEQVisibility()
@@ -311,24 +312,28 @@
             	})
             },
 
+            mutatePool(tracks) {
+                this.$emit('mutatePool', tracks)
+            },
+
             filterPool() {
                 if (this.currentTarget == 'All Tracks') {
-                    this.updatePool(this.allTracks)
+                    this.mutatePool(this.allTracks)
                 } else {
                     if (['80s Music', '90s Music', '2000s Music'].includes(this.currentTarget)) {
                         let year = this.currentTarget.slice(0, 2)
 
-                        this.updatePool(this.getOldTracks(year, year == "20"))
+                        this.mutatePool(this.getOldTracks(year, year == "20"))
                         return
                     }
 
                     if (this.currentCriteria == 'playlist') {
-                        this.updatePool(this.getFromPlaylist(this.currentTarget))
+                        this.mutatePool(this.getFromPlaylist(this.currentTarget))
                         return
                     }
 
                     if (this.currentTarget == 'Favourites') {
-                        this.updatePool(this.getFavs())
+                        this.mutatePool(this.getFavs())
                         return
                     }
 
@@ -339,7 +344,7 @@
                     }
 
                     else {
-                        this.updatePool(this.filterTracks())
+                        this.mutatePool(this.filterTracks())
                     }
                 }
             },
@@ -408,8 +413,8 @@
                             // We then open the modal and
                             // ... lock the global hotkey
                             // ... to avoid random track deletions on backspacing
-                            vm.setPlaylistModal(true)
-                            vm.lockHotKey('backspace')
+                            vm.$emit('setPlaylistModal', true)
+                            vm.$emit('lockHotKey', 'backspace')
                         }
                     },
                     {
@@ -437,7 +442,7 @@
                         click() {
                             if (vm.currentTrack == track) {
                                 // Dump current Track
-                                vm.clearCurrentTrack()
+                                vm.$emit('clearCurrentTrack')
 
                                 // Pause Player here
                                 this.player.clear()
@@ -454,7 +459,7 @@
                                 if (vm.isSameSource(track)) {
                                     // To avoid still darkening the criteria post deletion
                                     vm.playingCriteriaLock = true
-                                    vm.updatePlayingCriteria(null)
+                                    vm.$emit('updatePlayingCriteria', null)
                                 }
 
                                 vm.deleteTrack(track)
@@ -561,7 +566,7 @@
                     this.selectedTracks = []
 
                     if (this.filteredPool.length > 0) {
-                        this.updateCurrentTrack(this.filteredPool[this.index])
+                        this.mutateCurrentTrack(this.filteredPool[this.index])
                     }
                 } else {
                     // Unlock it if locked
@@ -617,8 +622,8 @@
                 // Reset the current track if it is about to be deleted
                 if (this.selectedTracks.includes(this.currentTrack)) {
                     this.playingCriteriaLock = true
-                    this.clearCurrentTrack()
-                    this.updatePlayingCriteria(null)
+                    this.$emit('clearCurrentTrack')
+                    this.$emit('mutatePlayingCriteria', null)
 
                     // Pause player
                     this.player.clear()
@@ -671,9 +676,9 @@
                 if (!this.backspaceLock) {
                     // Delete current track if seleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
-                        this.clearCurrentTrack()
+                        this.$emit('clearCurrentTrack')
                         this.player.clear()
-                        this.updatePlayingCriteria(null)
+                        this.$emit('mutatePlayingCriteria', null)
                     }
 
                     // We want to only remove the track from the playlist
@@ -693,7 +698,7 @@
                                 // To avoid still darkening the criteria post deletion
                                 if (this.selectedTracks.includes(this.currentTrack)) {
                                     this.playingCriteriaLock = true
-                                    this.updatePlayingCriteria(null)
+                                    this.$emit('mutatePlayingCriteria', null)
                                 }
 
                                 // Make this a bit quicker later if possible
@@ -704,7 +709,7 @@
                         } else {
                             if (this.currentTrack == this.filteredPool[this.index]) {
                                 this.playingCriteriaLock = true
-                                this.updatePlayingCriteria(null)
+                                this.$emit('mutatePlayingCriteria', null)
                             }
                             // This.currentTrack isn't set yet
                             // So we improvise and call out the current highlighted track
@@ -732,17 +737,10 @@
             ...mapGetters([
                 'allTracks',
                 'allPlaylists',
-                'playingCriteria',
-                'currentCriteria',
                 'currentTarget',
-                'currentTrack',
-                'filteredPool',
+                'currentCriteria',
                 'sortBy',
                 'currentDirec',
-                'backspaceLock',
-                'enterLock',
-                'openPlaylistModal',
-                'allPlaylists',
                 'appAudioEQ'
             ]),
 

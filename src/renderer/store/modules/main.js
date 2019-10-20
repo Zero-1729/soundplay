@@ -29,31 +29,6 @@ const state = {
     artists: [],
     genres: [],
     playlists: [],
-    reporter: {
-        // For environment variables
-        status: {
-            heading: null,
-            isEmpty: true
-        },
-        error: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        },
-        warning: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        },
-        failure: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        }
-    },
     settings: {
         general: {
             excludedFolders: [],
@@ -97,19 +72,6 @@ const state = {
         },
         isOpen: false,
         currentSetting: 'general'
-    },
-    vars: {
-        lock: {
-            'backspace': false,
-            'enter': false
-        },
-        modals: {
-            playlist: false
-        },
-        cached: {
-            mainRoute: '/',
-            childRoute: '/'
-        }
     }
 }
 
@@ -144,10 +106,12 @@ const mutations = {
                 // If we are in a playlist and add a track we also include it in the playlist
                 state.playlists[pindex].tracks.push(track)
             }
+
+            // More like status flag
+            return true
         } else {
-            // Lets override the 'failure' message from here
-            // ... we log the duplicated files to be reported later
-            state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
+            // to be used for import failure flag
+            return false
         }
     },
 
@@ -362,83 +326,6 @@ const mutations = {
         state.playlists[index].tracks = []
     },
 
-    UPDATE_STATUS_MESSAGE (state, meta) {
-        state.reporter.status.heading = meta.heading
-
-        state.reporter.status.isEmpty = false
-    },
-
-    UPDATE_ERROR_MESSAGE (state, meta) {
-        state.reporter.error.heading = meta.heading
-        state.reporter.error.message = meta.message
-        state.reporter.error.items   = meta.items
-
-        state.reporter.error.isEmpty = false
-    },
-
-    UPDATE_WARN_MESSAGE (state, meta) {
-        state.reporter.warning.heading = meta.heading
-        state.reporter.warning.message = meta.message
-        state.reporter.warning.items   = meta.items
-
-        state.reporter.warning.isEmpty = false
-    },
-
-    UPDATE_FAILURE_MESSAGE (state, meta) {
-        state.reporter.failure.heading = meta.heading
-        state.reporter.failure.message = meta.message
-        state.reporter.failure.items   = meta.items
-
-        state.reporter.failure.isEmpty = false
-    },
-
-    CLEAR_STATUS_MESSAGE (state) {
-        state.reporter.status.heading = null
-
-        state.reporter.status.isEmpty = true
-    },
-
-    CLEAR_ERROR_MESSAGE (state) {
-        state.reporter.error.heading = null
-        state.reporter.error.message = null
-        state.reporter.error.items   = []
-
-        state.reporter.error.isEmpty = true
-    },
-
-    CLEAR_WARN_MESSAGE (state) {
-        state.reporter.warning.heading = null
-        state.reporter.warning.message = null
-        state.reporter.warning.items   = []
-
-        state.reporter.warning.isEmpty = true
-    },
-
-    CLEAR_FAILURE_MESSAGE (state) {
-        state.reporter.failure.heading = null
-        state.reporter.failure.message = null
-        state.reporter.failure.items   = []
-
-        state.reporter.failure.isEmpty = true
-    },
-
-    LOCK_HOTKEY (state, hotkey) {
-        // So we can override the global hotkeys
-        state.vars.lock[hotkey] = true
-    },
-
-    UNLOCK_HOTKEY (state, hotkey) {
-        state.vars.lock[hotkey] = false
-    },
-
-    CACHE_ROUTE (state, routeObj) {
-        if (routeObj.type == 'main') {
-            state.vars.cached.mainRoute = routeObj.name
-        } else {
-            state.vars.cached.childRoute = routeObj.name
-        }
-    },
-
     // Settings mutations
     // UI
     CHANGE_THEME (state, name) {
@@ -580,12 +467,6 @@ const mutations = {
 
     CLEAR_EXCLUDED_FOLDER (state) {
         state.settings.general.excludedFolders = []
-    },
-
-    // Modal dialogs
-    // Playlist
-    SET_PLAYLIST_MODAL (state, value) {
-        state.vars.modals.playlist = value
     }
 }
 
@@ -652,50 +533,6 @@ const actions = {
 
     removeFromPlaylist: ({ commit }, obj) => {
         commit('REMOVE_FROM_PLAYLIST', obj)
-    },
-
-    updateStatusMessage: ({ commit }, meta) => {
-        commit('UPDATE_STATUS_MESSAGE', meta)
-    },
-
-    updateErrorMessage: ({ commit }, meta) => {
-        commit('UPDATE_ERROR_MESSAGE', meta)
-    },
-
-    updateWarnMessage: ({ commit }, meta) => {
-        commit('UPDATE_WARN_MESSAGE', meta)
-    },
-
-    updateFailMessage: ({ commit }, meta) => {
-        commit('UPDATE_FAILURE_MESSAGE', meta)
-    },
-
-    clearStatusMessage: ({ commit }) => {
-        commit('CLEAR_STATUS_MESSAGE')
-    },
-
-    clearErrorMessage: ({ commit }) => {
-        commit('CLEAR_ERROR_MESSAGE')
-    },
-
-    clearWarnMessage: ({ commit }) => {
-        commit('CLEAR_WARN_MESSAGE')
-    },
-
-    clearFailMessage: ({ commit }) => {
-        commit('CLEAR_FAILURE_MESSAGE')
-    },
-
-    lockHotKey: ({ commit }, hotkey) => {
-        commit('LOCK_HOTKEY', hotkey)
-    },
-
-    unlockHotKey: ({ commit }, hotkey) => {
-        commit('UNLOCK_HOTKEY', hotkey)
-    },
-
-    cacheRoute: ({ commit }, routeObj) => {
-        commit('CACHE_ROUTE', routeObj)
     },
 
     // Settings Actions
@@ -788,12 +625,6 @@ const actions = {
 
     setSettings: ({ commit }, value) => {
         commit("SET_SETTINGS", value)
-    },
-
-    // Modals
-    // Playlist
-    setPlaylistModal: ({ commit }, value) => {
-        commit('SET_PLAYLIST_MODAL', value)
     }
 }
 
@@ -816,34 +647,6 @@ const getters = {
 
     allPlaylists (state) {
         return state.playlists
-    },
-
-    statusMessage (state) {
-        return state.reporter.status
-    },
-
-    errorMessage (state) {
-        return state.reporter.error
-    },
-
-    warnMessage (state) {
-        return state.reporter.warning
-    },
-
-    failMessage (state) {
-        return state.reporter.failure
-    },
-
-    backspaceLock (state) {
-        return state.vars.lock['backspace']
-    },
-
-    enterLock (state) {
-        return state.vars.lock['enter']
-    },
-
-    cachedRoutes (state) {
-        return state.vars.cached
     },
 
     // Settings getters
@@ -899,12 +702,6 @@ const getters = {
     appAudioEQ (state) {
         return state.settings.audio.eq
     },
-
-    // Modals
-    // Playlist
-    openPlaylistModal (state) {
-        return state.vars.modals.playlist
-    }
 }
 
 export default {

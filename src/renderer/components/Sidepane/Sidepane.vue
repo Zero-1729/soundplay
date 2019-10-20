@@ -30,6 +30,10 @@
 
     export default {
         name: 'sidepane',
+        props: [
+            'playingTarget',
+            'playingCriteria'
+        ],
         data() {
             return {
                 hoveredElm: null,
@@ -59,9 +63,6 @@
                 'deleteArtist',
                 'deleteAlbum',
                 'deleteGenre',
-                'lockHotKey',
-                'unlockHotKey',
-                'cacheRoute',
                 'setCurrentSetting'
             ]),
 
@@ -77,7 +78,7 @@
                 if (this.settingsOpen) {
                     return item
                 } else {
-                    return typeof item == 'object' ? item.name : item
+                    return item == null || typeof item != 'object' ? item : item.name
                 }
             },
 
@@ -86,10 +87,8 @@
                     let childRoute = this.settingsRoutes[item]
                     let fullRoute = '/settings' + childRoute
 
-                    this.cacheRoute({
-                        type: 'child',
-                        name: fullRoute
-                    })
+                    // Cache current route
+                    this.$emit('cacheRoute', {type: 'child', name: fullRoute})
 
                     this.setCurrentSetting(childRoute)
 
@@ -120,7 +119,7 @@
                     document.execCommand('selectAll', false, null)
 
                     // Fake a Mutex type global lock on backspace
-                    this.lockHotKey('backspace')
+                    this.$emit('lockHotKey', 'backspace')
                 }
             },
 
@@ -144,10 +143,10 @@
                 event.target.contentEditable = false
 
                 // Fake a Mutex type global unlock on backspace
-                this.unlockHotKey('backspace')
+                this.$emit('unlockHotKey', 'backspace')
 
                 // Unlock the enter hotkey to avoid reseting the 'currentTrack'
-                this.unlockHotKey('enter')
+                this.$emit('unlockHotKey', 'enter')
             },
 
             clearEditable() {
@@ -178,7 +177,7 @@
                                 vm.cachePlaylistName(forcedEvent)
 
                                 // lock (enter) HotKey
-                                vm.lockHotKey('enter')
+                                vm.$emit('lockHotKey', 'enter')
                             }
                         },
                         {
@@ -235,10 +234,8 @@
             ...mapGetters([
                 'currentCriteria',
                 'currentTarget',
-                'playingTarget',
-                'playingCriteria',
-                'settingsOpen',
                 'currentSetting',
+                'settingsOpen',
                 'allArtists',
                 'allAlbums',
                 'allGenres',

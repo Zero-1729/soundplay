@@ -2,14 +2,17 @@
     <div class="main-panel">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
-            <router-view></router-view>
+            <router-view
+                @mutatePlayingCriteria="mutatePlayingCriteria",
+                @lockHotKey="lockHotKey"
+                @unlockHotKey="unlockHotKey"
+                @mutateStatusMessage="mutateStatusMessage">
+            </router-view>
         </transition>
     </div>
 </template>
 
 <script>
-    import { mapActions } from 'vuex'
-
     export default {
         data() {
             return {
@@ -29,12 +32,21 @@
             }
         },
         methods: {
-            ...mapActions([
-                'clearStatusMessage',
-                'clearErrorMessage',
-                'clearWarnMessage',
-                'clearFailMessage'
-            ])
+            mutatePlayingCriteria (arg) {
+                this.$emit('mutatePlayingCriteria', arg)
+            },
+
+            mutateStatusMessage (arg) {
+                this.$emit('mutateStatusMessage', arg)
+            },
+
+            lockHotKey(val) {
+                this.$emit('lockHotKey', val)
+            },
+
+            unlockHotKey(val) {
+                this.$emit('unlockHotKey', val)
+            }
         }
     }
 </script>

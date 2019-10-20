@@ -9,26 +9,27 @@
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
+    import { mapGetters } from 'vuex'
     import { Id } from './../../utils/htmlQuery'
 
     export default {
         name: 'search',
+        props: ['filteredPool'],
         data() {
             return {
-                cahedPool: null
+                cahedPool: null,
+                searchText: '',
             }
         },
-        mounted() {
-            this.cachedPool = this.filteredPool
-        },
         watch: {
+            // Only cached when we Criteria & Target are changed,
+            // ... i.e pool requires refiltering
             currentCriteria () {
                 this.cachedPool = this.filteredPool
             },
 
             currentTarget () {
-                this.cachedPool = this.filtreredPool
+                this.cachedPool = this.filteredPool
             },
 
             filteredPool () {
@@ -38,23 +39,20 @@
             }
         },
         methods: {
-            ...mapActions([
-                'updateSearchText',
-                'updatePool',
-                'lockHotKey',
-                'unlockHotKey'
-            ]),
+            mutateSearchText (value) {
+                this.searchText = value
+            },
 
             highlight() {
                 Id('search-input').select()
-                this.lockHotKey('backspace')
-                this.lockHotKey('enter')
+                this.$emit('lockHotKey', 'backspace')
+                this.$emit('lockHotKey', 'enter')
             },
 
             blur() {
                 Id('search-input').blur()
-                this.unlockHotKey('backspace')
-                this.unlockHotKey('enter')
+                this.$emit('unlockHotKey', 'backspace')
+                this.$emit('unlockHotKey', 'enter')
             },
 
             focus() {
@@ -63,8 +61,8 @@
             },
 
             mutateST() {
-                this.updateSearchText(event.target.value)
-                this.updatePool(this.searchTracks())
+                this.mutateSearchText(event.target.value)
+                this.$emit('mutatePool', this.searchTracks())
             },
 
             searchTracks() {
@@ -76,7 +74,7 @@
             deletePrevText() {
                 if (Id('search-input').value == 0) {
                     // Lets restore pool
-                    this.updatePool(this.cachedPool)
+                    this.$emit('mutatePool', this.cachedPool)
                 } else {
                     // We force a re-evaluation of track search during 'backspacing'
                     this.mutateST()
@@ -85,9 +83,7 @@
         },
         computed: {
             ...mapGetters([
-                'searchText',
                 'currentCriteria',
-                'filteredPool',
                 'currentTarget'
             ])
         }

@@ -24,33 +24,23 @@
                     this.$router.push('/settings')
 
                     // cache the route for next session
-                    this.cacheRoute({
-                        type: 'main',
-                        name: '/settings'
-                    })
+                    this.$emit('cacheRoute', {type: 'main', name: '/settings'})
 
-                    this.cacheRoute({
-                        type: 'child',
-                        name: '/settings/'
-                    })
+                    this.$emit('cacheRoute', {type: 'child', name: '/settings/'})
 
                     this.setCurrentSetting('/')
                 } else {
                     this.$router.push('/')
 
-                    this.cacheRoute({
-                        type: 'main',
-                        name: '/'
-                    })
+                    this.$emit('cacheRoute', {type: 'main', name: '/'})
                 }
             }
         },
         methods: {
             ...mapActions([
                 'toggleSettings',
-                'cacheRoute',
-                'setCurrentSetting',
-                'toggleAudioEQVisibility'
+                'toggleAudioEQVisibility',
+                'setCurrentSetting'
             ])
         },
         computed: {
