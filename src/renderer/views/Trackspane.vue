@@ -169,9 +169,9 @@
                 // We don't want the tracks to unexpectedly be loaded
                 // ... when a new playlist is created
                 if (cur) {
-                    this.lockHotKey('enter')
+                    this.$emit('lockHotKey', 'enter')
                 } else {
-                    this.unlockHotKey('enter')
+                    this.$emit('unlockHotKey', 'enter')
                 }
             },
 
@@ -570,7 +570,7 @@
                     }
                 } else {
                     // Unlock it if locked
-                    this.unlockHotKey('enter')
+                    this.$emit('unlockHotKey', 'enter')
                 }
             },
 

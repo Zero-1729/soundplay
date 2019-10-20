@@ -3,7 +3,7 @@
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view
-                @mutatePlayingCriteria="mutatePlayingCriteria",
+                @mutatePlayingCriteria="mutatePlayingCriteria"
                 @lockHotKey="lockHotKey"
                 @unlockHotKey="unlockHotKey"
                 @mutateStatusMessage="mutateStatusMessage">

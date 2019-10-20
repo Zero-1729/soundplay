@@ -959,7 +959,7 @@
             closeModals() {
                 // Trigger modal close here
                 // ... but only if it was open
-                if (this.openPlaylistModal && !(Id('playlist-input') == document.activeElement)) {
+                if (this.vars.modals.playlist && !(document.activeElement == Id('playlist-input'))) {
                     this.setPlaylistModal(false)
                 }
             },
