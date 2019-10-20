@@ -1,7 +1,7 @@
 <template>
     <div class="virtical-div">
         <div class="virtical-div-holder">
-            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: item == playingTarget && playingCriteria == currentCriteria}">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget) && playingCriteria == currentCriteria}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
@@ -53,6 +53,20 @@
         mounted() {
             if (ClassNameSingle('activeTarget')) {
                 ClassNameSingle('activeTarget').scrollIntoViewIfNeeded()
+            }
+        },
+        watch: {
+            currentCriteria (cur, prev) {
+                // We now auto select playing target if current criteria
+                // ... is the playing criteria
+                if (cur == this.playingCriteria) {
+                    this.changeTarget(this.playingTarget)
+                } else {
+                    // highlight first item in items (target) listing
+                    if (this.currentOptions.length > 0 && cur != 'Music') {
+                        this.changeTarget(this.currentOptions[0])
+                    }
+                }
             }
         },
         methods: {

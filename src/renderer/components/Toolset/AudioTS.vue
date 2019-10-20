@@ -2,7 +2,7 @@
     <div class="main-toolset-container">
         <div id="music-icon" class="item" :class="{activeIcon: currentCriteria == 'music'}">
             <div class="bar" :class="{greyBar: playingCriteria == 'music' && currentCriteria != 'music'}" v-if="currentCriteria == 'music' || playingCriteria == 'music'"></div>
-            <svg class="icon" :class="{greyedIcon: playingCriteria == 'music' && currentCriteria != 'music'}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="12.531 148.128 13 14.303" width="13" height="14.303" @click="updateAndSelect">
+            <svg class="icon" :class="{greyedIcon: playingCriteria == 'music' && currentCriteria != 'music'}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="12.531 148.128 13 14.303" width="13" height="14.303" @click="handle_criteria('music')">
                 <path d=" M 24.334 155.91 L 24.334 153.536 L 17.321 155.589 L 17.321 160.036 L 17.321 160.378 L 17.297 160.378 C 17.13 161.538 16.132 162.431 14.926 162.431 C 13.605 162.431 12.531 161.358 12.531 160.036 C 12.531 158.715 13.605 157.641 14.926 157.641 C 15.293 157.641 15.641 157.724 15.953 157.872 L 15.953 155.178 C 15.953 155.027 16.07 154.871 16.216 154.829 L 25.268 152.243 C 25.414 152.201 25.531 152.29 25.531 152.441 L 25.531 157.641 L 25.507 157.641 C 25.523 157.753 25.531 157.867 25.531 157.984 C 25.531 159.305 24.458 160.378 23.137 160.378 C 21.815 160.378 20.742 159.305 20.742 157.984 C 20.742 156.662 21.815 155.589 23.137 155.589 C 23.573 155.589 23.982 155.706 24.334 155.91 Z  M 16.216 150.724 L 25.268 148.138 C 25.414 148.096 25.531 148.185 25.531 148.336 L 25.531 150.526 C 25.531 150.677 25.414 150.833 25.268 150.875 L 16.216 153.461 C 16.07 153.503 15.953 153.414 15.953 153.263 L 15.953 151.073 C 15.953 150.922 16.07 150.766 16.216 150.724 Z " fill-rule="evenodd"/>
             </svg>
         </div>
@@ -63,11 +63,6 @@
                 'changeTarget',
                 'setSettings'
             ]),
-
-            updateAndSelect() {
-                this.handle_criteria('music')
-                this.changeTarget('All Tracks')
-            },
 
             handle_criteria(criteria) {
                 if (this.settingsOpen) {
