@@ -584,6 +584,16 @@
             })
         },
         watch: {
+            '$route' (cur, old) {
+                if (cur.path == '/') {
+                    this.redrawWaveform()
+
+                    if (!this.vars.reporter.status.isEmpty) {
+                        this.clearStatusMessage()
+                    }
+                }
+            },
+
             'appAudioPrefs.mute' (cur, prev) {
                 // If muted we make volume nil,
                 // ... if not we restore the last volume level befor the mute
@@ -607,13 +617,6 @@
                 }
             },
 
-            filteredPool (cur, prev) {
-                if (this.vars.currentTrack) {
-                    // recalc randoms
-                    this.player.fillRandoms(this.vars.currentTrack, cur)
-                }
-            },
-
             'vars.currentTrack' (cur, old) {
                 if (cur) {
                     let ret = this.player.playNew(cur.source)
@@ -627,13 +630,10 @@
                 }
             },
 
-            '$route' (cur, old) {
-                if (cur.path == '/') {
-                    this.redrawWaveform()
-
-                    if (!this.vars.reporter.status.isEmpty) {
-                        this.clearStatusMessage()
-                    }
+            filteredPool (cur, prev) {
+                if (this.vars.currentTrack) {
+                    // recalc randoms
+                    this.player.fillRandoms(this.vars.currentTrack, cur)
                 }
             },
 
@@ -813,7 +813,7 @@
                 if (obj.type == 'main') {
                     this.vars.cached.mainRoute = obj.name
                 } else {
-                    this.vars.checked.childRoute = obj.name
+                    this.vars.cached.childRoute = obj.name
                 }
             },
 
