@@ -52,8 +52,8 @@
             </transition-group>
         </tbody>
 
-        <div class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
-            <h4>New Playlist</h4>
+        <div id="playlist-modal" class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
+            <h4 id="playlist-heading">New Playlist</h4>
             <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
                 @focus="focused = true"
                 @blur="focused = false"/>
@@ -898,6 +898,7 @@
         border-width 2px
         border-style solid
         border-radius 5px
+        user-select none
 
     .playlist-input-focus
         border-width 2px

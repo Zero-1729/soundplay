@@ -953,13 +953,18 @@
             },
 
             setPlaylistModal(val) {
-                this.vars.modals.playlist = val
+                this.vars.modals.playlist = !this.vars.modals.playlist
             },
 
-            closeModals() {
+            closeModals(ev) {
                 // Trigger modal close here
                 // ... but only if it was open
-                if (this.vars.modals.playlist && !(document.activeElement == Id('playlist-input'))) {
+                let playlistModal = ev.target.id.includes('playlist')
+
+                if (this.vars.modals.playlist &&
+                    !(document.activeElement == Id('playlist-input')) &&
+                    !playlistModal
+                ) {
                     this.setPlaylistModal(false)
                 }
             },
