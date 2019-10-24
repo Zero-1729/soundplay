@@ -1,4 +1,4 @@
-Copyright (c) 2019 Zero-1729 <zero1729@protonmail.com>
+Copyright (c) 2019 [Zero-1729](zero1729@protonmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
