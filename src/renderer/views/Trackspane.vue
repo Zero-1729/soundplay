@@ -558,7 +558,7 @@
             },
 
             setCurrentTrack() {
-                if (!(this.enterLock)) {
+                if (!(this.enterLock) && (this.index != -1)) {
                     // Only trigger global (enter) hotkey action
                     // ... when the hotkey is unlocked
 
@@ -673,7 +673,7 @@
             deleteSelectedTracks() {
                 // Only trigger if '(search) input' is blurred
                 // We don't want the tracks disappearing randomly while typing
-                if (!this.backspaceLock) {
+                if (!this.backspaceLock && (this.index != -1)) {
                     // Delete current track if seleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
                         this.$emit('clearCurrentTrack')
