@@ -57,6 +57,13 @@
         },
         watch: {
             currentCriteria (cur, prev) {
+                // We scroll the playing track into view if its in the view
+                if (ClassNameSingle('playingTrack')) {
+                    ClassNameSingle('playingTrack').scrollIntoView({
+                        behavior: 'smooth'
+                    })
+                }
+
                 // We now auto select playing target if current criteria
                 // ... is the playing criteria
                 if (cur == this.playingCriteria) {
