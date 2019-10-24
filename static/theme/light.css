@@ -16,7 +16,7 @@ svg path.filled {
 }
 
 .player-container .image-holder .default-album-art path {
-    fill: #f9f9f9;
+    fill: #ececec;
 }
 
 input[type="range"].slider {
