@@ -135,16 +135,20 @@ input[type="range"].slider {
     fill: #cecece;
 }
 
+thead {
+    border: 1px solid rgba(247, 247, 247, 1);
+}
+
 td, th {
     color: #a0a0a0;
 }
 
-th {
-    background: #e0e0e0;
+tr th {
+    background: none;
     color: #808088;
 }
 
-tr:nth-child(odd) {
+tbody tr:nth-child(odd) {
     background: rgba(247, 247, 247);
 }
 
