@@ -913,10 +913,10 @@
 
     .fav-bar
         position absolute
-        height 20px
+        height 25px
         width 2px
         left 0
-        bottom 2.5px
+        bottom 0
         transition background 0.3s ease-out
 
     .default-cursor
