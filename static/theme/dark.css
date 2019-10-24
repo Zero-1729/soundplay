@@ -167,7 +167,7 @@ tr:nth-child(odd) {
 }
 
 .playlist-input {
-    background: #212121;
+    background: none;
     border-color: #7c7c7c;
     color: #cecece;
 }

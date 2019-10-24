@@ -170,7 +170,7 @@ tbody tr:hover td, tbody tr:hover div {
 }
 
 .playlist-input {
-    background: #0e314a;
+    background: none;
     border-color: #2a4558;
     color: #cecece;
 }

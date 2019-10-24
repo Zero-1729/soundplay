@@ -896,13 +896,15 @@
         width 280px
         padding 6px
         border-width 2px
+        border-top 0
+        border-left 0
+        border-right 0
         border-style solid
-        border-radius 5px
         user-select none
+        h4
+            margin-top 22px
 
     .playlist-input-focus
-        border-width 2px
-        border-style solid
         outline none
 
     .open
