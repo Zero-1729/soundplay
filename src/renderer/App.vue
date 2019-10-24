@@ -241,16 +241,8 @@
                 this.toggleAudioEQVisibility()
             }
 
-            // Clear playing track, criteria and target
-            this.clearCurrentTrack()
-            this.updatePlayingCriteria(null)
-            this.updatePlayingTarget(null)
-
             // Clear jobs
             this.setJobsFn({start: null, end: null})
-
-            // Unlock all mutexes
-            this.unlockHotKey('backspace')
 
             // - End of session clearing -
 
