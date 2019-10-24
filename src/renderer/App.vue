@@ -409,14 +409,14 @@
                     // If shuffled, then grab next random index to play
                     cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
                 } else {
-                    //
-                    cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                    // Set to normal next track index from current track
+                    cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)+1
                 }
 
                 // Check if a next track exists
                 if (cindex < this.filteredPool.length-1) {
                     // If true, we just play it!
-                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                    this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
             })
