@@ -1,0 +1,199 @@
+/* General App colors */
+
+/* Player */
+.middle .controls .shuffle-icon.on path.stroked {
+    stroke: dodgerblue;
+}
+
+.middle .controls .shuffle-icon.on path.filled {
+    fill: dodgerblue;
+}
+
+.middle .controls .loop svg.loop-icon.on path.filled {
+    fill: dodgerblue;
+}
+
+.middle .volume svg g.on.triggered path.filled {
+    fill: dodgerblue;
+}
+
+.middle .volume svg g.on.triggered path.stroked {
+    stroke: dodgerblue;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+    background: white;
+    box-shadow: -90px 0 0 88px dodgerblue;
+}
+
+/* - Error messages - */
+.error-message {
+    color: #ff7a70;
+}
+
+.error-message .cancel-btn svg path {
+    fill: #ff7a70;
+}
+
+.warn-message {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.warn-message .cancel-btn svg path {
+    fill: #ffc107;
+}
+
+.fail-message {
+    border-color: orange;
+    color: orange;
+}
+
+.fail-message .cancel-btn svg path {
+    fill: orange;
+}
+
+
+/* App EQ */
+.eq-container .eq-inner-container .eq input.preamp::-webkit-slider-thumb, .eq-container .eq-inner-container .eq .Hz-container input.Hz-item::-webkit-slider-thumb, .eq-container .eq-inner-container .eq .KHz-container input.KHz-item::-webkit-slider-thumb {
+    background: dodgerblue;
+}
+
+
+/* Search Component colors */
+.div-hor.holder input#search-input:focus {
+    border-color: rgb(78,149,255);
+}
+
+
+/* SidePane Component colors */
+#app .virtical-div .entity-listing h4 {
+    color: #cecece;
+}
+
+#app .virtical-div .entity.activeTarget p {
+    color: dodgerblue;
+}
+
+#app .virtical-div .entity p:hover {
+    color: rgba(30, 144, 255, 0.51);
+}
+
+#app .virtical-div .entity p#hovered-text {
+    color: rgba(30, 144, 255, 0.51);
+}
+
+
+/* Toolset Component colors */
+.main-toolset-container .item.activeIcon svg path, .main-toolset-container-alt .item.activeIcon svg path {
+    fill: dodgerblue;
+}
+
+
+/* Audio / settings Toolset */
+.bar {
+    background: dodgerblue;
+}
+
+
+/* Trackspane Component colors */
+tbody tr:hover span {
+    background: transparent;
+}
+
+.short {
+    background: transparent;
+}
+
+.playlist-input-focus {
+    border-color: dodgerblue;
+}
+
+.fav-bar {
+    background: transparent;
+}
+
+tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
+    background: deeppink;
+}
+
+
+/* Settings */
+.info-input-field-nm {
+    border-bottom: 2px solid #cecece;
+}
+
+/* General */
+.option-item input:focus {
+    border-bottom: 2px solid dodgerblue;
+}
+
+.flex .switch.checked {
+    background: dodgerblue;
+}
+
+.flex select {
+    border: 2px solid transparent;
+}
+
+.flexed-div button {
+    background: dodgerblue;
+}
+
+.flexed-div button p {
+    color: white;
+}
+
+.flexed-div button svg path {
+    fill: white;
+}
+
+input#settings-input:focus {
+    border-bottom-color: dodgerblue;
+}
+
+.flex .dialog-button-alt {
+    background: dodgerblue;
+}
+
+.dialog-button p {
+    color: white;
+}
+
+.dialog-button svg path {
+    fill: white;
+}
+
+.dialog-button-alt.greyed-button:hover {
+    background: dodgerblue;
+}
+
+
+/* Trackspane Component colors */
+tr#track-item:hover td, tbody tr:hover div {
+    background: rgba(30, 144, 255, 0.51);
+}
+
+tr#track-item.activeTrack:nth-child(even) td {
+    background: #1d8fff;
+}
+
+tr#track-item.activeTrack:nth-child(odd) td {
+    background: #208bf5fa;
+}
+
+tr#track-item.activeTrack td span {
+    color: white;
+}
+
+tr#track-item.activeTrack td {
+    background: #275473;
+}
+
+tbody tr:hover * {
+    color: white;
+}
+
+tbody tr:hover span {
+    background: transparent;
+}

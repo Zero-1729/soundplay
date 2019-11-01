@@ -1,4 +1,27 @@
 /* General App colors */
+body {
+    background: #ffffff;
+}
+
+/* Player */
+.track-info h4, .track-info .middle .duration p {
+    color: #a0a0a0;
+}
+
+svg path.stroked {
+    stroke: #a0a0a0;
+}
+svg path.filled {
+    fill: #a0a0a0;
+}
+
+.player-container .image-holder .default-album-art path {
+    fill: #ececec;
+}
+
+input[type="range"].slider {
+    background: #ececec;
+}
 
 /* - Scroll bars - */
 
@@ -28,30 +51,19 @@
 
 .error-message {
     border-color: #ff7a70;
-    color: #ff7a70;
 }
 
-.error-message .cancel-btn svg path {
-    fill: #ff7a70;
+/* App EQ */
+.eq-container {
+    background: #ececec;
+    color: #9e9e9e;
+    box-shadow: -6px 5px 15px 0px #cccccc;
 }
 
-.warn-message {
-    border-color: #ffc107;
-    color: #ffc107;
+.eq-container .eq-inner-container .eq input.preamp, .eq-container .eq-inner-container .eq .Hz-container input.Hz-item, .eq-container .eq-inner-container .eq .KHz-container input.KHz-item {
+    background: #dadada;
 }
 
-.warn-message .cancel-btn svg path {
-    fill: #ffc107;
-}
-
-.fail-message {
-    border-color: orange;
-    color: orange;
-}
-
-.faile-message .cancel-btn svg path {
-    fill: orange;
-}
 
 /* Search Component colors */
 .search-icon path{
@@ -63,17 +75,14 @@
 }
 
 .div-hor.holder input#search-input {
-    background: #F2F2F2;
-    color: #7C7C7C;
-}
-
-.div-hor.holder input#search-input:focus {
-    border-color: rgb(78,149,255);
+    background: white;
+    color: #a0a0a0;
 }
 
 .div-hor.holder input#search-input::placeholder {
-    color: #7C7C7C;
+    color: #a0a0a0;
 }
+
 
 /* SidePane Component colors */
 #app .virtical-div {
@@ -84,24 +93,8 @@
     color: #a0a0a0;
 }
 
-#app .virtical-div .entity p:hover {
-    color: rgba(30, 144, 255, 0.51);
-}
-
-#app .virtical-div .entity p#hovered-text {
-    color: rgba(30, 144, 255, 0.51);
-}
-
-#app .virtical-div .entity-listing h4 {
-    color: #cecece;
-}
-
 #app .virtical-div .entity.greyedText p {
-    color: #cecece;
-}
-
-#app .virtical-div .entity.activeTarget p {
-    color: dodgerblue;
+    color: #cccccc;
 }
 
 #app .virtical-div .empty-listing h4 {
@@ -126,16 +119,9 @@
     fill: #a0a0a0;
 }
 
-.main-toolset-container .item.activeIcon svg path, .main-toolset-container-alt .item.activeIcon svg path {
-    fill: dodgerblue;
-}
 
-/* Audio / Audio settings Toolset */
-.bar {
-    background: dodgerblue;
-}
-
-.greyBar {
+/* Audio / settings Toolset */
+.bar.greyBar {
     background: #cecece;
 }
 
@@ -143,54 +129,35 @@
     fill: #cecece;
 }
 
+
 /* Trackspane Component colors */
 .empty-pool-info svg path {
-    fill: rgb(222,222,222);
+    fill: #cecece;
 }
 
-th {
-    background: #f2f2f2;
-    color: grey;
+thead {
+    border: 1px solid rgba(247, 247, 247, 1);
 }
 
 td, th {
     color: #a0a0a0;
 }
 
-tr:nth-child(odd) {
+tr th {
+    background: none;
+    color: #808088;
+}
+
+tbody tr:nth-child(odd) {
     background: rgba(247, 247, 247);
-}
-
-tbody tr:hover td, tbody tr:hover div {
-    background: rgba(30, 144, 255, 0.51);
-}
-
-tbody tr:hover * {
-    color: white;
-}
-
-tbody tr:hover span {
-    background: transparent;
 }
 
 .hover#track-item td, .hover div {
     background: rgba(30, 144, 255, 0.51);
 }
 
-.hover#track-item span {
-    background: transparent;
-}
-
-.hover#track-item * {
-    color: white;
-}
-
-.short {
-    background: transparent;
-}
-
 .empty-pool-info h4 {
-    color: grey;
+    color: #b7b8b9;
 }
 
 .playlist-modal {
@@ -200,44 +167,24 @@ tbody tr:hover span {
 }
 
 .playlist-input {
+    background: none;
     border-color: lightgrey;
     color: grey;
 }
 
-.playlist-input-focus {
-    border-color: dodgerblue;
-}
-
-.playingTrack td {
+#track-item.playingTrack td {
     background: #d8d8d8;
     color: grey;
 }
 
-.fav-bar {
-    background: transparent;
-}
-
-tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
-    background: deeppink;
-}
-
-.activeTrack#track-item td {
-    background: dodgerblue;
-    color: white;
-}
 
 /* Settings */
-.main-panel h4, .main-panel h3 {
+.main-panel h3 {
     color: #9e9e9e;
 }
 
-p.info, .info p {
+.info {
     color: #9c9c9c;
-}
-
-.main-panel .headings h4.active-setting {
-    color: dodgerblue;
-
 }
 
 /* General */
@@ -250,16 +197,8 @@ p.info, .info p {
     color: grey;
 }
 
-.option-item input:focus {
-    border-bottom: 2px solid dodgerblue;
-}
-
 .flex .switch {
-    background: #d8d8d8;
-}
-
-.flex .switch.checked {
-    background: dodgerblue;
+    background: #ececec;
 }
 
 .flex .slider {
@@ -268,8 +207,7 @@ p.info, .info p {
 
 .flex select {
     color: grey;
-    background: #d8d8d8;
-    border: 2px solid transparent;
+    background: #f2f2f2;
 }
 
 .flex button {
@@ -281,46 +219,14 @@ p.info, .info p {
     background: #ff7a70;
 }
 
-.flexed-div button {
-    background: dodgerblue;
-}
-
-.flexed-div button p {
-    color: white;
-}
-
-.flexed-div button svg path {
-    fill: white;
-}
-
 input#settings-input {
     border-bottom-color: grey;
 }
 
-input#settings-input:focus {
-    border-bottom-color: dodgerblue;
-}
-
-.flex .dialog-button:hover {
+.flex .dialog-button.furthest:hover {
     background: #8bc34a;
-}
-
-.flex .dialog-button-alt {
-    background: dodgerblue;
 }
 
 .flex .dialog-button-alt:hover {
     background: #ff7a70;
-}
-
-.dialog-button p {
-    color: white;
-}
-
-.dialog-button svg path {
-    fill: white;
-}
-
-.dialog-button-alt.greyed-button:hover {
-    background: dodgerblue;
 }

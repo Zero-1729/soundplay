@@ -1,15 +1,18 @@
 <template>
-    <div class="main-panel" @click="clearModals()">
+    <div class="main-panel">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
-            <router-view></router-view>
+            <router-view
+                @mutatePlayingCriteria="mutatePlayingCriteria"
+                @lockHotKey="lockHotKey"
+                @unlockHotKey="unlockHotKey"
+                @mutateStatusMessage="mutateStatusMessage">
+            </router-view>
         </transition>
     </div>
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
-
     export default {
         data() {
             return {
@@ -29,18 +32,20 @@
             }
         },
         methods: {
-            ...mapActions([
-                'clearStatusMessage',
-                'clearErrorMessage',
-                'clearWarnMessage',
-                'clearFailMessage'
-            ]),
+            mutatePlayingCriteria (arg) {
+                this.$emit('mutatePlayingCriteria', arg)
+            },
 
-            clearModals() {
-                this.clearStatusMessage()
-                this.clearErrorMessage()
-                this.clearWarnMessage()
-                this.clearFailMessage()
+            mutateStatusMessage (arg) {
+                this.$emit('mutateStatusMessage', arg)
+            },
+
+            lockHotKey(val) {
+                this.$emit('lockHotKey', val)
+            },
+
+            unlockHotKey(val) {
+                this.$emit('unlockHotKey', val)
             }
         }
     }

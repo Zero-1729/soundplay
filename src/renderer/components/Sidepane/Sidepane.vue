@@ -1,7 +1,7 @@
 <template>
     <div class="virtical-div">
         <div class="virtical-div-holder">
-            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: item == playingTarget}">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget) && playingCriteria == currentCriteria}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
@@ -23,13 +23,17 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
-    const { remote } = require('electron')
+    const { remote }          = require('electron')
 
     const { ClassNameSingle } = require('./../../utils/htmlQuery')
     const { buildMap }        = require('./../../utils/object')
 
     export default {
         name: 'sidepane',
+        props: [
+            'playingTarget',
+            'playingCriteria'
+        ],
         data() {
             return {
                 hoveredElm: null,
@@ -51,6 +55,27 @@
                 ClassNameSingle('activeTarget').scrollIntoViewIfNeeded()
             }
         },
+        watch: {
+            currentCriteria (cur, prev) {
+                // We scroll the playing track into view if its in the view
+                if (ClassNameSingle('playingTrack')) {
+                    ClassNameSingle('playingTrack').scrollIntoView({
+                        behavior: 'smooth'
+                    })
+                }
+
+                // We now auto select playing target if current criteria
+                // ... is the playing criteria
+                if (cur == this.playingCriteria) {
+                    this.changeTarget(this.playingTarget)
+                } else {
+                    // highlight first item in items (target) listing
+                    if (this.currentOptions.length > 0 && cur != 'Music') {
+                        this.changeTarget(this.currentOptions[0])
+                    }
+                }
+            }
+        },
         methods: {
             ...mapActions([
                 'changeTarget',
@@ -59,9 +84,6 @@
                 'deleteArtist',
                 'deleteAlbum',
                 'deleteGenre',
-                'lockHotKeys',
-                'unlockHotKeys',
-                'cacheRoute',
                 'setCurrentSetting'
             ]),
 
@@ -77,7 +99,7 @@
                 if (this.settingsOpen) {
                     return item
                 } else {
-                    return typeof item == 'object' ? item.name : item
+                    return item == null || typeof item != 'object' ? item : item.name
                 }
             },
 
@@ -86,10 +108,8 @@
                     let childRoute = this.settingsRoutes[item]
                     let fullRoute = '/settings' + childRoute
 
-                    this.cacheRoute({
-                        type: 'child',
-                        name: fullRoute
-                    })
+                    // Cache current route
+                    this.$emit('cacheRoute', {type: 'child', name: fullRoute})
 
                     this.setCurrentSetting(childRoute)
 
@@ -116,38 +136,44 @@
                         this.cachedText = event.target.innerText
                     }
 
+                    // Fake sellect all
+                    document.execCommand('selectAll', false, null)
+
                     // Fake a Mutex type global lock on backspace
-                    this.lockHotKeys('backspace')
+                    this.$emit('lockHotKey', 'backspace')
                 }
             },
 
             handlePlaylistRename() {
-                if (event.target.innerText.length > 0) {
+                // We only update the playlist name if the user actually
+                // ... changed the name, and is not empty
+                if (event.target.innerText.length > 0 && this.cachedText != event.target.innerText) {
                     this.renamePlaylist({
                         old: this.cachedText,
                         current: event.target.innerText
                     })
                 } else {
-                    // Revert playlist name
-                    // ... and clear cached Name for later
+                    // Revert playlist name if the playlist has totally been cleared
                     event.target.innerText = this.cachedText
-                    this.cachedText = ''
                 }
+
+                // ... and clear cached Name for later
+                this.cachedText = ''
 
                 // Revert 'p' to an uneditable elm
                 event.target.contentEditable = false
 
                 // Fake a Mutex type global unlock on backspace
-                this.unlockHotKeys('backspace')
+                this.$emit('unlockHotKey', 'backspace')
 
-                // Lock the enter hotkeys to avoid reseting the 'currentTrack'
-                this.lockHotKeys('enter')
+                // Unlock the enter hotkey to avoid reseting the 'currentTrack'
+                this.$emit('unlockHotKey', 'enter')
             },
 
             clearEditable() {
                 // In case the user blurs before hitting enter
                 // ... We assume they changed their mind about renaming
-                if (this.currentCriteria == 'playlist') {
+                if (this.currentCriteria == 'playlist' && this.cachedText != '') {
                     event.target.innerText = this.cachedText
                     this.cachedText = ''
                 }
@@ -170,6 +196,9 @@
                             label: 'Rename',
                             click() {
                                 vm.cachePlaylistName(forcedEvent)
+
+                                // lock (enter) HotKey
+                                vm.$emit('lockHotKey', 'enter')
                             }
                         },
                         {
@@ -226,14 +255,29 @@
             ...mapGetters([
                 'currentCriteria',
                 'currentTarget',
-                'playingTarget',
-                'settingsOpen',
                 'currentSetting',
+                'settingsOpen',
                 'allArtists',
                 'allAlbums',
                 'allGenres',
                 'allPlaylists'
             ]),
+
+            playlist() {
+                return this.allPlaylists
+            },
+
+            artist() {
+                return this.allArtists
+            },
+
+            album() {
+                return this.allAlbums
+            },
+
+            genre() {
+                return this.allGenres
+            },
 
             settingsRoutes() {
                 return buildMap(this.settingsNames, this.settingsPaths)
@@ -246,7 +290,7 @@
                     '90s Music',
                     '2000s Music',
                     'Favourites'
-                ] : eval('this.all'+this.currentCriteria[0].toUpperCase() + this.currentCriteria.slice(1)+'s')
+                ] : this[this.currentCriteria]
             },
 
             currentOptions() {
@@ -275,10 +319,11 @@
                 margin 18px
                 cursor pointer
                 font-weight bold
-                transition all 0.4s ease
                 user-select none
-            p:focus
-                outline none
+                text-overflow ellipsis
+                overflow hidden
+                white-space nowrap
+                width 135px
 
         .empty-listing
             padding-top 100px
@@ -289,7 +334,7 @@
         position absolute
         top 105px
         width 180px
-        height 60%
+        height 45%
         overflow-y auto
 
     .virtical-div-holder::-webkit-scrollbar

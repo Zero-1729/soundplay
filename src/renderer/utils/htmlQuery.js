@@ -6,16 +6,16 @@ const ClassName = (name) => {
     return document.getElementsByClassName(name)
 }
 
-const ClassNameSingle = (name) => {
-    return document.getElementsByClassName(name)[0]
+const ClassNameSingle = (name, index=0) => {
+    return document.getElementsByClassName(name)[index]
 }
 
 const TagName = (name) => {
     return document.getElementsByTagName(name)
 }
 
-const TagNameSingle = (name) => {
-    return document.getElementsByTagName(name)[0]
+const TagNameSingle = (name, index=0) => {
+    return document.getElementsByTagName(name)[index]
 }
 
 const QuerySelectorAll = (name) => {

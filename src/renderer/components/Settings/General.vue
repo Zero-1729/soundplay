@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <p class="info">
-                    Delete all tracks in player
+                    Delete all tracks (and playlists) in App
                 </p>
             </div>
         </div>
@@ -29,7 +29,7 @@
                         </svg>
                     </button>
                     <button class="dialog-button dialog-button-alt further"
-                    :class="{'greyed-button': appMusicFolder == null}"
+                    :class="{'greyed-button': appMusicFolder == null, widthless: appMusicFolder}"
                     @click="removeMusicFolder">
                         <p>{{ appMusicFolder ? appMusicFolder : 'None' }}</p>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="8" height="8">
@@ -98,13 +98,14 @@
         watch: {
             newFolder(cur, old) {
                 if (cur == '') {
-                    this.unlockHotKey('enter')
+                    this.$emit('unlockHotKey', 'enter')
                 }
             },
             allTracks(cur, old) {
                 if (cur.length == 0) {
-                    this.setLoading(false)
-                    this.updateStatusMessage({
+                    this.$emit('appLoading', false)
+
+                    this.$emit('mutateStatusMessage', {
                         heading: 'Successfully deleted all sounds',
                         isEmpty: false
                     })
@@ -114,31 +115,29 @@
         methods: {
             ...mapActions([
                 'deleteAllTracks',
-                'updatePlayingCriteria',
                 'updateExcludedFolder',
                 'removeExcludedFolder',
                 'setMusicFolder',
-                'removeMusicFolder',
-                'lockHotKey',
-                'unlockHotKey',
-                'updateStatusMessage',
-                'setLoading'
+                'removeMusicFolder'
             ]),
 
             handle_delete_all_tracks() {
                 // If all tracks are removed then we definitely know the current track is also
 
                 // Pause player here
-                this.updatePlayingCriteria(null)
-                this.deleteAllTracks()
+                this.$emit('mutatePlayingCriteria', null)
+                // Destructive version, which deletes even playlists
+                this.deleteAllTracks(true)
             },
 
             handle_open_dialog() {
-                let name = remote.dialog.showOpenDialog({
-                    properties: ['openDirectory']
-                })
+                let vm = this
 
-                this.setMusicFolder(name[0])
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory']
+                }, (items) => {
+                    vm.setMusicFolder(items[0])
+                })
             },
 
             handle_hovered_folder(folder) {
@@ -146,7 +145,7 @@
             },
 
             handle_new_excluded_folder() {
-                this.lockHotKey('enter')
+                this.$emit('lockHotKey', 'enter')
                 this.updateExcludedFolder(this.newFolder)
                 this.newFolder = ''
             },
@@ -184,7 +183,6 @@
         border-radius 2px
         border-width inherit
         width 58px
-        outline none
         transition all 0.3s linear
         cursor pointer
 
@@ -217,7 +215,6 @@
             padding 0
             border-radius 2px
             border-width inherit
-            outline none
             transition all 0.3s linear
             cursor pointer
             p
@@ -243,11 +240,18 @@
             margin-top 0
             margin-bottom 0
         svg
-            height 100%
+            margin-top 2px
+            height 75%
+
+    .dialog-button
+        transition width 0.3s ease-in
 
     .dialog-button-alt.greyed-button
         opacity 0.4
         cursor default
+
+    .dialog-button.dialog-button-alt.further.widthless
+        width unset
 
     .dialog-button.dialog-button-alt.further
             margin-left 15px
@@ -267,7 +271,4 @@
         margin-left 20px
         background transparent
         transition all 0.4s ease-out
-
-    input#settings-input:focus
-        outline none
 </style>

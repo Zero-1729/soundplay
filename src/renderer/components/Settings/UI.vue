@@ -161,9 +161,9 @@
             ...mapActions([
                 'loadTheme',
                 'changeTheme',
-                'setNightTheme',
                 'toggleNightMode',
                 'toggleAutoNightMode',
+                'setNightTheme',
                 'setAutoNightModeAm',
                 'setAutoNightModePm',
                 'setNightMode',
@@ -203,6 +203,18 @@
                     return this.appTheme
                 },
                 set(value) {
+                    // The night mode toggle should only be triggered if we change to the 'nightmode' theme
+                    // ... else, we toggle it off, to ensure it is (theme) responsive
+                    if (this.currentNightModeTheme != value) {
+                        this.setNightMode(false)
+                    } else {
+                        // Force night mode to be toggled
+                        // ... that is, if it matches the night mode theme
+                        if (this.currentNightModeTheme == value) {
+                            this.setNightMode(true)
+                        }
+                    }
+
                     this.changeTheme(value)
                 }
             },
@@ -272,9 +284,6 @@
         border none
         cursor pointer
 
-    .flex select:focus
-        outline none
-
     .flex .furthest
         margin-left 213px
 
@@ -317,12 +326,10 @@
         width 20px
         background transparent
         border-top 0
-        border-bottom 2px solid grey
         border-left 0
         border-right 0
         text-align center
 
     .info-input-field-nm:focus
         border-bottom 2px solid dodgerblue
-        outline none
 </style>

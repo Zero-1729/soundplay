@@ -1,9 +1,9 @@
 {
     "name": "soundplay",
-    "version": "0.1.8",
-    "author": "Zero-1729 <Zero1729@protonmail.com>",
+    "version": "0.2.0-a",
+    "author": "Zero-1729 <zero1729@protonmail.com>",
     "description": "A Next Gen Minimalist's Cross-Platform Sound Player",
-    "license": null,
+    "license": "MIT",
     "main": "./dist/electron/main.js",
     "scripts": {
         "build": "node .electron-vue/build.js && electron-builder",
@@ -16,52 +16,15 @@
         "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
         "postinstall": ""
     },
-    "build": {
-        "productName": "soundplay",
-        "appId": "com.github.Zero-1729.soundplay",
-        "directories": {
-            "output": "build"
-        },
-        "files": [
-            "dist/electron/**/*"
-        ],
-        "dmg": {
-            "contents": [
-                {
-                    "x": 410,
-                    "y": 150,
-                    "type": "link",
-                    "path": "/Applications"
-                },
-                {
-                    "x": 130,
-                    "y": 150,
-                    "type": "file"
-                }
-            ]
-        },
-        "mac": {
-            "icon": "build/icons/icon.icns"
-        },
-        "win": {
-            "icon": "build/icons/icon.ico"
-        },
-        "linux": {
-            "icon": "build/icons/256x256.png"
-        }
-    },
     "dependencies": {
         "cuid": "^2.1.6",
         "ffmetadata": "^1.5.0",
         "jsmediatags": "^3.8.1",
-        "mp3-duration": "^1.1.0",
         "node-schedule": "^1.3.2",
         "v-hotkey": "^0.3.0",
         "vue": "^2.5.16",
-        "vue-electron": "^1.0.6",
         "vue-router": "^3.0.1",
         "vuex": "^3.0.1",
-        "vuex-electron": "^1.0.0",
         "wavesurfer.js": "^2.1.3"
     },
     "devDependencies": {
@@ -75,13 +38,13 @@
         "babili-webpack-plugin": "^0.1.2",
         "cfonts": "^2.1.2",
         "chalk": "^2.4.1",
-        "clean-css": "^4.1.11",
+        "clean-css": "^4.2.1",
         "copy-webpack-plugin": "^4.5.1",
         "cross-env": "^5.1.6",
         "css-loader": "^2.1.1",
         "del": "^3.0.0",
         "devtron": "^1.4.0",
-        "electron": "^4.1.1",
+        "electron": "^6.0.10",
         "electron-builder": "^20.19.2",
         "electron-debug": "^1.5.0",
         "electron-devtools-installer": "^2.2.4",
@@ -95,10 +58,12 @@
         "stylus": "^0.54.5",
         "stylus-loader": "^3.0.2",
         "url-loader": "^1.0.1",
+        "vue-electron": "^1.0.6",
         "vue-html-loader": "^1.2.4",
         "vue-loader": "^15.2.4",
         "vue-style-loader": "^4.1.0",
         "vue-template-compiler": "^2.5.16",
+        "vuex-electron": "^1.0.0",
         "webpack": "^4.15.1",
         "webpack-cli": "^3.0.8",
         "webpack-dev-server": "^3.1.4",

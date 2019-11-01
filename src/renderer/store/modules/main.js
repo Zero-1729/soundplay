@@ -20,7 +20,7 @@ const { TagName,
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
     '90s': (n) => { return n >= 1990 && n <= 1999 },
-    '2000s': (n) => { return n >= 2000 && n <= 2005 }
+    '2000s': (n) => { return n >= 2000 && n <= 2009 }
 }
 
 const state = {
@@ -29,31 +29,6 @@ const state = {
     artists: [],
     genres: [],
     playlists: [],
-    reporter: {
-        // For environment variables
-        status: {
-            heading: null,
-            isEmpty: true
-        },
-        error: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        },
-        warning: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        },
-        failure: {
-            heading: null,
-            message: null,
-            items: [],
-            isEmpty: true
-        }
-    },
     settings: {
         general: {
             excludedFolders: [],
@@ -71,23 +46,32 @@ const state = {
                 end_job: null
             }
         },
-        audio: {},
+        audio: {
+            eq: {
+                channels: {
+                    // Flat preset is the default
+                    preamp: 12,
+                    Hz_60: 0,
+                    Hz_170: 0,
+                    Hz_310: 0,
+                    Hz_600: 0,
+                    KHz_1: 0,
+                    KHz_3: 0,
+                    KHz_6: 0,
+                    KHz_12: 0,
+                    KHz_14: 0,
+                    KHz_16: 0
+                },
+
+                // Variable to assert whether the EQ is 'on' or 'off'
+                enabled: false,
+
+                // Whether its visible or not
+                visible: false
+            }
+        },
         isOpen: false,
         currentSetting: 'general'
-    },
-    vars: {
-        lock: {
-            'backspace': false,
-            'enter': false
-        },
-        modals: {
-            playlist: false
-        },
-        cached: {
-            mainRoute: '/',
-            childRoute: '/'
-        },
-        loading: false
     }
 }
 
@@ -122,11 +106,18 @@ const mutations = {
                 // If we are in a playlist and add a track we also include it in the playlist
                 state.playlists[pindex].tracks.push(track)
             }
+
+            // More like status flag
+            return true
         } else {
-            // Lets override the 'failure' message from here
-            // ... we log the duplicated files to be reported later
-            state.reporter.failure.items = add(state.reporter.failure.items, track.source, true)
+            // to be used for import failure flag
+            return false
         }
+    },
+
+    EDIT_TRACK (state, obj) {
+        let index = getIndexFromKey(state.music, 'id', obj.id)
+        state.music[index][obj.meta] = obj.value
     },
 
     DELETE_TRACK (state, track) {
@@ -253,13 +244,23 @@ const mutations = {
         }
     },
 
-    DELETE_ALL_TRACKS (state) {
+    DELETE_ALL_TRACKS (state, destructive) {
         state.albums = []
         state.artists = []
         state.genres = []
 
         if (state.music.length > 0) {
             state.music = []
+        }
+
+        if (destructive) {
+            // Deleted from settings
+            state.playlists = []
+        } else {
+            // Empty playlist
+            for (var i = 0;i < state.playlists.length;i++) {
+                state.playlists[i].tracks = []
+            }
         }
     },
 
@@ -323,87 +324,6 @@ const mutations = {
         let index = getIndexFromKey(state.playlists, name)
 
         state.playlists[index].tracks = []
-    },
-
-    UPDATE_STATUS_MESSAGE (state, meta) {
-        state.reporter.status.heading = meta.heading
-
-        state.reporter.status.isEmpty = false
-    },
-
-    UPDATE_ERROR_MESSAGE (state, meta) {
-        state.reporter.error.heading = meta.heading
-        state.reporter.error.message = meta.message
-        state.reporter.error.items   = meta.items
-
-        state.reporter.error.isEmpty = false
-    },
-
-    UPDATE_WARN_MESSAGE (state, meta) {
-        state.reporter.warning.heading = meta.heading
-        state.reporter.warning.message = meta.message
-        state.reporter.warning.items   = meta.items
-
-        state.reporter.warning.isEmpty = false
-    },
-
-    UPDATE_FAILURE_MESSAGE (state, meta) {
-        state.reporter.failure.heading = meta.heading
-        state.reporter.failure.message = meta.message
-        state.reporter.failure.items   = meta.items
-
-        state.reporter.failure.isEmpty = false
-    },
-
-    CLEAR_STATUS_MESSAGE (state) {
-        state.reporter.status.heading = null
-
-        state.reporter.status.isEmpty = true
-    },
-
-    CLEAR_ERROR_MESSAGE (state) {
-        state.reporter.error.heading = null
-        state.reporter.error.message = null
-        state.reporter.error.items   = []
-
-        state.reporter.error.isEmpty = true
-    },
-
-    CLEAR_WARN_MESSAGE (state) {
-        state.reporter.warning.heading = null
-        state.reporter.warning.message = null
-        state.reporter.warning.items   = []
-
-        state.reporter.warning.isEmpty = true
-    },
-
-    CLEAR_FAILURE_MESSAGE (state) {
-        state.reporter.failure.heading = null
-        state.reporter.failure.message = null
-        state.reporter.failure.items   = []
-
-        state.reporter.failure.isEmpty = true
-    },
-
-    LOCK_HOTKEY (state, hotkey) {
-        // So we can override the global hotkeys
-        state.vars.lock[hotkey] = true
-    },
-
-    UNLOCK_HOTKEY (state, hotkey) {
-        state.vars.lock[hotkey] = false
-    },
-
-    CACHE_ROUTE (state, routeObj) {
-        if (routeObj.type == 'main') {
-            state.vars.cached.mainRoute = routeObj.name
-        } else {
-            state.vars.cached.childRoute = routeObj.name
-        }
-    },
-
-    SET_LOADING (state, value) {
-        state.vars.loading = value
     },
 
     // Settings mutations
@@ -487,19 +407,30 @@ const mutations = {
     },
 
     // Audio
-    UPDATE_EXCLUDED_FOLDER (state, name) {
-        // Avoid adding duplicates
-        if (!(state.settings.general.excludedFolders.indexOf(name) != -1)) {
-            state.settings.general.excludedFolders.push(name)
-        }
+    SET_ALL_AUDIO_EQ_CHANNELS (state, channels) {
+        state.settings.audio.eq.channels.preamp = channels.preamp
+        state.settings.audio.eq.channels.Hz_60  = channels.Hz_60
+        state.settings.audio.eq.channels.Hz_170 = channels.Hz_170
+        state.settings.audio.eq.channels.Hz_310 = channels.Hz_310
+        state.settings.audio.eq.channels.Hz_600 = channels.Hz_600
+        state.settings.audio.eq.channels.KHz_1  = channels.KHz_1
+        state.settings.audio.eq.channels.KHz_3  = channels.KHz_3
+        state.settings.audio.eq.channels.KHz_6  = channels.KHz_6
+        state.settings.audio.eq.channels.KHz_12 = channels.KHz_12
+        state.settings.audio.eq.channels.KHz_14 = channels.KHz_14
+        state.settings.audio.eq.channels.KHz_16 = channels.KHz_16
     },
 
-    REMOVE_EXCLUDED_FOLDER (state, name) {
-        state.settings.general.excludedFolders = remove(state.settings.general.excludedFolders, name)
+    SET_AUDIO_EQ_LEVEL (state, arg) {
+        state.settings.audio.eq.channels[arg.channel] = arg.value
     },
 
-    CLEAR_EXCLUDED_FOLDER (state) {
-        state.settings.general.excludedFolders = []
+    TOGGLE_AUDIO_EQ (state, value) {
+        state.settings.audio.eq.enabled = value
+    },
+
+    SET_AUDIO_EQ_VISIBILITY (state) {
+        state.settings.audio.eq.visible = !state.settings.audio.eq.visible
     },
 
     // General
@@ -523,16 +454,29 @@ const mutations = {
         state.settings.general.musicFolder = null
     },
 
-    // Modal dialogs
-    // Playlist
-    SET_PLAYLIST_MODAL (state, value) {
-        state.vars.modals.playlist = value
+    UPDATE_EXCLUDED_FOLDER (state, name) {
+        // Avoid adding duplicates
+        if (!(state.settings.general.excludedFolders.indexOf(name) != -1)) {
+            state.settings.general.excludedFolders.push(name)
+        }
+    },
+
+    REMOVE_EXCLUDED_FOLDER (state, name) {
+        state.settings.general.excludedFolders = remove(state.settings.general.excludedFolders, name)
+    },
+
+    CLEAR_EXCLUDED_FOLDER (state) {
+        state.settings.general.excludedFolders = []
     }
 }
 
 const actions = {
     addTrack: ({ commit }, info) => {
         commit('ADD_TRACK', info)
+    },
+
+    editTrack: ({ commit }, obj) => {
+        commit('EDIT_TRACK', obj)
     },
 
     deleteTrack: ({ commit }, track) => {
@@ -551,8 +495,8 @@ const actions = {
         commit('DELETE_GENRE', genre)
     },
 
-    deleteAllTracks: ({ commit }) => {
-        commit('DELETE_ALL_TRACKS')
+    deleteAllTracks: ({ commit }, kind) => {
+        commit('DELETE_ALL_TRACKS', kind)
     },
 
     deleteRelicTracks: ({ commit }, period) => {
@@ -589,54 +533,6 @@ const actions = {
 
     removeFromPlaylist: ({ commit }, obj) => {
         commit('REMOVE_FROM_PLAYLIST', obj)
-    },
-
-    updateStatusMessage: ({ commit }, meta) => {
-        commit('UPDATE_STATUS_MESSAGE', meta)
-    },
-
-    updateErrorMessage: ({ commit }, meta) => {
-        commit('UPDATE_ERROR_MESSAGE', meta)
-    },
-
-    updateWarnMessage: ({ commit }, meta) => {
-        commit('UPDATE_WARN_MESSAGE', meta)
-    },
-
-    updateFailMessage: ({ commit }, meta) => {
-        commit('UPDATE_FAILURE_MESSAGE', meta)
-    },
-
-    clearStatusMessage: ({ commit }) => {
-        commit('CLEAR_STATUS_MESSAGE')
-    },
-
-    clearErrorMessage: ({ commit }) => {
-        commit('CLEAR_ERROR_MESSAGE')
-    },
-
-    clearWarnMessage: ({ commit }) => {
-        commit('CLEAR_WARN_MESSAGE')
-    },
-
-    clearFailMessage: ({ commit }) => {
-        commit('CLEAR_FAILURE_MESSAGE')
-    },
-
-    lockHotKey: ({ commit }, hotkey) => {
-        commit('LOCK_HOTKEY', hotkey)
-    },
-
-    unlockHotKey: ({ commit }, hotkey) => {
-        commit('UNLOCK_HOTKEY', hotkey)
-    },
-
-    cacheRoute: ({ commit }, routeObj) => {
-        commit('CACHE_ROUTE', routeObj)
-    },
-
-    setLoading: ({ commit }, value) => {
-        commit('SET_LOADING', value)
     },
 
     // Settings Actions
@@ -706,6 +602,22 @@ const actions = {
         commit('CLEAR_EXCLUDED_FOLDER')
     },
 
+    setAllAudioEQChannels: ({ commit }, channels) => {
+        commit('SET_ALL_AUDIO_EQ_CHANNELS', channels)
+    },
+
+    setAudioEQLevel: ({ commit }, arg) => {
+        commit("SET_AUDIO_EQ_LEVEL", arg)
+    },
+
+    toggleAudioEQ: ({ commit }, value) => {
+        commit("TOGGLE_AUDIO_EQ", value)
+    },
+
+    toggleAudioEQVisibility: ({ commit }) => {
+        commit("SET_AUDIO_EQ_VISIBILITY")
+    },
+
     // Settings Open var action
     toggleSettings: ({ commit }) => {
         commit('TOGGLE_SETTINGS')
@@ -713,12 +625,6 @@ const actions = {
 
     setSettings: ({ commit }, value) => {
         commit("SET_SETTINGS", value)
-    },
-
-    // Modals
-    // Playlist
-    setPlaylistModal: ({ commit }, value) => {
-        commit('SET_PLAYLIST_MODAL', value)
     }
 }
 
@@ -743,37 +649,6 @@ const getters = {
         return state.playlists
     },
 
-    statusMessage (state) {
-        return state.reporter.status
-    },
-
-    errorMessage (state) {
-        return state.reporter.error
-    },
-
-    warnMessage (state) {
-        return state.reporter.warning
-    },
-
-    failMessage (state) {
-        return state.reporter.failure
-    },
-
-    backspaceLock (state) {
-        return state.vars.lock['backspace']
-    },
-
-    enterLock (state) {
-        return state.vars.lock['enter']
-    },
-
-    cachedRoutes (state) {
-        return state.vars.cached
-    },
-
-    appIsLoading (state) {
-        return state.vars.loading
-    },
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting
@@ -823,11 +698,10 @@ const getters = {
         return state.settings.isOpen
     },
 
-    // Modals
-    // Playlist
-    openPlaylistModal (state) {
-        return state.vars.modals.playlist
-    }
+    // Audio
+    appAudioEQ (state) {
+        return state.settings.audio.eq
+    },
 }
 
 export default {

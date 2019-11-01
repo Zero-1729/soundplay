@@ -4,31 +4,32 @@
             <path d=" M 19.105 77.099 C 20.086 77.798 21.286 78.209 22.581 78.209 C 25.893 78.209 28.581 75.521 28.581 72.209 C 28.581 68.898 25.893 66.209 22.581 66.209 C 19.27 66.209 16.581 68.898 16.581 72.209 L 16.581 72.209 C 16.581 73.504 16.992 74.704 17.691 75.685 L 13.873 79.504 C 13.469 79.907 13.459 80.551 13.849 80.942 L 13.849 80.942 C 14.239 81.332 14.883 81.321 15.287 80.918 L 19.105 77.099 Z  M 18.381 72.209 C 18.381 69.891 20.263 68.009 22.581 68.009 C 24.899 68.009 26.781 69.891 26.781 72.209 C 26.781 74.527 24.899 76.409 22.581 76.409 C 20.263 76.409 18.381 74.527 18.381 72.209 L 18.381 72.209 Z " fill-rule="evenodd" />
         </svg>
 
-        <input id="search-input" :placeholder="'Search ' + currentCriteria[0].toUpperCase()+currentCriteria.slice(1)" @input="mutateST" @click="highlight" @keyup.esc="blur" @keydown.enter.prevent="blur" @keydown.8="deletePrevText"/>
+        <input id="search-input" :placeholder="'Search ' + currentCriteria[0].toUpperCase()+currentCriteria.slice(1)" @input="mutateST" @click="highlight" @keyup.esc="blur" @keydown.enter.prevent="blur" @blur="blur" @keydown.8="deletePrevText"/>
     </div>
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
+    import { mapGetters } from 'vuex'
     import { Id } from './../../utils/htmlQuery'
 
     export default {
         name: 'search',
+        props: ['filteredPool'],
         data() {
             return {
-                cahedPool: null
+                cahedPool: null,
+                searchText: '',
             }
         },
-        mounted() {
-            this.cachedPool = this.filteredPool
-        },
         watch: {
+            // Only cached when we Criteria & Target are changed,
+            // ... i.e pool requires refiltering
             currentCriteria () {
                 this.cachedPool = this.filteredPool
             },
 
             currentTarget () {
-                this.cachedPool = this.filtreredPool
+                this.cachedPool = this.filteredPool
             },
 
             filteredPool () {
@@ -38,21 +39,20 @@
             }
         },
         methods: {
-            ...mapActions([
-                'updateSearchText',
-                'updatePool',
-                'lockHotKey',
-                'unlockHotKey'
-            ]),
+            mutateSearchText (value) {
+                this.searchText = value
+            },
 
             highlight() {
                 Id('search-input').select()
-                this.lockHotKey('backspace')
+                this.$emit('lockHotKey', 'backspace')
+                this.$emit('lockHotKey', 'enter')
             },
 
             blur() {
                 Id('search-input').blur()
-                this.unlockHotKey('backspace')
+                this.$emit('unlockHotKey', 'backspace')
+                this.$emit('unlockHotKey', 'enter')
             },
 
             focus() {
@@ -61,8 +61,8 @@
             },
 
             mutateST() {
-                this.updateSearchText(event.target.value)
-                this.updatePool(this.searchTracks())
+                this.mutateSearchText(event.target.value)
+                this.$emit('mutatePool', this.searchTracks())
             },
 
             searchTracks() {
@@ -74,7 +74,7 @@
             deletePrevText() {
                 if (Id('search-input').value == 0) {
                     // Lets restore pool
-                    this.updatePool(this.cachedPool)
+                    this.$emit('mutatePool', this.cachedPool)
                 } else {
                     // We force a re-evaluation of track search during 'backspacing'
                     this.mutateST()
@@ -83,11 +83,9 @@
         },
         computed: {
             ...mapGetters([
-                'searchText',
                 'currentCriteria',
-                'filteredPool',
                 'currentTarget'
-            ]),
+            ])
         }
     }
 </script>
@@ -104,19 +102,17 @@
         cursor pointer
 
     input
-        outline none
         height 20px
         width 160px
         padding 6px
         padding-left 16px
         border-radius 5px
         border none
-        transition 0.1s ease-in
+        transition border 0.2s ease-in
 
     input:focus
         border-width 2px
         border-style solid
-        outline none
 
     .search-icon
         path
