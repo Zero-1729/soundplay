@@ -16,10 +16,10 @@ The Next Gen Minimalist's Cross-Platform Sound Player
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:9080
+# Runs electron App in dev mode with hot reload
 npm run dev
 
-# build electron application for production
+# build electron App for production
 npm run build
 ```
 ---
