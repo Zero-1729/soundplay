@@ -12,6 +12,19 @@ export default class Player {
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing previously played tracks in shuffle mode
         this.randoms = [] // Shuffled indexes array
+        this.eq = []
+        this.bands = {
+            600: "Hz_60",
+            170: "Hz_170",
+            310: "Hz_310",
+            600: "Hz_600",
+            1000: "KHz_1",
+            3000: "KHz_3",
+            6000: "KHz_6",
+            12000: "KHz_12",
+            14000: "KHz_14",
+            16000: "KHz_16"
+        }
 
         this.device = new ws.create({
             container: "#waveform",
@@ -173,4 +186,80 @@ export default class Player {
 
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
+
+    initEQ(temp) {
+        this.eq = [{
+            f: 60,
+            type: 'lowshelf'
+        },
+        {
+            f: 170,
+            type: 'peaking'
+        },
+        {
+            f: 310,
+            type: 'peaking'
+        },
+        {
+            f: 600,
+            type: 'peaking'
+        },
+        {
+            f: 1000,
+            type: 'highshelf'
+        },
+        {
+            f: 3000,
+            type: 'highshelf'
+        },
+        {
+            f: 6000,
+            type: 'highshelf'
+        },
+        {
+            f: 12000,
+            type: 'highshelf'
+        },
+        {
+            f: 14000,
+            type: 'highshelf'
+        },
+        {
+            f: 16000,
+            type: 'highshelf'
+        }]
+
+        this.connectEQ(temp, true)
+    }
+
+    getBandValue(band, temp) {
+        return temp[this.bands[band.f]]
+    }
+
+    updateEQ(vals) {
+        ///
+    }
+
+    connectEQ(temp, val) {
+        //
+        if (val) {
+            // Create filters
+            let filters = this.map(function (band) {
+                let filter = this.device.ac.createBiquadFilter()
+
+                filter.type = band.type
+                filter.gain.value = getBandValue(band, temp)
+                filter.Q.value = 1
+                filter.frequency.value = band.f;
+
+                return filter
+            })
+
+            // Connect filters to wavesurfer
+            this.device.backend.setFilters(filters);
+
+            // For debugging
+            this.device.filters = filters;
+        } else {}
+    }
 }
