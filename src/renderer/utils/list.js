@@ -1,5 +1,5 @@
 /*
-    Author: Abubakar NK <github.com/Zero1729>
+    Author: Abubakar NK <github.com/Zero-1729>
     License: MIT
 
     Some utilities for manipulating Arrays

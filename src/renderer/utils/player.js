@@ -145,11 +145,13 @@ export default class Player {
 
         // Check if randoms empty, so we can refill
         if (this.randoms.length == 0) {
-            this.fillRandoms()
-        } else {
-            // If not we just pop the last index
-            return this.randoms.pop()
+            // Remember to pass same vars to fn
+            // ... to avoid null errors
+            this.fillRandoms(currentTrack, pool)
         }
+
+        // Then we just pop the last index
+        return this.randoms.pop()
     }
 
     fillRandoms(currentTrack, pool) {
