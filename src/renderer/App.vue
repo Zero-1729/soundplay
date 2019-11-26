@@ -518,59 +518,75 @@
             this.player.device.on('finish', () => {
                 // When track is done playing
                 this.player.reset()
+
                 // We reset the waveform cursor to the begining
                 this.vars.currentPos = this.player.getCurrentPos()
 
                 // Store index of currentTrack
-                let cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                let oindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                let cindex = oindex + 1 // Defaults to next track
+                let onLoop = this.appAudioPrefs.loopAll || this.appAudioPrefs.loopSingle
+                let hasFloor = (oindex == this.filteredPool.length - 1) &&
+                                          !this.appAudioPrefs.shuffle
 
-                let loopAllLock = false
-                let loopSingleLock = false
+                // 'End of shuffle playback' checks whether all shuffled tracks
+                // ... have been exhausted so we can pause the playback
+                // ... only used when not in a loop
+                let EOSP = this.player.randoms.length == 0 &&
+                           (!hasFloor) &&
+                           (!onLoop)
 
-                // Loop code here
-                if (this.appAudioPrefs.loopSingle || this.appAudioPrefs.loopAll) {
-                    // So if loop (single) enabled, we simply play again
+                // If shuffle mode on, then we get the index to next track
+                // ... only if we haven't hit EOSP
+                if (this.appAudioPrefs.shuffle && (!EOSP)) {
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                }
+
+                // Loop code
+                if (onLoop) {
+                    // So if loop (single) enabled, we simply replay track
                     if (this.appAudioPrefs.loopSingle) {
                         // Lock so that we only keep looping current track
-                        loopSingleLock = true
-
                         this.player.play()
+
+                        onLoop = true
                     } else {
-                        // I.e. Loop All
+                        // - Loop All -
+
+                        // To allow next track play
+                        onLoop = false
+
                         // If last track, we simply reset to first
-                        if ((cindex == this.filteredPool.length - 1) && this.filteredPool.length > 0) {
+                        // ... only aplies when not shuffled, as shuffling
+                        // ... can allow last track to be played then first, etc.
+                        // ... Essentially, shuffle does not have a floor
+                        if (hasFloor && this.filteredPool.length > 0) {
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.vars.currentTrack.source)
 
-                            // Only lock when we are sure we need to poceed to
-                            // play the next
-                            loopAllLock = true
+                            // Player only needs to know we triggered play already
+                            onLoop = true
                         }
                     }
                 } else {
                     // I.e. If no loops we go ahead and play the next track
-
                     // When track is finished playing and all tracks in pool cleared?
-                    if (this.filteredPool.length == 0) {
+                    if (this.filteredPool.length == 0 || EOSP) {
                         // Player cleared and current Track
                         this.player.clear()
                         this.updateCurrentTrack(null)
                     }
                 }
 
-                // Possibly our shuffle code as well, or we updated/replace pool
-                // ... from the player
-                if (this.appAudioPrefs.shuffle) {
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
-                }
+                let shouldPlayNext = (this.filteredPool.length > 0) &&
+                                    (cindex < this.filteredPool.length)
+                                    && (!onLoop) && (!EOSP)
 
-                // If not cleared, and havent hit the floor of the pool
-                // ... i.e. last track, we proceed to play the next
-                if ((cindex < this.filteredPool.length - 1) &&
-                    (this.filteredPool.length > 0) &&
-                    !loopAllLock &&
-                    !loopSingleLock) {
-                    this.updateCurrentTrack(this.filteredPool[cindex+1])
+                // If not cleared, havent hit the floor of the pool,
+                // ... i.e. last track, or loop on, then
+                // ... we proceed to play the next
+                if (shouldPlayNext) {
+                    this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
             })

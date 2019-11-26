@@ -84,6 +84,13 @@
             window.$vue = this
         },
         watch: {
+            'player.cleared' (cur, prev) {
+                if (cur) {
+                    // We should clear the art when the player hasn been cleared
+                    this.showArt = false
+                }
+            },
+
             loading (cur, prev) {
                 if (this.foundArt) {
                     this.showArt = true
