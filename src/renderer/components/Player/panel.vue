@@ -106,7 +106,8 @@
             ...mapActions([
                 'setLoop',
                 'toggleMute',
-                'toggleShuffle'
+                'toggleShuffle',
+                'updateVolume'
             ]),
 
             handleMute(ev) {
