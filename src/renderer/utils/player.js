@@ -132,7 +132,7 @@ export default class Player {
 
     getNextRandom(currentTrack, pool) {
         let editedPool = pool
-        let index = getIndexFromKey(pool, 'id', currentTrack.id)
+        let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
@@ -157,7 +157,7 @@ export default class Player {
     fillRandoms(currentTrack, pool) {
         // Create a properly shuffled pool
         // Exclude playing track, to avoid any collisions
-        let tmpPool = removeObject(pool, 'id', currentTrack.id)
+        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : []
 
         // Durstenfeld Algo
         for (var i = tmpPool.length - 1;i > 0;i--) {
