@@ -113,13 +113,13 @@ function createWindow () {
         mainWindow = null
     })
 
-    ipcMain.on('clear-open-files', (event, arg) => {
+    ipcMain.on('clear-open-files', () => {
         // Clear open files
         openFiles = []
     })
 
     // Check whether file path specified, if so we send it over to our render for processing
-    ipcMain.on('request-startup-process-args', (event, args) => {
+    ipcMain.on('request-startup-process-args', (event) => {
         event.sender.send('ack-startup-process-args', { startup_args: startup_args, trigger_files: openFiles })
 
         // Reset startup files
@@ -152,7 +152,7 @@ function createWindow () {
         mainWindow.webContents.send('media-next', null)
     })
 
-    if (!(mpp || mp || np)) { console.log('Media keys registration failed') }
+    if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
 }
 
 app.on('ready', createWindow)

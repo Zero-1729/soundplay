@@ -1,4 +1,4 @@
-# ![](static/icons/icon_48x48.png) SoundPlay
+# ![](static/icons/icon_64x64.png) SoundPlay
 
 The Next Gen Minimalist's Cross-Platform Sound Player
 
@@ -28,4 +28,4 @@ npm run build
 
 ---
 
-Copyright (c) 2018-19 Abubakar NK (Zero-1729)
+Copyright (c) 2018-19 Zero-1729
