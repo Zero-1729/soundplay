@@ -12,9 +12,8 @@ export default class Player {
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing previously played tracks in shuffle mode
         this.randoms = [] // Shuffled indexes array
-        this.eq = []
         this.bands = {
-            600: "Hz_60",
+            60: "Hz_60",
             170: "Hz_170",
             310: "Hz_310",
             600: "Hz_600",
@@ -190,78 +189,138 @@ export default class Player {
     emptyRandoms() { this.randoms = [] }
 
     initEQ(temp) {
-        this.eq = [{
+        this.connectEQ([{
             f: 60,
-            type: 'lowshelf'
+            type: 'lowshelf',
+            value: temp[this.bands[60]]
         },
         {
             f: 170,
-            type: 'peaking'
+            type: 'peaking',
+            value: temp[this.bands[170]]
         },
         {
             f: 310,
-            type: 'peaking'
+            type: 'peaking',
+            value: temp[this.bands[310]]
         },
         {
             f: 600,
-            type: 'peaking'
+            type: 'peaking',
+            value: temp[this.bands[600]]
         },
         {
             f: 1000,
-            type: 'highshelf'
+            type: 'peaking',
+            value: temp[this.bands[1000]]
         },
         {
             f: 3000,
-            type: 'highshelf'
+            type: 'peaking',
+            value: temp[this.bands[3000]]
         },
         {
             f: 6000,
-            type: 'highshelf'
+            type: 'peaking',
+            value: temp[this.bands[6000]]
         },
         {
             f: 12000,
-            type: 'highshelf'
+            type: 'peaking',
+            value: temp[this.bands[12000]]
         },
         {
             f: 14000,
-            type: 'highshelf'
+            type: 'peaking',
+            value: temp[this.bands[14000]]
         },
         {
             f: 16000,
-            type: 'highshelf'
-        }]
-
-        this.connectEQ(temp, true)
+            type: 'highshelf',
+            value: temp[this.bands[16000]]
+        }], true)
     }
 
-    getBandValue(band, temp) {
-        return temp[this.bands[band.f]]
+    updateEQ(channel, vals) {
+        // update specific band channel
+        let findex = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+
+        //console.log('found: ', channel, findex)
     }
 
-    updateEQ(vals) {
-        ///
+    resetEQ() {
+        this.connectEQ([{
+            f: 60,
+            type: 'lowshelf',
+            value: 0
+        },
+        {
+            f: 170,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 310,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 600,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 1000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 3000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 6000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 12000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 14000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 16000,
+            type: 'highshelf',
+            value: 0
+        }], true)
     }
 
-    connectEQ(temp, val) {
-        //
+    connectEQ(eq, val) {
         if (val) {
             // Create filters
-            let filters = this.map(function (band) {
-                let filter = this.device.ac.createBiquadFilter()
+            let filters = []
 
-                filter.type = band.type
-                filter.gain.value = getBandValue(band, temp)
+            for (var i = 0;i < eq.length;i++) {
+                // Set each band with appropriate value
+                let filter = this.device.backend.ac.createBiquadFilter()
+    
+                filter.type = eq[i].type
+                filter.gain.value = eq[i].value
                 filter.Q.value = 1
-                filter.frequency.value = band.f;
+                filter.frequency.value = eq[i].f
 
-                return filter
-            })
+                filters.push(filter)
+            }
+            
 
             // Connect filters to wavesurfer
-            this.device.backend.setFilters(filters);
-
-            // For debugging
-            this.device.filters = filters;
-        } else {}
+            this.device.backend.setFilters(filters)
+        }
     }
 }

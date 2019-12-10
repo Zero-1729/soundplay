@@ -86,6 +86,9 @@
     const presetEQs  = require('./../data/preset_eqs.json')
 
     export default {
+        props: [
+            'player'
+        ],
         data() {
             return {
                 presets: [
@@ -111,6 +114,15 @@
                 channelMutex: true
             }
         },
+
+        watch: {
+            'appAudioEQ.enabled' (cur, prev) {
+                if (cur) {
+                    this.player.initEQ(this.appAudioEQ.channels)
+                } else { this.player.resetEQ() }
+            }
+        },
+
         methods: {
             ...mapActions([
                 'toggleAudioEQ',
@@ -143,7 +155,10 @@
                 // Setting preset for EQ
                 let preset = !value ? event.target.value : value
 
-                this.setAllAudioEQChannels(presetEQs[preset])
+                this.setAllAudioEQChannels({preset: preset, channels: presetEQs[preset]})
+
+                // Also sync setting with player
+                this.player.initEQ(presetEQs[preset])
             },
 
             flipValue(val) {

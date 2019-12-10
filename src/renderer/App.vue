@@ -58,7 +58,7 @@
         </span>
 
         <!-- App EQ Component -->
-        <equalizer></equalizer>
+        <equalizer :player="player"></equalizer>
 
         <transition name="rise">
             <div class="status-message" v-show="!vars.reporter.status.isEmpty">
