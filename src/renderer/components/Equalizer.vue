@@ -14,7 +14,7 @@
 
             <div class="preset-input">
                 <select @change="setEQ()" :disabled="appAudioEQ.enabled == false">
-                    <option v-for="preset in presets">
+                    <option v-for="preset in presets" :selected="appAudioEQ.preset == preset">
                         {{ preset }}
                     </option>
                 </select>
