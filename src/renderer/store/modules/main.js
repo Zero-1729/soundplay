@@ -48,6 +48,7 @@ const state = {
         },
         audio: {
             eq: {
+                preset: 'Flat',
                 channels: {
                     // Flat preset is the default
                     preamp: 12,
@@ -407,18 +408,20 @@ const mutations = {
     },
 
     // Audio
-    SET_ALL_AUDIO_EQ_CHANNELS (state, channels) {
-        state.settings.audio.eq.channels.preamp = channels.preamp
-        state.settings.audio.eq.channels.Hz_60  = channels.Hz_60
-        state.settings.audio.eq.channels.Hz_170 = channels.Hz_170
-        state.settings.audio.eq.channels.Hz_310 = channels.Hz_310
-        state.settings.audio.eq.channels.Hz_600 = channels.Hz_600
-        state.settings.audio.eq.channels.KHz_1  = channels.KHz_1
-        state.settings.audio.eq.channels.KHz_3  = channels.KHz_3
-        state.settings.audio.eq.channels.KHz_6  = channels.KHz_6
-        state.settings.audio.eq.channels.KHz_12 = channels.KHz_12
-        state.settings.audio.eq.channels.KHz_14 = channels.KHz_14
-        state.settings.audio.eq.channels.KHz_16 = channels.KHz_16
+    SET_ALL_AUDIO_EQ_CHANNELS (state, arg) {
+        state.settings.audio.eq.preset = arg.preset
+
+        state.settings.audio.eq.channels.preamp = arg.channels.preamp
+        state.settings.audio.eq.channels.Hz_60  = arg.channels.Hz_60
+        state.settings.audio.eq.channels.Hz_170 = arg.channels.Hz_170
+        state.settings.audio.eq.channels.Hz_310 = arg.channels.Hz_310
+        state.settings.audio.eq.channels.Hz_600 = arg.channels.Hz_600
+        state.settings.audio.eq.channels.KHz_1  = arg.channels.KHz_1
+        state.settings.audio.eq.channels.KHz_3  = arg.channels.KHz_3
+        state.settings.audio.eq.channels.KHz_6  = arg.channels.KHz_6
+        state.settings.audio.eq.channels.KHz_12 = arg.channels.KHz_12
+        state.settings.audio.eq.channels.KHz_14 = arg.channels.KHz_14
+        state.settings.audio.eq.channels.KHz_16 = arg.channels.KHz_16
     },
 
     SET_AUDIO_EQ_LEVEL (state, arg) {
@@ -602,8 +605,8 @@ const actions = {
         commit('CLEAR_EXCLUDED_FOLDER')
     },
 
-    setAllAudioEQChannels: ({ commit }, channels) => {
-        commit('SET_ALL_AUDIO_EQ_CHANNELS', channels)
+    setAllAudioEQChannels: ({ commit }, arg) => {
+        commit('SET_ALL_AUDIO_EQ_CHANNELS', arg)
     },
 
     setAudioEQLevel: ({ commit }, arg) => {
