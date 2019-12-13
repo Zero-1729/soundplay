@@ -140,12 +140,18 @@
                 this.setEQ(TagNameSingle('select').value)
             },
 
-            setEQLevel(range, level, value) {
+            setEQLevel(range, channel, value) {
+                let val = this.translateValue(value)
+                // We need to sanitize the value for the player
+                let freq = range == 'KHz' ? channel + '000' : channel
+
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    channel: level != null ? range + '_' + level : range,
-                    value: this.translateValue(value)
+                    channel: channel != null ? range + '_' + channel : range,
+                    value: val
                 })
+
+                this.player.updateEQChannel(freq, val)
 
                 // Unlock mutex
                 this.channelMutex = false

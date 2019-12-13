@@ -241,11 +241,12 @@ export default class Player {
         }], true)
     }
 
-    updateEQ(channel, vals) {
+    updateEQChannel(channel, val) {
         // update specific band channel
-        let findex = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+        let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
 
-        //console.log('found: ', channel, findex)
+        // Update the channel value
+        this.device.backend.filters[index].gain.value = val
     }
 
     resetEQ() {
