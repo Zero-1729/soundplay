@@ -464,6 +464,11 @@
                 waveColor:  waveColors[this.appTheme].waveColor
             })
 
+            // If EQ was enabled in last session, continue with it
+            if (this.appAudioEQ.enabled) {
+                this.player.initEQ(this.appAudioEQ.channels)
+            }
+
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
