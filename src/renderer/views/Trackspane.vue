@@ -64,7 +64,7 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
-    import { Id }        from './../utils/htmlQuery'
+    import { Id, ClassNameSingle }    from './../utils/htmlQuery'
 
     const { buildMap,
             getIndexFromKey } = require('./../utils/object')
@@ -106,6 +106,11 @@
                 this.$emit('setPlaylistModal', true)
                 this.$emit('lockHotKey', 'backspace')
             })
+        },
+        mounted() {
+            if (ClassNameSingle('playingTrack')) {
+                ClassNameSingle('playingTrack').scrollIntoViewIfNeeded()
+            }
         },
         watch: {
             'player.active' (cur, prev) {
