@@ -22,23 +22,37 @@ const buildMap = (k, v) => {
     }
 }
 
+// Returns the deepest value of a nested object
+// E.g. if obj = {addr: {port: 8080}} 
+//         deepGet(obj, ['addr', 'port']) -> obj.addr.port -> '8080'
+const deepGet = (obj, keys) => {
+    // If we have exhausted 'keys', we are in the deepest ref
+    // So we just return it
+    if (keys.length == 0) { return obj }
+    
+    // Each step we pop the next deepest ref
+    return deepGet(obj[keys[0]], keys.slice(1))
+}
+
+
 // Returns the index of an object in an Array
 // ... using only the name of some key
 //
 // i.e  let arr = [{name: 'Foo'}, {name: 'Bar'}]
 // getIndexFromKey(arr, 'name', 'Foo') -> 0
-const getIndexFromKey = (arr, key, name) => {
-    let index = -1
+const getIndexFromKey = (arr, key, value) => {
+    // We sanitize the key
+    let keys = key.split('.')
 
     for (var i = 0;i < arr.length;i++) {
-        if (arr[i][key] == name) {
-            index = i
-            // lets cur to the chase if a match is immediately found
-            return index
+        // Busts in build !
+        if (deepGet(arr[i], keys) == value) {
+            // lets cut to the chase if a match is immediately found
+            return i
         }
     }
 
-    return index
+    return -1
 }
 
 const removeObject = (obj, category, name) => {
