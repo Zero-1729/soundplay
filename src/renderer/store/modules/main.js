@@ -73,6 +73,11 @@ const state = {
         },
         isOpen: false,
         currentSetting: 'general'
+    },
+    // For restoring routes each new session
+    cached: {
+        mainRoute: '/',
+        childRoute: '/'
     }
 }
 
@@ -327,6 +332,15 @@ const mutations = {
         state.playlists[index].tracks = []
     },
 
+    // App Routes
+    CACHE_MAIN_ROUTE (state, arg) {
+        state.cached.mainRoute = arg
+    },
+
+    CACHE_CHILD_ROUTE (state, arg) {
+        state.cached.childRoute = arg
+    },
+
     // Settings mutations
     // UI
     CHANGE_THEME (state, name) {
@@ -538,6 +552,15 @@ const actions = {
         commit('REMOVE_FROM_PLAYLIST', obj)
     },
 
+    // App Routes
+    cacheMainRoute: ({ commit }, arg) => {
+        commit("CACHE_MAIN_ROUTE", arg)
+    },
+
+    cacheChildRoute: ({ commit }, arg) => {
+        commit("CACHE_CHILD_ROUTE", arg)
+    },
+
     // Settings Actions
     setCurrentSetting: ({ commit }, name) => {
         commit('SET_CURRENT_SETTING', name)
@@ -650,6 +673,11 @@ const getters = {
 
     allPlaylists (state) {
         return state.playlists
+    },
+
+    // App Routes
+    appRoutes (state) {
+        return state.cached
     },
 
     // Settings getters

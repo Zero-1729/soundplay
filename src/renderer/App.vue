@@ -22,7 +22,7 @@
         <Sidepane
             :playingTarget="vars.playingTarget"
             :playingCriteria="vars.playingCriteria"
-            @caheRoute="cacheRoute"
+            @cacheRoute="cacheRoute"
             @lockHotKey="lockHotKey"
             @unlockHotKey="unlockHotKey">
         </Sidepane>
@@ -200,10 +200,6 @@
                     modals: {
                         playlist: false
                     },
-                    cached: {
-                        mainRoute: '/',
-                        childRoute: '/'
-                    },
                     reporter: {
                         status: {
                             heading: null,
@@ -344,10 +340,10 @@
             this.loadTheme()
 
             // Resume last route
-            if (this.vars.cached.mainRoute == '/settings') {
-                this.$router.push(this.vars.cached.childRoute)
+            if (this.appRoutes.mainRoute == '/settings') {
+                this.$router.push(this.appRoutes.childRoute)
             } else {
-                this.$router.push(this.vars.cached.mainRoute)
+                this.$router.push(this.appRoutes.mainRoute)
             }
 
             // Create autoNightMode scheduler
@@ -744,6 +740,8 @@
                 'setNightMode',
                 'setJobsFn',
                 'setLoop',
+                'cacheMainRoute',
+                'cacheChildRoute',
                 'toggleAudioEQVisibility'
             ]),
 
@@ -836,9 +834,9 @@
 
             cacheRoute(obj) {
                 if (obj.type == 'main') {
-                    this.vars.cached.mainRoute = obj.name
+                    this.cacheMainRoute(obj.name)
                 } else {
-                    this.vars.cached.childRoute = obj.name
+                    this.cacheChildRoute(obj.name)
                 }
             },
 
@@ -1215,7 +1213,8 @@
                 'appAutoNightMode',
                 'appAutoNightModeTime',
                 'appAudioEQ',
-                'appAudioPrefs'
+                'appAudioPrefs',
+                'appRoutes'
             ]),
 
             filteredPool () {
