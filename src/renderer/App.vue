@@ -502,16 +502,19 @@
                         this.vars.loadingTrack = false
 
                         // Display notification
-                        new Notification(this.vars.currentTrack.title, {
-                            body: this.vars.currentTrack.artist,
-                            silent: true,
-                            // Display album art only if found
-                            icon: this.vars.foundArt ?
-                                  Id('album-art').src :
-                                  path.join(__static, 'icons', 'unknown.png'),
-                            actions: [ /*Fill with prev & next*/ ]
-                            // renotify
-                        })
+                        // Displaying the notification is now optional
+                        if (this.appNotifs) {
+                            new Notification(this.vars.currentTrack.title, {
+                                body: this.vars.currentTrack.artist,
+                                silent: true,
+                                // Display album art only if found
+                                icon: this.vars.foundArt ?
+                                    Id('album-art').src :
+                                    path.join(__static, 'icons', 'unknown.png'),
+                                actions: [ /*Fill with prev & next*/ ]
+                                // renotify
+                            })
+                        }
                     },
                     onError: (err) => {
                         // Decide What do to with error later
@@ -1214,7 +1217,8 @@
                 'appAutoNightModeTime',
                 'appAudioEQ',
                 'appAudioPrefs',
-                'appRoutes'
+                'appRoutes',
+                'appNotifs'
             ]),
 
             filteredPool () {

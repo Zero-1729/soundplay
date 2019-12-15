@@ -72,6 +72,22 @@
                 </div>
             </div>
         </div>
+        <div class="option">
+            <div class="option-item">
+                <div class="flex">
+                    <h3>
+                        Notifications
+                    </h3>
+                    <label class="switch" :class="{checked: notifs}">
+                        <input type="checkbox" v-model="notifs"/>
+                        <span class="slider" :class="{checked: notifs}"></span>
+                    </label>
+                </div>
+                <p class="info">
+                    Display App Notifications such as current playing track.
+                </p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -168,7 +184,8 @@
                 'setAutoNightModePm',
                 'setNightMode',
                 'setJobsFn',
-                'clearJobsFn'
+                'clearJobsFn',
+                'displayNotif'
             ]),
             handle_input_inc(period) {
                 let time = Number(event.target.value)
@@ -196,8 +213,10 @@
                 'appNightModeTheme',
                 'appAutoNightMode',
                 'appAutoNightModeTime',
-                'appScheduleJobs'
+                'appScheduleJobs',
+                'appNotifs'
             ]),
+
             currentTheme: {
                 get() {
                     return this.appTheme
@@ -269,7 +288,15 @@
                 set(value) {
                     this.setAutoNightModePm(Number(value))
                 }
-            }
+            },
+            notifs: {
+                get() {
+                    return this.appNotifs
+                },
+                set(value) {
+                    this.displayNotif(value)
+                }
+            },
         }
     }
 </script>

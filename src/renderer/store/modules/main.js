@@ -35,6 +35,7 @@ const state = {
             musicFolder: null
         },
         ui: {
+            displayNotif: true, // Whether to display next track notification
             theme: 'light', // or dark or night
             nightTheme: 'night',
             nightMode: false,
@@ -421,6 +422,10 @@ const mutations = {
         state.settings.ui.autoNightMode.end_job.cancel()
     },
 
+    DISPLAY_NOTIF (state, arg) {
+        state.settings.ui.displayNotif = arg
+    },
+
     // Audio
     SET_ALL_AUDIO_EQ_CHANNELS (state, arg) {
         state.settings.audio.eq.preset = arg.preset
@@ -615,6 +620,10 @@ const actions = {
         commit('CLEAR_JOBS_FN')
     },
 
+    displayNotif: ({ commit }, arg) => {
+        commit('DISPLAY_NOTIF', arg)
+    },
+
     // Audio
     updateExcludedFolder: ({ commit }, name) => {
         commit('UPDATE_EXCLUDED_FOLDER', name)
@@ -723,6 +732,10 @@ const getters = {
             start: state.settings.ui.autoNightMode.start_job,
             end: state.settings.ui.autoNightMode.end_job
         }
+    },
+
+    appNotifs (state) {
+        return state.settings.ui.displayNotif
     },
 
     settingsOpen (state) {
