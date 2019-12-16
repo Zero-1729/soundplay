@@ -14,7 +14,7 @@
                     </div>
                 </div>
                 <p class="info">
-                    Speed up or slowdown the player playback. Default is 1.0 (i.e. normal speed).
+                    Speed up or slowdown the player playback. Default is 1.00 (i.e. normal speed).
                 </p>
             </div>
 
@@ -62,10 +62,10 @@
 
                 if (val == 1) {
                     // Increase
-                    this.setAudioPlayback((oldval < 2) ? oldval + 0.5 : oldval)
+                    this.setAudioPlayback((oldval < 2) ? oldval + 0.25 : oldval)
                 } else {
                     // Reduce
-                    this.setAudioPlayback((oldval > 0.5) ? oldval - 0.5 : oldval)
+                    this.setAudioPlayback((oldval > 0.5) ? oldval - 0.25 : oldval)
                 }
             }
         },
@@ -76,7 +76,7 @@
             ]),
 
             playbackRate () {
-                return this.appAudioPrefs.playbackRate.toFixed(1)
+                return this.appAudioPrefs.playbackRate.toFixed(2)
             },
 
             currentBehaviour: {
