@@ -18,13 +18,13 @@ To make everyone's job easier, here are some coding style guidelines intended to
 - Short lines; Soft limit 80, hard limit 120.
 - No trailing whitespaces.
 - `\n` for line-break.
-- Single `\n` at the end of the file; for Atom users this done automatically.
+- Single `\n` at the end of the file; for Atom users this is done automatically.
 
 There are two ways a user/dev can contribute to the project, through `PR`s and creating issues.
 
 ### Reporting Issues
 
-This allows users and devs to discuss possible feature enhancements, report bugs & plan other changes to the App. It should also be used to report spelling mistakes or any other improvements (grammar or otherwise) to the docs (including the `README.md`).
+This allows users and devs to discuss possible feature enhancements, report bugs and plan other changes to the App. It should also be used to report spelling mistakes or any other improvements (grammar or otherwise) to the docs (including the `README.md`).
 
 #### Feature Enhancements
 
@@ -34,7 +34,7 @@ Any user or dev can open up an issue if they feel they have a (useful) feature r
 
 Without users/devs constantly (painstakingly) reporting bugs, the App would eventually become un-useable. As such, bug reports form a very helpful foundation for the overall stability of the App.
 
-To report a bug, you are expected to open an issue with the category related to bug in the title, along with a short description. The body should be broken down into three parts: the first describes how to reproduce the bug; the second describes the expected behavior; and the last part is an optional bit, where a possible solution is proposed.
+To report a bug, you are expected to open an issue with the category related to the bug in the title, along with a short description. The body should be broken down into three parts: the first describes how to reproduce the bug; the second describes the expected behavior; and the last part is an optional bit, where a possible solution is proposed.
 
 Below is a sample bug report for commit `10628759d30608a93d8fbdbdcc30a2b6bb257ae1`
 
@@ -65,7 +65,7 @@ From digging through the source code, it looks like the cursor color is misspell
 
 ```
 
-Issues related to bugs would be labeled `bug`.
+Issues related to bugs are labeled `bug`.
 
 ## Pull Requests
 
@@ -76,7 +76,7 @@ In general, a pull request should have a clearly stated use case: to fix a demon
 To contribute your changes
 
 - Fork the repository
-- Create topic branch, e.g. `gui: redesigned EQ`.
+- Create a new topic branch, e.g. `gui: redesigned EQ`.
 - Commit changes
 
 Contributors are expected to follow all the guidelines this document before attempting to contribute.
@@ -87,7 +87,7 @@ All members of the community would likely have numerous feature additions, howev
 
 ### Refactoring
 
-As the JS community continues to grow, we would be required to refactor the code, also, as the project evolves maintenance would demand refactoring from time to time. These refactoring changes are one of the following:
+As the JS community continues to grow, we would be required to refactor the code, also, as the project evolves maintenance would demand refactoring from time-to-time. These refactoring changes are one of the following:
 
 - Code re-organization: moving code chunks in files.
 - Code style updates
@@ -99,20 +99,20 @@ New contributors should avoid trivial pull requests that make any unnecessary co
 
 ### Decision Flow
 
-The final decision to merge code rests with the project maintainers and ultimately the project lead. Generally, project maintainers check whether pull requests meets the general principles of the project, followed by assessing the consensus amongst other contributors on the proposed change before it is finally merged.
+The final decision to merge code rests with the project maintainers and ultimately the project lead. Generally, project maintainers check whether pull requests meet the general principles of the project, followed by assessing the consensus amongst other contributors on the proposed change before it is finally merged.
 
 For those who feel they have a possible fix for a bug - whether it be one related to an existing or nonexistent issue or set of issues - they may proceed to opening a new PR.
 
-First, it should be noted that bug fixes are the only pull requests that get merged to the `master` branch. To avoid sacrificing the stability of the `master`, any feature additions would go to an appropriate branch, or just the `dev` branch, then when properly tested would be merged into the `master` branch.
+First, it should be noted that bug fixes are the only pull requests that get merged to the `master` branch. To avoid sacrificing the stability of the `master` branch, any feature additions would go to an appropriate branch, or just the `dev` branch, then when properly tested would be merged into the `master` branch.
 
-Further, it is possible that a bug or bugs could be caused by one of the numerous dependencies of the App. If that is the case, then an appropriate action would be to open an issue, to make others aware of this. However, if a you have a fix, you should open a PR on the project's repo, as it is an issue with their project. One should only open a PR if the conflicting code is from this project, or can be fixed by upgrading the decencies
+Further, it is possible that a bug or bugs could be caused by one of the numerous dependencies of the App. If that is the case, then an appropriate action would be to open an issue, to make others aware of this. However, if you have a fix, you should open a PR on the project's repo, as it is an issue with their project. One should only open a PR if the conflicting code is from this project, or can be fixed by upgrading the dependencies
 
 ### PR structure
 
-To make contributing as smooth as possible, PRs and issues should be prefixed with one of the categories below in the title, to make sorting through and working on changes really easy.
+To make contributing as smooth as possible, PRs and issues should be prefixed with one of the categories below in the title, to make sorting through and working on changes easy.
 
 - `gui` / `ui` : for anything related to the visual part of the App.
-- `utils`: Any change that affects the modules in the utilities folder, `src/renderer/utils` or `src/main/utils`.
+- `utils`: Any change that affects the modules in the utilities folders: `src/renderer/utils` or `src/main/utils`.
 - `docs`: Any change that affects the App's Documentation. E.g. `README.md`, `docs/CONTRIBUTING.md`, etc.
 - `player`: Any code that affects the App's Player or EQ.
 - `tests`: Any test related code.
@@ -154,17 +154,17 @@ git rebase -i HEAD~n
 git push -f # (force push to GitHub)
 ```
 
-> **Note**: Ensure your commit message is appropriately renamed if necessary to should read as a coherent message. In most cases this means that you should not just list the interim commits.
+> **Note**: Ensure your commit message is appropriately renamed if necessary to read as a coherent message. In most cases this means that you should not just list the interim commits.
 
 As a new contributor, the process might seem daunting, so to make it easier you can enable "*Allow edits from maintainers*" on the sidebar located on the left and ask for help in the PR.
 
-New contributors should also avoid opening numerous pull requests with the same change, instead you can just include any additional changes in the existing pull request. This is intended to make discussions, and reviews of the PR easier for both you and maintainers/contributors.
+New contributors should also avoid opening numerous pull requests with the same change, instead you can include any additional changes in the existing pull request. This is intended to make discussions, and reviews of the PR easier for both you and maintainers/contributors.
 
 Lastly, as a new contributor, you should note that sometimes responses from maintainers/contributors may not be prompt. In such cases ensure you exercise patience, as they may be busy or away from their machines - remember, devs have lives also.
 
 ### Forks
 
-Feel free fork the repo and create your own version of the App, assuming the vision of the maintainer(s) no longer aligns with yours. If not then just open up a PR.
+Feel free to fork the repo and create your own version of the App, assuming the vision of the maintainer(s) no longer aligns with yours. If not, then just open up a PR.
 
 ### Branches
 
@@ -172,6 +172,6 @@ New features could sometimes require their own separate branch, to properly test
 
 ### Testing
 
-[**Issue tracker**] : https://github.com/Zero-1729/soundplay/issues <br>
-[**IRC**] : http://freenode.net/?channels=soundplay <br>
+[**Issue tracker**] : https://github.com/Zero-1729/soundplay/issues
+[**IRC**] : http://freenode.net/?channels=soundplay
 [**Project maintainers**]: https://github.com/Zero-1729/soundplay/wiki/Project-Organization
