@@ -457,7 +457,8 @@
                 shuffle: this.appAudioPrefs.shuffle,
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
-                waveColor:  waveColors[this.appTheme].waveColor
+                waveColor:  waveColors[this.appTheme].waveColor,
+                playbackRate: this.appAudioPrefs.playbackRate
             })
 
             // If EQ was enabled in last session, continue with it

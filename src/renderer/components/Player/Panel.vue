@@ -83,6 +83,10 @@
             window.$vue = this
         },
         watch: {
+            'appAudioPrefs.playbackRate' (cur, prev) {
+                this.player.setPlaybackRate(cur)
+            },
+
             'player.cleared' (cur, prev) {
                 if (cur) {
                     // We should clear the art when the player hasn been cleared

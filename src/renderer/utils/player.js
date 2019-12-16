@@ -40,7 +40,8 @@ export default class Player {
             hideScrollbar : true,
             audioRate     : 1,
             normalize     : false,
-            interact      : true
+            interact      : true,
+            audioRate  : props.playbackRate 
         })
 
         this.device.setVolume(props.volume)
@@ -65,6 +66,10 @@ export default class Player {
 
     setWaveColor(color) {
         this.device.setWaveColor(color)
+    }
+
+    setPlaybackRate(val) {
+        this.device.setPlaybackRate(val)
     }
 
     reset() {
