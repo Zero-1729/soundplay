@@ -245,3 +245,12 @@ input#settings-input {
 .flex .dialog-button-alt:hover {
     background: #d24136;
 }
+
+/* Audio */
+.option-item p {
+    color: #bbbbbb;
+}
+
+.option-item button.arrow:hover {
+    background: dodgerblue;
+}

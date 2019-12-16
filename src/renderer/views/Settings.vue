@@ -110,6 +110,19 @@
             margin-left 18px
             width unset
 
+    input#settings-input
+        height 22px
+        margin-top 6px
+        align-self center
+        border-top none
+        border-right none
+        border-left none
+        border-bottom-width 2px
+        border-bottom-style solid
+        margin-left 20px
+        background transparent
+        transition all 0.4s ease-out
+
     .slide-to-right-enter-active, .slide-to-right-leave-active, .slide-to-left-enter-active, .slide-to-left-leave-active
         opacity 1
         transition all .2s

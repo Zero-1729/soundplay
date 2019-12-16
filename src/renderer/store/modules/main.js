@@ -48,6 +48,8 @@ const state = {
             }
         },
         audio: {
+            playback_behaviour: 'clear',
+
             eq: {
                 preset: 'Flat',
                 channels: {
@@ -427,6 +429,10 @@ const mutations = {
     },
 
     // Audio
+    SET_AUDIO_PLAYBACK_BEHAVIOUR (state, arg) {
+        state.settings.audio.playback_behaviour = arg
+    },
+
     SET_ALL_AUDIO_EQ_CHANNELS (state, arg) {
         state.settings.audio.eq.preset = arg.preset
 
@@ -625,6 +631,10 @@ const actions = {
     },
 
     // Audio
+    setAudioPlaybackBehaviour: ({ commit }, arg) => {
+        commit("SET_AUDIO_PLAYBACK_BEHAVIOUR", arg)
+    },
+
     updateExcludedFolder: ({ commit }, name) => {
         commit('UPDATE_EXCLUDED_FOLDER', name)
     },
@@ -743,6 +753,10 @@ const getters = {
     },
 
     // Audio
+    appAudioPlaybackBehaviour (state) {
+        return state.settings.audio.playback_behaviour
+    },
+
     appAudioEQ (state) {
         return state.settings.audio.eq
     },

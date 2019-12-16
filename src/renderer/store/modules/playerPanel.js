@@ -4,7 +4,8 @@ const state = {
     mute: false,
     loopSingle: false,
     loopAll: false,
-    shuffle: false
+    shuffle: false,
+    playbackRate: 1
 }
 
 const mutations = {
@@ -48,6 +49,10 @@ const mutations = {
         }
     },
 
+    SET_PLAYBACK_RATE (state, value) {
+        state.playbackRate = value
+    },
+
     TOGGLE_SHUFFLE (state) {
         state.shuffle = !state.shuffle
     }
@@ -75,6 +80,10 @@ const actions = {
         commit("SET_LOOP", mode)
     },
 
+    setAudioPlayback: ({ commit }, value) => {
+        commit("SET_PLAYBACK_RATE", value)
+    },
+
     toggleShuffle: ({ commit }) => {
         commit("TOGGLE_SHUFFLE")
     }
@@ -88,7 +97,8 @@ const getters = {
             mute: state.mute,
             loopSingle: state.loopSingle,
             loopAll: state.loopAll,
-            shuffle: state.shuffle
+            shuffle: state.shuffle,
+            playbackRate: state.playbackRate
         }
     }
 }

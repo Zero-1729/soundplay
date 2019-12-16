@@ -258,17 +258,4 @@
 
     .dialog-button.dialog-button-alt.furthest
             margin-left 10px
-
-    input#settings-input
-        height 22px
-        margin-top 6px
-        align-self center
-        border-top none
-        border-right none
-        border-left none
-        border-bottom-width 2px
-        border-bottom-style solid
-        margin-left 20px
-        background transparent
-        transition all 0.4s ease-out
 </style>
