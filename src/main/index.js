@@ -318,6 +318,16 @@ const template = [
                 click() {
                     mainWindow.webContents.send('volume', -1)
                 }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toggle EQ',
+                accelerator: 'CmdOrCtrl+Shift+E',
+                click() {
+                    mainWindow.webContents.send('toggle-eq', null)
+                }
             }
         ]
     },

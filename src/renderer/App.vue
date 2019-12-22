@@ -336,6 +336,10 @@
                 this.toggleNightMode()
             })
 
+            ipcRenderer.on('toggle-eq', (event, arg) => {
+                this.toggleAudioEQVisibility()
+            })
+
             // Load style files
             this.loadTheme()
 
