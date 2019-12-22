@@ -205,8 +205,7 @@
                 'deleteAlbum',
                 'deleteGenre',
                 'setSortBy',
-                'setCurrentDirec',
-                'toggleAudioEQVisibility'
+                'setCurrentDirec'
             ]),
 
             mutateCurrentTrack(track) {
@@ -270,10 +269,6 @@
                 this.$emit('clearErrorMessage')
                 this.$emit('clearWarnMessage')
                 this.$emit('clearFailMessage')
-
-                if (this.appAudioEQ.visible) {
-                    this.toggleAudioEQVisibility()
-                }
             },
 
             sort(kind) {
@@ -745,8 +740,7 @@
                 'currentTarget',
                 'currentCriteria',
                 'sortBy',
-                'currentDirec',
-                'appAudioEQ'
+                'currentDirec'
             ]),
 
             keymap() {
