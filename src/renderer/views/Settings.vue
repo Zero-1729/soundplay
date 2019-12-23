@@ -6,7 +6,9 @@
                 @mutatePlayingCriteria="mutatePlayingCriteria"
                 @lockHotKey="lockHotKey"
                 @unlockHotKey="unlockHotKey"
-                @mutateStatusMessage="mutateStatusMessage">
+                @mutateStatusMessage="mutateStatusMessage"
+                @clearJobsFn="handle_clearJobs"
+                @setJobsFn="handle_setJobs">
             </router-view>
         </transition>
     </div>
@@ -32,6 +34,14 @@
             }
         },
         methods: {
+            handle_clearJobs () {
+                this.$emit('clearJobsFn', null)
+            },
+
+            handle_setJobs (arg) {
+                this.$emit('setJobsFn', arg)
+            },
+
             mutatePlayingCriteria (arg) {
                 this.$emit('mutatePlayingCriteria', arg)
             },

@@ -42,9 +42,7 @@ const state = {
             autoNightMode: {
                 isOn: false,
                 am: 6,
-                pm: 6,
-                start_job: null, // Global store for schedule fn
-                end_job: null
+                pm: 6
             }
         },
         audio: {
@@ -414,16 +412,6 @@ const mutations = {
         }
     },
 
-    SET_JOBS_FN (state, jobs) {
-        state.settings.ui.autoNightMode.start_job = jobs.start
-        state.settings.ui.autoNightMode.end_job = jobs.end
-    },
-
-    CLEAR_JOBS_FN (state) {
-        state.settings.ui.autoNightMode.start_job.cancel()
-        state.settings.ui.autoNightMode.end_job.cancel()
-    },
-
     DISPLAY_NOTIF (state, arg) {
         state.settings.ui.displayNotif = arg
     },
@@ -618,14 +606,6 @@ const actions = {
         commit('SET_AUTO_NIGHT_MODE_PM', value)
     },
 
-    setJobsFn: ({ commit }, jobs) => {
-        commit('SET_JOBS_FN', jobs)
-    },
-
-    clearJobsFn: ({ commit }) => {
-        commit('CLEAR_JOBS_FN')
-    },
-
     displayNotif: ({ commit }, arg) => {
         commit('DISPLAY_NOTIF', arg)
     },
@@ -734,13 +714,6 @@ const getters = {
         return {
             am: state.settings.ui.autoNightMode.am,
             pm: state.settings.ui.autoNightMode.pm
-        }
-    },
-
-    appScheduleJobs (state) {
-        return {
-            start: state.settings.ui.autoNightMode.start_job,
-            end: state.settings.ui.autoNightMode.end_job
         }
     },
 

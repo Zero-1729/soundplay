@@ -52,7 +52,9 @@
                     @clearStatusMessage="clearStatusMessage"
                     @clearErrorMessage="clearErrorMessage"
                     @clearWarnMessage="clearWarnMessage"
-                    @clearFailMessage="clearFailMessage">
+                    @clearFailMessage="clearFailMessage"
+                    @clearJobsFn="clearJobsFn"
+                    @setJobsFn="setJobsFn">
                 </router-view>
             </transition>
         </span>
@@ -149,13 +151,13 @@
             ClassNameSingle,
             QuerySelectorAll }  from './utils/htmlQuery'
 
-    import { isNightTime,
-            reformatTo24Hours } from './utils/time'
+    const { isNightTime,
+            getCurrentTime,
+            formatTo24Hours } = require('./utils/time')
 
     import { getIndexFromKey }  from './utils/object'
 
-    const {
-            remote,
+    const { remote,
             dialog,
             ipcRenderer } = require('electron')
 
@@ -200,6 +202,10 @@
                     modals: {
                         playlist: false
                     },
+                    jobs: {
+                        start: null,
+                        end: null
+                    },
                     reporter: {
                         status: {
                             heading: null,
@@ -236,9 +242,6 @@
             if (this.appAudioEQ.visible) {
                 this.toggleAudioEQVisibility()
             }
-
-            // Clear jobs
-            this.setJobsFn({start: null, end: null})
 
             // - End of session clearing -
 
@@ -353,32 +356,40 @@
             // Create autoNightMode scheduler
             let vm = this
 
-            // Reschedule here
-            this.setJobsFn({
-                start: schedule.scheduleJob({hour: this.appAutoNightModeTime.pm, minute: 0}, function () {
-                    if (vm.appAutoNightMode) {
-                        if (!vm.appNightMode) {
-                            vm.setNightMode(true)
-                        }
-                    }
-                }),
-                end: schedule.scheduleJob({hour: this.appAutoNightModeTime.am, minute: 0}, function () {
-                    if (vm.appAutoNightMode) {
-                        if (vm.appNightMode) {
-                            vm.setNightMode(false)
-                        }
-                    }
-                })
-            })
-
-            // Check if autoNightMode is set
+            // Check whether in night mode time
             if (this.appAutoNightMode) {
-                // check whether we are in the night and adjust theme accordingly
-                let { am, pm } = this.appAutoNightModeTime
-                let time = new Date().getHours()
+                let {am, pm} = this.appAutoNightModeTime
+                let [hrs, min, sec] = getCurrentTime()
 
-                if (isNightTime(time, reformatTo24Hours(pm), am) && !this.appNightMode) {
-                    this.setNightMode(true)
+                // Reschedule here
+                this.setJobsFn({
+                    start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
+                        if (vm.appAutoNightMode) {
+                            if (!vm.appNightMode) {
+                                vm.setNightMode(true)
+                            }
+                        }
+                    }),
+                    end: schedule.scheduleJob({hour: am, minute: 0}, function () {
+                        if (vm.appAutoNightMode) {
+                            if (vm.appNightMode) {
+                                vm.setNightMode(false)
+                            }
+                        }
+                    })
+                })
+
+                // Check if autoNightMode is set
+                if (isNightTime(hrs, formatTo24Hours(pm), am)) {
+                    // check whether we are in the night and adjust theme accordingly
+                    if (!this.appNightMode) {
+                        this.setNightMode(true)
+                    }
+                } else {
+                    if (this.appNightMode) {
+                        // Otherwise we turn it off
+                        this.setNightMode(false)
+                    }
                 }
             }
 
@@ -1021,6 +1032,16 @@
                 this.failed_imports = []
 
                 this.clearFailMessage()
+            },
+
+            clearJobsFn() {
+                this.vars.jobs.start.cancel()
+                this.vars.jobs.end.cancel()
+            },
+
+            setJobsFn (arg) {
+                this.vars.jobs.start = arg.start
+                this.vars.jobs.end   = arg.end
             },
 
             crawl(dir) {
