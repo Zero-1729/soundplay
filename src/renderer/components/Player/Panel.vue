@@ -64,7 +64,7 @@
     import { mapActions,
             mapGetters } from 'vuex'
 
-    import { Id }        from './../../utils/htmlQuery'
+    const { Id }         = require('./../../utils/htmlQuery')
 
     export default {
         props: [

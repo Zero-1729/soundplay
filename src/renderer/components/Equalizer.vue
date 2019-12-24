@@ -80,8 +80,8 @@
     import { mapActions,
             mapGetters }        from 'vuex'
 
-    import { TagNameSingle,
-            ClassNameSingle }   from './../utils/htmlQuery'
+    const { TagNameSingle,
+            ClassNameSingle }   = require('./../utils/htmlQuery')
 
     const presetEQs  = require('./../data/preset_eqs.json')
 

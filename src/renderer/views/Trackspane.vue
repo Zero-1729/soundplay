@@ -64,10 +64,11 @@
 <script>
     import { mapGetters, mapActions } from 'vuex'
 
-    import { Id, ClassNameSingle }    from './../utils/htmlQuery'
+    const { Id, ClassNameSingle }  = require('./../utils/htmlQuery')
 
     const { buildMap,
             getIndexFromKey } = require('./../utils/object')
+
     const { generateMenu }    = require('./../utils/menuGenerator')
 
     const {

@@ -144,18 +144,18 @@
 
     import Player               from './utils/player'
 
-    import { add }              from './utils/list'
+    const { add }               = require('./utils/list')
 
-    import { Id,
+    const { Id,
             ClassName,
             ClassNameSingle,
-            QuerySelectorAll }  from './utils/htmlQuery'
+            QuerySelectorAll }  = require('./utils/htmlQuery')
 
     const { isNightTime,
             getCurrentTime,
             formatTo24Hours } = require('./utils/time')
 
-    import { getIndexFromKey }  from './utils/object'
+    const { getIndexFromKey }   = require('./utils/object')
 
     const { remote,
             dialog,

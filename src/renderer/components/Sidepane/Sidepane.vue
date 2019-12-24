@@ -26,6 +26,7 @@
     const { remote }          = require('electron')
 
     const { ClassNameSingle } = require('./../../utils/htmlQuery')
+
     const { buildMap }        = require('./../../utils/object')
 
     export default {
