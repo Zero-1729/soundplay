@@ -308,6 +308,7 @@
             // Check fn for infinte loops
             ipcRenderer.on('import-folder', (event, arg) => {
                 let vm = this
+
                 remote.dialog.showOpenDialog({
                     properties: ['openDirectory', 'multiSelections']
                 }, (items) => {
@@ -359,6 +360,7 @@
             // Check whether in night mode time
             if (this.appAutoNightMode) {
                 let {am, pm} = this.appAutoNightModeTime
+
                 let [hrs, min, sec] = getCurrentTime()
 
                 // Reschedule here
@@ -757,7 +759,6 @@
                 'loadTheme',
                 'toggleNightMode',
                 'setNightMode',
-                'setJobsFn',
                 'setLoop',
                 'cacheMainRoute',
                 'cacheChildRoute',
