@@ -1010,11 +1010,6 @@
                 ) {
                     this.setPlaylistModal(false)
                 }
-
-                // Close EQ as well
-                if (this.appAudioEQ.visible) {
-                    this.toggleAudioEQVisibility()
-                }
             },
 
             clearAllErrorMessage() {
