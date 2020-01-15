@@ -46,7 +46,7 @@ const state = {
             }
         },
         audio: {
-            playback_behaviour: 'clear',
+            playback_behaviour: 'reset', // Defaults to reset
 
             eq: {
                 preset: 'Flat',

@@ -548,6 +548,9 @@
                 let hasFloor = (oindex == this.filteredPool.length - 1) &&
                                           !this.appAudioPrefs.shuffle
 
+                // 'End of regular playback' 
+                let EORP = hasFloor ? !(cindex < this.filteredPool.length) : false
+
                 // 'End of shuffle playback' checks whether all shuffled tracks
                 // ... have been exhausted so we can pause the playback
                 // ... only used when not in a loop
@@ -587,8 +590,10 @@
                     }
                 } else {
                     // I.e. If no loops we go ahead and play the next track
-                    // When track is finished playing and all tracks in pool cleared?
-                    if (this.filteredPool.length == 0 || EOSP) {
+                    // When track is finished playing and all tracks in pool cleared
+                    // ... or
+                    // ... When regular playback finished
+                    if ((this.filteredPool.length == 0 || EOSP || EORP) && this.appAudioPlaybackBehaviour == 'clear') {
                         // Player cleared and current Track
                         this.player.clear()
                         this.updateCurrentTrack(null)
@@ -1302,6 +1307,7 @@
                 'appAutoNightModeTime',
                 'appAudioEQ',
                 'appAudioPrefs',
+                'appAudioPlaybackBehaviour',
                 'appRoutes',
                 'appNotifs'
             ]),
