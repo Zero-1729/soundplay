@@ -329,7 +329,7 @@
     .flex .switch
         position relative
         display inline-block
-        width 45px
+        width 44px
         height 20px
         border-radius 34px
         margin-top 12px
