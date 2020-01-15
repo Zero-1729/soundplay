@@ -518,7 +518,7 @@
 
                     Meta:-
 
-                    singl select addition, only adds the current clicked track
+                    single select addition, only adds the current clicked track
                     to the `selected` Array
 
                     Or
@@ -527,14 +527,29 @@
 
                 */
                 if (event.shiftKey) {
-                    // Log index limit
-                    let lim = this.filteredPool.indexOf(track)+1
+                    // `this.index` is the original placement of the bar: the first track clicked before shift
+                    // Then the new track clicked is 'lim'
+
+                    // Log start and lim
+                    let lim = getIndexFromKey(this.filteredPool, 'source', track.source)
+                    let start = this.index 
+
+                    // Edit lim and start if the order is reversed
+                    // ... Bottom-to-Top selection
+                    if (start > lim) {
+                        start = lim
+                        lim = this.index
+                    } else {
+                        // Top-to-Bottom selection
+                        // We need to offset the limit by one to include the last track clicked
+                        lim = lim + 1 <= this.filteredPool.length ? lim + 1 : lim
+                    }
 
                     // Flush selection
                     this.selectedTracks = []
 
                     // Then add one-by-one
-                    for (let i = this.index;i < lim;i++) {
+                    for (let i = start;i < lim;i++) {
                         this.selectedTracks.push(this.filteredPool[i])
                     }
                 } else if (event.metaKey) {
