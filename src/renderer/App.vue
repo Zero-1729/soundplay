@@ -181,6 +181,7 @@
         data() {
             return {
                 error_imports: [],
+                warn_imports: [],
                 imported_folders: [],
                 failed_imports: [],
                 imports: 0,
@@ -502,41 +503,17 @@
                             this.vars.foundArt = false
                         }
 
-                        // Only add track meta when track doesn't have 'duration set'
-                        if (!this.vars.currentTrack.duration) {
-                            this.editTrack({
-                                id: this.vars.currentTrack.id,
-                                meta: 'duration',
-                                value: this.player.getDuration()
-                            })
-                        }
-
-                        // We immediately play track
-                        this.player.device.play()
-
-                        // We update the tracks peeks here
-
-                        // Unset 'loading' flag here
-                        this.vars.loadingTrack = false
-
-                        // Display notification
-                        // Displaying the notification is now optional
-                        if (this.appNotifs) {
-                            new Notification(this.vars.currentTrack.title, {
-                                body: this.vars.currentTrack.artist,
-                                silent: true,
-                                // Display album art only if found
-                                icon: this.vars.foundArt ?
-                                    Id('album-art').src :
-                                    path.join(__static, 'icons', 'unknown.png'),
-                                actions: [ /*Fill with prev & next*/ ]
-                                // renotify
-                            })
-                        }
+                         // Pass to scrobbler
+                        this.scrobbleData()
                     },
                     onError: (err) => {
                         // Decide What do to with error later
                         console.log(err)
+
+                        // If the tag is problematic, we just continue
+                        if (err.type == "tagFormat") {
+                            this.scrobbleData()
+                        }
                     }
                 })
             })
@@ -702,7 +679,11 @@
                     this.vars.appIsLoading = false
 
                     // Log the number of imports that had issues
-                    let import_issues_count = this.failed_imports.length - this.error_imports.length - this.vars.reporter.failure.items.length
+                    // Only perform calc if there are failed import items
+                    // ... we don't want negetive values
+                    let import_issues_count = this.failed_imports.length > 0 ? this.failed_imports.length - (this.error_imports.length + 
+                                                                                                            this.warn_imports.length + 
+                                                                                                            this.vars.reporter.failure.items.length) : 0
 
                     // ... and obtain the number of actual imported items
                     let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + import_issues_count
@@ -738,9 +719,10 @@
                     }
 
 
-                    if (this.error_imports.length > 0) {
-                        // And problematic sound files
-                        this.updateErrorMessage({heading: 'Error during sound scan', message: 'Could not retrieve media tag from (' + this.error_imports.length + ') sound file(s): ', items: this.error_imports})
+                    // Report warning
+                    if (this.warn_imports.length > 0) {
+                        // Metas warning report
+                        this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
                     }
                 }
             }
@@ -764,6 +746,43 @@
                 'cacheChildRoute',
                 'toggleAudioEQVisibility'
             ]),
+
+            displayNotification() {
+                new Notification(this.vars.currentTrack.title, {
+                    body: this.vars.currentTrack.artist,
+                    silent: true,
+                    // Display album art only if found
+                    icon: this.vars.foundArt ? 
+                            Id('album-art').src :
+                            path.join(__static, 'icons', 'unknown.png'),
+                    actions: [ /*Fill with prev & next*/ ]
+                    // renotify
+                })
+            },
+
+            scrobbleData() {
+                // Only add track meta when track doesn't have 'duration set'
+                if (!this.vars.currentTrack.duration) {
+                    this.editTrack({
+                        id: this.vars.currentTrack.id,
+                        meta: 'duration',
+                        value: this.player.getDuration()
+                    })
+                }
+
+                // We immediately play track
+                this.player.device.play()
+
+                // We update the tracks peeks here
+
+                // Unset 'loading' flag here
+                this.vars.loadingTrack = false
+
+                // Displaying the notification is now optional
+                if (this.appNotifs) {
+                    this.displayNotification()
+                }
+            },
 
             updateCurrentTrack (track) {
                 this.vars.currentTrack = track
@@ -1110,8 +1129,12 @@
                 }
             },
 
-            handle_new_track_error(track_path) {
-                this.error_imports.push(track_path)
+            handle_new_track_warn(track_path) {
+                // Log it in the warning
+                // we still accept metaless tracks
+
+                //this.error_imports.push(track_path)
+                this.warn_imports.push(track_path)
                 this.imports -= 1
             },
 
@@ -1139,7 +1162,21 @@
                     // And we handle error reporting using the JS Object
                     // ... containing the details of the scan error
                     // ... aswell as the sound filepath
-                    this.handle_new_track_error(track_path)
+
+                    // We just warn the user, but still go ahead and import it
+                    this.handle_new_track_warn(track_path)
+
+                    // continue processing with dummy meta
+                    this.handle_new_track({
+                        tags: {
+                            title: null,
+                            artist: null,
+                            album: null,
+                            genre: null,
+                            year: null
+                        },
+                        track_name: track_path
+                    })
                 })
             },
 
