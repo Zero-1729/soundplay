@@ -548,7 +548,7 @@
                 // 'End of shuffle playback' checks whether all shuffled tracks
                 // ... have been exhausted so we can pause the playback
                 // ... only used when not in a loop
-                let EOSP = this.appAudioPrefs.shuffled ? this.player.randoms.length == 0 && (!hasFloor) && (!onLoop) : false
+                let EOSP = this.appAudioPrefs.shuffle ? this.player.randoms.length == 0 && (!hasFloor) && (!onLoop) : false
 
                 // If shuffle mode on, then we get the index to next track
                 // ... only if we haven't hit EOSP
