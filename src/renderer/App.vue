@@ -515,6 +515,9 @@
                         // Decide What do to with error later
                         console.log(err)
 
+                        // If the metas can't be read then we know it has no album art
+                        this.vars.foundArt = false
+
                         // If the tag is problematic, we just continue
                         if (err.type == "tagFormat") {
                             this.scrobbleData()
