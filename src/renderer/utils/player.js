@@ -1,7 +1,8 @@
 const ws = require('wavesurfer.js')
 const fs = require('fs')
 
-import { getIndexFromKey, removeObject }  from './object'
+const { getIndexFromKey, removeObject }  = require('./object')
+const { remove }                         = require('./list')
 
 
 export default class Player {
@@ -192,6 +193,11 @@ export default class Player {
 
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
+
+    freeRandTrack (index) {
+        // Removes a track from the set of randoms, to avoid potential double play
+        this.randoms = remove(this.randoms, index)
+    }
 
     initEQ(temp) {
         this.connectEQ([{

@@ -797,6 +797,14 @@
 
             updateCurrentTrack (track) {
                 this.vars.currentTrack = track
+
+                // If in shuffle, we need to remove it from the `randoms` set
+                // ... we don't want it to later be played
+                if (this.appAudioPrefs.shuffle) {
+                    let cindex = getIndexFromKey(this.filteredPool, 'source', track.source)
+
+                    this.player.freeRandTrack(cindex)
+                }
             },
 
             clearCurrentTrack () {
