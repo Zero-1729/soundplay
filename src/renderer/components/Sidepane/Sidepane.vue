@@ -60,9 +60,7 @@
             currentCriteria (cur, prev) {
                 // We scroll the playing track into view if its in the view
                 if (ClassNameSingle('playingTrack')) {
-                    ClassNameSingle('playingTrack').scrollIntoView({
-                        behavior: 'smooth'
-                    })
+                    ClassNameSingle('playingTrack').scrollIntoViewIfNeeded({ behaviour: 'smooth' })
                 }
 
                 // We now auto select playing target if current criteria
@@ -75,6 +73,12 @@
                         this.changeTarget(this.currentOptions[0])
                     }
                 }
+
+                // Bring currently playing target into view
+                // ... only if available
+                if (ClassNameSingle('activeTarget')) {
+                    ClassNameSingle('activeTarget').scrollIntoView()
+                } 
             }
         },
         methods: {

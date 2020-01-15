@@ -25,7 +25,7 @@
 
         <tbody>
             <transition-group :name="trackTransition" tag="tbody" class="trackslist">
-            <tr id="track-item" v-for="track in filteredPool" @dblclick="mutateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track) && (!(filteredPool.indexOf(track) == index || selectedTracks.includes(track)))}"
+            <tr id="track-item" v-for="track in filteredPool" @dblclick="mutateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track)}"
                 v-if="allTracks.length > 0"
                 @contextmenu.prevent
                 @mousedown.right.capture="showTrackOptions(track)"
@@ -110,7 +110,7 @@
         },
         mounted() {
             if (ClassNameSingle('playingTrack')) {
-                ClassNameSingle('playingTrack').scrollIntoViewIfNeeded()
+                ClassNameSingle('playingTrack').scrollIntoViewIfNeeded({ behaviour: 'smooth' })
             }
         },
         watch: {
