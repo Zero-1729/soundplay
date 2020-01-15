@@ -433,7 +433,7 @@
                 }
 
                 // Check if a next track exists
-                if (cindex < this.filteredPool.length-1) {
+                if (cindex <= this.filteredPool.length-1) {
                     // If true, we just play it!
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
