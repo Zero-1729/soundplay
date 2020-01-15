@@ -94,6 +94,9 @@
 <style lang='stylus' scoped>
     select.further
         margin-left 270px
+        width 62px
+        margin-top 14px
+        height 24px
 
     input#settings-input
         margin-left 300px
