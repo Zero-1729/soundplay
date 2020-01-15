@@ -248,6 +248,9 @@
 
             // - End of session clearing -
 
+            // Inject tracks
+            this.pool = this.allTracks
+
             // Lets watch for 'spacebar' event to trigger player's 'play/pause'
             window.addEventListener('keydown', (ev) => {
                 if (ev.code == 'Space') {
@@ -885,7 +888,21 @@
                 } else {
                     if (this.vars.index == -1) {
                         // Set current track to first track if newly launched
-                        this.updateCurrentTrack(this.filteredPool[0])
+
+                        // If in shuffle, play the first index in `randoms`
+                        let index = 0
+
+                        if (this.appAudioPrefs.shuffle) {
+                            // In case the randoms haven't been filled
+                            if (this.player.randoms.length == 0) {
+                                this.player.fillRandoms(this.filteredPool[index], this.filteredPool)
+                            }
+
+                            // then reset index
+                            index = this.player.getNextRandom()
+                        }
+          
+                        this.updateCurrentTrack(this.filteredPool[index])
                         this.player.playNew(this.vars.currentTrack.source)
                     } else {
                         // We only attempt to play a new track if it does exist
@@ -1271,6 +1288,7 @@
         },
         computed: {
             ...mapGetters([
+                'allTracks',
                 'currentCriteria',
                 'currentDirec',
                 'sortBy',
