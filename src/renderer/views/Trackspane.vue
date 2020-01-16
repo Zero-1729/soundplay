@@ -847,6 +847,7 @@
         border-right 0
         border-style solid
         user-select none
+        transition all 0.3s ease
         h4
             margin-top 22px
 
