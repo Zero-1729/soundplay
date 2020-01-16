@@ -1147,6 +1147,7 @@
 
             clearAllWarnMessage() {
                 this.imported_folders = []
+                this.warn_imports = []
 
                 this.clearWarnMessage()
             },
