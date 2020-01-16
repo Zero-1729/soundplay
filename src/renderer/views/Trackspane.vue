@@ -55,8 +55,8 @@
         <div id="playlist-modal" class="playlist-modal" :class="{open: openPlaylistModal, closed: !openPlaylistModal}">
             <h4 id="playlist-heading">New Playlist</h4>
             <input id="playlist-input" class="playlist-input" placeholder="Enter Playlist name..."  :class="{'playlist-input-focus': focused}" @keydown.enter="addNewPlaylist" @keydown.esc="closePlaylistModal"
-                @focus="focused = true"
-                @blur="focused = false"/>
+                @focus="focusInPlaylist(true)"
+                @blur="focusInPlaylist(false)"/>
         </div>
     </table>
 </template>
@@ -80,6 +80,7 @@
             'player',
             'appIsLoading',
             'index',
+            'focused',
             'openPlaylistModal',
             'backspaceLock',
             'enterLock',
@@ -91,7 +92,6 @@
             return {
                 directions: {'a-z': 'z-a', 'z-a': 'a-z'},
                 selectedTracks: [],
-                focused: false,
                 hoveredElm: null,
                 pendingTrack: null,
                 trackTransition: 'drop-in',
@@ -101,7 +101,7 @@
         created() {
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
-                this.$emit('setPlaylistModal', true)
+                this.$emit('setPlaylistModal', null)
                 this.$emit('lockHotKey', 'backspace')
             })
         },
@@ -162,16 +162,6 @@
                 this.$emit('mutateIndex', -1)
             },
 
-            focused (cur, prev) {
-                // We don't want the tracks to unexpectedly be loaded
-                // ... when a new playlist is created
-                if (cur) {
-                    this.$emit('lockHotKey', 'enter')
-                } else {
-                    this.$emit('unlockHotKey', 'enter')
-                }
-            },
-
             currentTrack () {
                 // When Tracks are clicked, the currentCriteria becomes
                 // ... the playing one
@@ -210,6 +200,10 @@
                 } else {
                     return false
                 }
+            },
+
+            focusInPlaylist(val) {
+                this.$emit('setPlaylistFocus', val)
             },
 
             addNewPlaylist() {
@@ -847,18 +841,16 @@
         border-right 0
         border-style solid
         user-select none
-        transition all 0.3s ease
+        transition border 0.3s ease
         h4
             margin-top 22px
 
     .playlist-input-focus
         outline none
 
-    .open
-        animation slide 0.3s ease-in
-
     .closed
-        display none
+        opacity 0
+        z-index -999999
 
     .fav-bar
         position absolute
@@ -897,10 +889,4 @@
     .vanish-enter-to
         opacity 1
         transform translateY(0) /*scale(1)*/
-
-    @keyframes slide
-        0%
-            opacity 0.2
-        100%
-            opacity 1
 </style>

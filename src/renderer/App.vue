@@ -33,6 +33,7 @@
                     :player="player"
                     :filteredPool="filteredPool"
                     :index="vars.index"
+                    :focused="vars.playlistFocus"
                     :openPlaylistModal="vars.modals.playlist"
                     :backspaceLock="vars.lock.backspace"
                     :enterLock="vars.lock.enter"
@@ -40,6 +41,7 @@
                     :currentTrack="vars.currentTrack"
                     @appLoading="setAppLoading"
                     @mutateIndex="updateIndex"
+                    @setPlaylistFocus="setPlaylistFocus"
                     @setPlaylistModal="setPlaylistModal"
                     @lockHotKey="lockHotKey"
                     @unlockHotKey="unlockHotKey"
@@ -203,6 +205,7 @@
                         'backspace': false,
                         'enter': false
                     },
+                    playlistFocus: false,
                     modals: {
                         playlist: false
                     },
@@ -672,6 +675,28 @@
                 }
             },
 
+            'vars.modals.playlist' (cur, prev) {
+                if (cur) {
+                    // Auto focus
+                    Id('playlist-input').focus()
+
+                    // Add focus class
+                    this.vars.playlistFocus = true
+                } else {
+                    this.vars.playlistFocus = false
+                }
+            },
+
+            focused (cur, prev) {
+                // We don't want the tracks to unexpectedly be loaded
+                // ... when a new playlist is created
+                if (cur) {
+                    this.lockHotKey('enter')
+                } else {
+                    this.unlockHotKey('enter')
+                }
+            },
+
             allTracks () {
                 // Each time we detect a change in the 'state.music'
                 // ... we rehydrate the current render of tracks
@@ -1129,8 +1154,13 @@
                 if (this.player) this.player.device.drawBuffer()
             },
 
+            setPlaylistFocus (val) {
+                this.vars.playlistFocus = val
+            },
+
             setPlaylistModal(val) {
-                this.vars.modals.playlist = !this.vars.modals.playlist
+                // Defaults to toggle if not val passed
+                this.vars.modals.playlist = val ? val : !this.vars.modals.playlist
             },
 
             closeModals(ev) {
