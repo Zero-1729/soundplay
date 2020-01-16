@@ -344,6 +344,16 @@ const template = [
                 type: 'separator'
             },
             {
+                label: 'Search',
+                accelerator: 'CmdOrCtrl+F',
+                click() {
+                    mainWindow.webContents.send('focus-search', null)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
                 label: 'Toggle Developer Tools',
                 accelerator: 'Alt+CmdOrCtrl+I',
                 click() {

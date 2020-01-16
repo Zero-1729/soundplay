@@ -453,6 +453,13 @@
                 }
             })
 
+            // Search
+            ipcRenderer.on('focus-search', (event, arg) => {
+                // Focus search input
+                Id('search-input').focus()
+                Id('search-input').select()
+            })
+
             // Audio
             ipcRenderer.on('toggle-mute', (event, arg) => {
                 this.toggleMute()
