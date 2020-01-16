@@ -10,7 +10,7 @@ import {
 
 const WindowManager = require('./utils/windowManager').default
 
-const { add } = require('./../renderer/utils/list')
+const { add, removePattern } = require('./../renderer/utils/list')
 
 import '../renderer/store'
 
@@ -49,7 +49,8 @@ const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
 : `file://${__dirname}/index.html`
 
 // args provided during startup
-var startup_args = process.env.NODE_ENV != 'development' ? process.argv.slice(1) : []
+var startup_args = process.env.NODE_ENV != 'development' ? 
+                    removePattern(process.argv.slice(1), new RegExp(/-psn_.+/)) : []
 
 var mainWindow = null
 
