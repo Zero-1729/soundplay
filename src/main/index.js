@@ -382,7 +382,7 @@ const template = [
             {
                 label: 'About ' + app.getName(),
                 click() {
-                    shell.openExternal('https://github.com/zero-1729/soundplay')
+                    shell.openExternal('https://github.com/Zero-1729/soundplay')
                 }
             },
             {
@@ -401,7 +401,7 @@ if (process.platform == 'darwin') {
                 {
                     label: 'About ' + app.getName(),
                     click() {
-                        shell.openExternal('https://github.com/zero-1729/soundplay')
+                        shell.openExternal('https://github.com/Zero-1729/soundplay')
                     }
                 },
                 {
@@ -513,7 +513,7 @@ template[template.length - 1].submenu = [
     {
         label: 'Documentation',
         click() {
-            shell.openExternal('https://github.com/Zero-1729/soundplay#docs.md')
+            shell.openExternal('https://github.com/Zero-1729/soundplay')
         }
     },
     {
