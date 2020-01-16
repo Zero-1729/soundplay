@@ -661,7 +661,7 @@
             },
 
             filteredPool (cur, prev) {
-                if (this.vars.currentTrack) {
+                if (this.vars.currentTrack && this.appAudioPrefs.shuffle) {
                     // recalc randoms
                     this.player.fillRandoms(this.vars.currentTrack, cur)
                 }
