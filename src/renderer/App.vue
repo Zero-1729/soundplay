@@ -703,12 +703,16 @@
                     // Log the number of imports that had issues
                     // Only perform calc if there are failed import items
                     // ... we don't want negetive values
+                    // 
+                    // HACK: Defaults to failed items length
                     let import_issues_count = this.failed_imports.length > 0 ? this.failed_imports.length - (this.error_imports.length + 
                                                                                                             this.warn_imports.length + 
-                                                                                                            this.vars.reporter.failure.items.length) : 0
+                                                                                                            this.vars.reporter.failure.items.length) : this.vars.reporter.failure.items.length
 
                     // ... and obtain the number of actual imported items
-                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + import_issues_count
+                    // HACK: If no issues then all imports are assumed successful
+                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count
+
 
                     // Only display a success message if at least 1 or more non duplicates were imported
                     // ... and there are at least 1 or more files without errors or warnings
@@ -739,7 +743,6 @@
                             items: this.vars.reporter.failure.items
                         })
                     }
-
 
                     // Report warning
                     if (this.warn_imports.length > 0) {
@@ -1228,10 +1231,13 @@
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
-                // Finally we add the track to our store
-                let ret = this.addTrack(meta)
+                // Only add the track if its not a duplicate
+                let result = add(this.allTracks, meta)
 
-                if (!ret) {
+                if (result != this.allTracks) {
+                    // Finally we add the track to our store
+                    this.addTrack(meta)
+                } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
                     this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, true)

@@ -102,23 +102,11 @@ const mutations = {
         track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', true) : state.albums = add(state.albums, track.album, true)
         track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', true) : state.genres = add(state.genres, track.genre, true)
 
-        // Only add the track if its not a duplicate
-        let result = add(state.music, track)
-
-        if (result != state.music) {
-            state.music = result
-
-            if (meta.activePlaylist) {
-                let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
-                // If we are in a playlist and add a track we also include it in the playlist
-                state.playlists[pindex].tracks.push(track)
-            }
-
-            // More like status flag
-            return true
-        } else {
-            // to be used for import failure flag
-            return false
+        if (meta.activePlaylist) {
+            let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
+            
+            // If we are in a playlist and add a track we also include it in the playlist
+            state.playlists[pindex].tracks.push(track)
         }
     },
 
