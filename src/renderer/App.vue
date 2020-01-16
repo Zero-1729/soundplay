@@ -406,6 +406,13 @@
                 }
             }
 
+            // Search
+            ipcRenderer.on('focus-search', (event, arg) => {
+                // Focus search input
+                Id('search-input').focus()
+                Id('search-input').select()
+            })
+
             // Media controls
             // Playback
             ipcRenderer.on('media-playpause', (event, arg) => {
@@ -455,13 +462,6 @@
                 } else {
                     this.setLoop('all')
                 }
-            })
-
-            // Search
-            ipcRenderer.on('focus-search', (event, arg) => {
-                // Focus search input
-                Id('search-input').focus()
-                Id('search-input').select()
             })
 
             // Audio
