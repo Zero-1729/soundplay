@@ -552,7 +552,7 @@
 
 
                 // Check if a previous track exists
-                if (this.index - 1 > 0) {
+                if (this.index - 1 >= 0) {
                     // Add the previous Track
                     this.selectedTracks.push(this.filteredPool[this.index-1])
                 }
