@@ -203,7 +203,8 @@
                     appIsLoading: false,
                     lock: {
                         'backspace': false,
-                        'enter': false
+                        'enter': false,
+                        'space': false
                     },
                     playlistFocus: false,
                     modals: {
@@ -257,7 +258,7 @@
 
             // Lets watch for 'spacebar' event to trigger player's 'play/pause'
             window.addEventListener('keydown', (ev) => {
-                if (ev.code == 'Space') {
+                if ((ev.code == 'Space') && (!this.vars.lock.space)) {
                     this.triggerPlaypause(ev)
                 }
 
@@ -682,8 +683,14 @@
 
                     // Add focus class
                     this.vars.playlistFocus = true
+
+                    // Lock space bar
+                    this.lockHotKey('space')
                 } else {
                     this.vars.playlistFocus = false
+
+                    // Unlock space bar to re-enable play/pause
+                    this.unlockHotKey('space')
                 }
             },
 

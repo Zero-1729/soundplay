@@ -145,7 +145,9 @@
                     document.execCommand('selectAll', false, null)
 
                     // Fake a Mutex type global lock on backspace
+                    // ... and space 
                     this.$emit('lockHotKey', 'backspace')
+                    this.$emit('lockHotKey', 'space')
                 }
             },
 
@@ -173,6 +175,9 @@
 
                 // Unlock the enter hotkey to avoid reseting the 'currentTrack'
                 this.$emit('unlockHotKey', 'enter')
+
+                // Re-enable play/pause
+                this.$emit('unlockHotKey', 'space')
             },
 
             clearEditable() {

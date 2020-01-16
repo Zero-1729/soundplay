@@ -58,7 +58,7 @@
                     <h3>
                         Excluded Folder(s)
                     </h3>
-                    <input id="settings-input" placeholder="Enter Folder name..." v-model="newFolder" @keydown.enter="handle_new_excluded_folder">
+                    <input id="settings-input" placeholder="Enter Folder name..." v-model="newFolder" @focus="focusedInput" @blur="unFocusedInput" @keydown.enter="handle_new_excluded_folder">
 
                     <div class="flexed-div-holder">
                         <div class="flexed-div" v-for="folder in appExcludedFolders">
@@ -121,6 +121,14 @@
                 'removeMusicFolder'
             ]),
 
+            focusedInput() {
+                this.$emit('lockHotKey', 'space')
+            },
+
+            unFocusedInput() {
+                this.$emit('unlockHotKey', 'space')
+            },
+
             handle_delete_all_tracks() {
                 // If all tracks are removed then we definitely know the current track is also
 
@@ -146,6 +154,7 @@
 
             handle_new_excluded_folder() {
                 this.$emit('lockHotKey', 'enter')
+
                 this.updateExcludedFolder(this.newFolder)
                 this.newFolder = ''
             },
