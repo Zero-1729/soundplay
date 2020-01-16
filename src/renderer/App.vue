@@ -446,6 +446,8 @@
 
                 // Check if a next track exists
                 if (cindex <= this.filteredPool.length-1) {
+                    this.vars.loadingTrack = true
+
                     // If true, we just play it!
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
@@ -508,7 +510,7 @@
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
-                this.vars.loadingTrack = true
+                this.vars.loadingTrack = false
 
                 if (!this.player.activated) {
                     this.player.activate(this.vars.currentTrack, this.filteredPool)
@@ -597,6 +599,9 @@
                         // ... can allow last track to be played then first, etc.
                         // ... Essentially, shuffle does not have a floor
                         if (hasFloor && this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.vars.currentTrack.source)
 
@@ -624,6 +629,8 @@
                 // ... i.e. last track, or loop on, then
                 // ... we proceed to play the next
                 if (shouldPlayNext) {
+                    this.vars.loadingTrack = true
+
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
@@ -665,6 +672,9 @@
 
             'vars.currentTrack' (cur, old) {
                 if (cur) {
+                    // Loading state init
+                    this.vars.loadingTrack = true
+
                     let ret = this.player.playNew(cur.source)
 
                     if (!ret) {
@@ -835,9 +845,6 @@
                 this.player.device.play()
 
                 // We update the tracks peeks here
-
-                // Unset 'loading' flag here
-                this.vars.loadingTrack = false
 
                 // Displaying the notification is now optional
                 if (this.appNotifs) {
@@ -1031,12 +1038,17 @@
                             // then reset index
                             index = this.player.getNextRandom()
                         }
+
+                        // Loading state init
+                        this.vars.loadingTrack = true
           
                         this.updateCurrentTrack(this.filteredPool[index])
                         this.player.playNew(this.vars.currentTrack.source)
                     } else {
                         // We only attempt to play a new track if it does exist
                         if (this.filteredPool.length > 0) {
+                            this.vars.loadingTrack = true
+
                             // If not we play the track currently active (indexed)
                             this.updateCurrentTrack(this.filteredPool[this.vars.index])
                             this.player.playNew(this.vars.currentTrack.source)
