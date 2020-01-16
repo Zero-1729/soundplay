@@ -99,9 +99,6 @@
             }
         },
         created() {
-            // In cases of route changing
-            this.filterPool()
-
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
                 this.$emit('setPlaylistModal', true)
@@ -163,12 +160,6 @@
                 // reset current highlighted track to nothing
                 // ... each time the target is changed
                 this.$emit('mutateIndex', -1)
-            },
-
-            allTracks () {
-                // Each time we detect a change in the 'state.music'
-                // ... we rehydrate the current render of tracks
-                this.filterPool()
             },
 
             focused (cur, prev) {
@@ -282,72 +273,12 @@
                 }
             },
 
-            filterTracks() {
-            	// Returns tracks that match a criteria under some target
-            	// Eg: filterTrack('Genre', 'Rap', tracks) -> Returns all Rap tracks
-            	return this.allTracks.filter((track) => {
-            		return track[this.currentCriteria] == [this.currentTarget]
-            	})
-            },
-
-            getOldTracks(year, y_two_k=false) {
-                if (y_two_k) {
-                    return this.allTracks.filter((track) => {
-                        return String(track.year).slice(0, 1) == 2 && String(track.year).slice(2, 4) <= 10
-                    })
-                }
-
-                return this.allTracks.filter((track) => {
-                    return String(track.year).slice(2) == year
-                })
-            },
-
-            getFromPlaylist(currentPlaylist) {
-                // In case the current Playlists was just deleted
-                return currentPlaylist.tracks
-            },
-
-            getFavs() {
-                return this.allTracks.filter((track) => {
-            		return track.favourite == true
-            	})
-            },
-
             mutatePool(tracks) {
                 this.$emit('mutatePool', tracks)
             },
 
             filterPool() {
-                if (this.currentTarget == 'All Tracks') {
-                    this.mutatePool(this.allTracks)
-                } else {
-                    if (['80s Music', '90s Music', '2000s Music'].includes(this.currentTarget)) {
-                        let year = this.currentTarget.slice(0, 2)
-
-                        this.mutatePool(this.getOldTracks(year, year == "20"))
-                        return
-                    }
-
-                    if (this.currentCriteria == 'playlist') {
-                        this.mutatePool(this.getFromPlaylist(this.currentTarget))
-                        return
-                    }
-
-                    if (this.currentTarget == 'Favourites') {
-                        this.mutatePool(this.getFavs())
-                        return
-                    }
-
-                    if (this.currentTarget == 'Most Played') {
-                        // Grab average plays from state
-                        // compare and return
-                        return
-                    }
-
-                    else {
-                        this.mutatePool(this.filterTracks())
-                    }
-                }
+                this.$emit('filterPool')
             },
 
             showTrackOptions(track) {

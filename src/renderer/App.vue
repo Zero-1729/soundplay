@@ -45,6 +45,7 @@
                     @unlockHotKey="unlockHotKey"
                     @updateStatusMessage="updateStatusMessage"
                     @mutatePool="updatePool"
+                    @filterPool="filterPool"
                     @mutateCurrentTrack="updateCurrentTrack"
                     @clearCurrentTrack="clearCurrentTrack"
                     @mutatePlayingTarget="updatePlayingTarget"
@@ -489,6 +490,10 @@
                 this.player.initEQ(this.appAudioEQ.channels)
             }
 
+            // If launched we fill the view with the appropriately filtered
+            // ... set of tracks
+            this.filterPool()
+
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
@@ -660,6 +665,12 @@
                 }
             },
 
+            allTracks () {
+                // Each time we detect a change in the 'state.music'
+                // ... we rehydrate the current render of tracks
+                this.filterPool()
+            },
+
             filteredPool (cur, prev) {
                 if (this.vars.currentTrack && this.appAudioPrefs.shuffle) {
                     // recalc randoms
@@ -793,6 +804,70 @@
                 if (this.appNotifs) {
                     this.displayNotification()
                 }
+            },
+
+            filterTracks() {
+            	// Returns tracks that match a criteria under some target
+            	// Eg: filterTrack('Genre', 'Rap', tracks) -> Returns all Rap tracks
+            	return this.allTracks.filter((track) => {
+            		return track[this.currentCriteria] == [this.currentTarget]
+            	})
+            },
+
+            filterPool () {
+                if (this.currentTarget == 'All Tracks') {
+                    this.updatePool(this.allTracks)
+                } else {
+                    if (['80s Music', '90s Music', '2000s Music'].includes(this.currentTarget)) {
+                        let year = this.currentTarget.slice(0, 2)
+
+                        this.updatePool(this.getOldTracks(year, year == "20"))
+                        return
+                    }
+
+                    if (this.currentCriteria == 'playlist') {
+                        this.updatePool(this.getFromPlaylist(this.currentTarget))
+                        return
+                    }
+
+                    if (this.currentTarget == 'Favourites') {
+                        this.updatePool(this.getFavs())
+                        return
+                    }
+
+                    if (this.currentTarget == 'Most Played') {
+                        // Grab average plays from state
+                        // compare and return
+                        return
+                    }
+
+                    else {
+                        this.updatePool(this.filterTracks())
+                    }
+                }
+            },
+
+            getOldTracks(year, y_two_k=false) {
+                if (y_two_k) {
+                    return this.allTracks.filter((track) => {
+                        return String(track.year).slice(0, 1) == 2 && String(track.year).slice(2, 4) <= 10
+                    })
+                }
+
+                return this.allTracks.filter((track) => {
+                    return String(track.year).slice(2) == year
+                })
+            },
+
+            getFromPlaylist(currentPlaylist) {
+                // In case the current Playlists was just deleted
+                return currentPlaylist.tracks
+            },
+
+            getFavs() {
+                return this.allTracks.filter((track) => {
+            		return track.favourite == true
+            	})
             },
 
             updateCurrentTrack (track) {
@@ -1305,6 +1380,7 @@
         computed: {
             ...mapGetters([
                 'allTracks',
+                'currentTarget',
                 'currentCriteria',
                 'currentDirec',
                 'sortBy',
