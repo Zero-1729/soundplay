@@ -213,7 +213,7 @@ tr:nth-child(odd) {
     background: #dedede;
 }
 
-.flex select {
+.flex select, select.preset-select {
     background: #3e3e3e;
     color: white;
 }

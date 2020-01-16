@@ -13,7 +13,7 @@
             <input type="checkbox" class="enable-checkbox" @click="handler_toggleAudioEQ" :checked="appAudioEQ.enabled">
 
             <div class="preset-input">
-                <select @change="setEQ()" :disabled="appAudioEQ.enabled == false">
+                <select class="preset-select" @change="setEQ()" :disabled="appAudioEQ.enabled == false">
                     <option v-for="preset in presets" :selected="appAudioEQ.preset == preset">
                         {{ preset }}
                     </option>
@@ -329,11 +329,15 @@
 
             .preset-input
                 position absolute
-                margin-top -2px
+                margin-top -4px
                 right 32px
                 z-index 99
-                select
+                select.preset-select
+                    height 22px
+                    width 124px
                     border-radius 2.5px
+                    border none
+                    cursor pointer
                     padding 2px
         .eq-inner-container
             height 72%

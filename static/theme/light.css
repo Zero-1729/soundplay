@@ -205,8 +205,11 @@ tbody tr:nth-child(odd) {
     background: #b7b8b9;
 }
 
-.flex select {
+.flex select, select.preset-select {
     color: grey;
+}
+
+.flex select {
     background: #f2f2f2;
 }
 
