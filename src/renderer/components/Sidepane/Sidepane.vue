@@ -1,7 +1,7 @@
 <template>
-    <div class="virtical-div">
-        <div class="virtical-div-holder">
-            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget) && playingCriteria == currentCriteria}">
+    <div class="vertical-div">
+        <div class="vertical-div-holder">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget)}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
@@ -315,7 +315,7 @@
 </script>
 
 <style lang="stylus" scoped>
-    .virtical-div
+    .vertical-div
         position absolute
         top 0
         left 0
@@ -340,13 +340,13 @@
             padding-left 18px
             user-select none
 
-    .virtical-div-holder
+    .vertical-div-holder
         position absolute
         top 105px
         width 180px
         height 45%
         overflow-y auto
 
-    .virtical-div-holder::-webkit-scrollbar
+    .vertical-div-holder::-webkit-scrollbar
         width 2px
 </style>

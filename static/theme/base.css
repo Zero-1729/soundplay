@@ -67,19 +67,19 @@ input[type="range"].slider::-webkit-slider-thumb {
 
 
 /* SidePane Component colors */
-#app .virtical-div .entity-listing h4 {
+#app .vertical-div .entity-listing h4 {
     color: #cecece;
 }
 
-#app .virtical-div .entity.activeTarget p {
+#app .vertical-div .entity.activeTarget p {
     color: dodgerblue;
 }
 
-#app .virtical-div .entity p:hover {
+#app .vertical-div .entity p:hover {
     color: rgba(30, 144, 255, 0.51);
 }
 
-#app .virtical-div .entity p#hovered-text {
+#app .vertical-div .entity p#hovered-text {
     color: rgba(30, 144, 255, 0.51);
 }
 

@@ -85,27 +85,27 @@ input[type="range"].slider {
 
 
 /* SidePane Component colors */
-#app .virtical-div {
+#app .vertical-div {
     background: #ececec;
 }
 
-#app .virtical-div .entity p {
+#app .vertical-div .entity p {
     color: #a0a0a0;
 }
 
-#app .virtical-div .entity.greyedText p {
+#app .vertical-div .entity.greyedText p {
     color: #cccccc;
 }
 
-#app .virtical-div .empty-listing h4 {
+#app .vertical-div .empty-listing h4 {
     color: #c5c5c5;
 }
 
-#app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
+#app .vertical-div::-webkit-scrollbar, #app .vertical-div-holder::-webkit-scrollbar {
     background: #d8d8d8;
 }
 
-#app .virtical-div::-webkit-scrollbar-thumb, #app .virtical-div-holder::-webkit-scrollbar-thumb {
+#app .vertical-div::-webkit-scrollbar-thumb, #app .vertical-div-holder::-webkit-scrollbar-thumb {
     background: #b7b8b9;
 }
 
