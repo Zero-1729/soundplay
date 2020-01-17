@@ -199,6 +199,7 @@
                     playingCriteria: null,
                     loadingTrack: false,
                     appIsLoading: false,
+                    autoplay: false,
                     lock: {
                         'backspace': false,
                         'enter': false
@@ -278,6 +279,10 @@
             ipcRenderer.on('ack-startup-process-args', (event, arg) => {
                 // Only begin parsing arg if sound path or folder path injected
                 if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
+                    // Catch in imports hook
+                    // ... and when we check for duplicate tracks
+                    this.vars.autoplay = true
+
                     this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
                 }
 
@@ -749,6 +754,10 @@
                         // Metas warning report
                         this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
                     }
+
+                    // Final catch for autoplay
+                    // reset flag
+                    this.vars.autoplay = false
                 }
             }
         },
@@ -1241,6 +1250,19 @@
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
                     this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, true)
+
+                    // We handle the autoplay in the imports hook
+                }
+
+                // If new track
+                if (this.vars.autoplay && ret) {
+                    let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+
+                    // Done with catch
+                    this.vars.autoplay = false
                 }
             },
 
