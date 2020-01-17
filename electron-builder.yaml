@@ -1,5 +1,6 @@
 productName: Soundplay
 appId: com.github.Zero-1729.soundplay
+copyright: Copyright © 2019 Soundplay (Zero-1729)
 
 directories:
     output: build
@@ -34,6 +35,7 @@ dmg:
         path: /Applications
 
 win:
+    publisherName: Zero-1729
     icon: static/icons/icon_256x256.ico
     target:
         - nsis
