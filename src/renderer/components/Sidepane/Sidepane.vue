@@ -342,10 +342,14 @@
 
     .vertical-div-holder
         position absolute
-        top 105px
+        top 112px
         width 180px
-        height 45%
+        height 256px
         overflow-y auto
+        div:first-child p
+            margin-top 4px
+        div:last-child p
+            margin-bottom 4px
 
     .vertical-div-holder::-webkit-scrollbar
         width 2px
