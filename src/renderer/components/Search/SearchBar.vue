@@ -67,7 +67,10 @@
 
             searchTracks() {
                 return this.cachedPool.filter((track) => {
-                        return track.title.toLowerCase().includes(this.searchText) || track.artist.toLowerCase().includes(this.searchText) || track.album.toLowerCase().includes(this.searchText) || track.genre.toLowerCase().includes(this.searchText.toLowerCase())
+                        return track.title.toLowerCase().includes(this.searchText.toLowerCase()) || 
+                                track.artist.toLowerCase().includes(this.searchText.toLowerCase()) || 
+                                track.album.toLowerCase().includes(this.searchText.toLowerCase()) || 
+                                track.genre.toLowerCase().includes(this.searchText.toLowerCase())
                 })
             },
 
