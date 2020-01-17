@@ -109,6 +109,15 @@ function createWindow () {
 
     mainWindow.loadURL(winURL)
 
+    // Full screen detection
+    mainWindow.on('enter-full-screen', () => {
+        mainWindow.webContents.send('enter-full-screen')
+    })
+
+    mainWindow.on('leave-full-screen', () => {
+        mainWindow.webContents.send('leave-full-screen')
+    })
+
     mainWindow.on('closed', () => {
         mainWindow = null
     })

@@ -276,6 +276,17 @@
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
 
+            // Or use 'fullscreen' from window event listener
+            ipcRenderer.on('enter-full-screen', () => {
+                console.log('[App] App in fullscreen!')
+                ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
+            })
+
+            ipcRenderer.on('leave-full-screen', () => {
+                console.log('[App] App left fullscreen')
+                ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
+            })
+
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
 

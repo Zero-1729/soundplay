@@ -346,10 +346,15 @@
         width 180px
         height 256px
         overflow-y auto
+        transition height 0.3s ease
+        transition-delay 0.3s
         div:first-child p
             margin-top 4px
         div:last-child p
             margin-bottom 4px
+
+    .vertical-div .vertical-div-holder.stretched-div
+        height 400px
 
     .vertical-div-holder::-webkit-scrollbar
         width 2px
