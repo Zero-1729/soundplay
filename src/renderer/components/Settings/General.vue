@@ -98,7 +98,7 @@
         watch: {
             newFolder(cur, old) {
                 if (cur == '') {
-                    this.$emit('unlockHotKey', 'enter')
+                    this.$emit('unlockHotKey', 'input')
                 }
             },
             

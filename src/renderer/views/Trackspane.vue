@@ -196,7 +196,9 @@
             },
 
             mutateCurrentTrack(track) {
-                this.$emit('mutateCurrentTrack', track)
+                if (!this.inputLock) {
+                    this.$emit('mutateCurrentTrack', track)
+                }
             },
 
             isSameSource(track) {
@@ -517,7 +519,7 @@
                     }
                 } else {
                     // Unlock it if locked
-                    this.$emit('unlockHotKey', 'enter')
+                    this.$emit('unlockHotKey', 'input')
                 }
             },
 

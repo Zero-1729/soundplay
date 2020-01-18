@@ -203,7 +203,7 @@
                                 vm.cachePlaylistName(forcedEvent)
 
                                 // lock (enter) HotKey
-                                vm.$emit('lockHotKey', 'enter')
+                                vm.$emit('lockHotKey', 'input')
                             }
                         },
                         {
