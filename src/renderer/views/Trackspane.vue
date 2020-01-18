@@ -526,7 +526,8 @@
 
 
                 // Check if a next track exists
-                if (this.index + 1 < this.filteredPool.length-1) {
+                // HACK: guessing it was an off-by-one
+                if (this.index + 1 < this.filteredPool.length) {
                     // Add the next Track
                     this.selectedTracks.push(this.filteredPool[this.index+1])
                 }
@@ -543,7 +544,6 @@
                     // ... but only if it is not already included
                     this.selectedTracks.push(this.filteredPool[this.index])
                 }
-
 
                 // Check if a previous track exists
                 if (this.index - 1 >= 0) {
