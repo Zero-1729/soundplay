@@ -1051,15 +1051,18 @@
                             // then reset index
                             index = this.player.getNextRandom()
                         }
-
-                        // Loading state init
-                        this.vars.loadingTrack = true
           
-                        this.updateCurrentTrack(this.filteredPool[index])
-                        this.player.playNew(this.vars.currentTrack.source)
+                        // Only if there are indeed tracks to play
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
+                            this.updateCurrentTrack(this.filteredPool[index])
+                            this.player.playNew(this.vars.currentTrack.source)
+                        } 
                     } else {
                         // We only attempt to play a new track if it does exist
-                        if (this.filteredPool.length > 0) {
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
                             this.vars.loadingTrack = true
 
                             // If not we play the track currently active (indexed)

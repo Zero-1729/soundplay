@@ -639,8 +639,8 @@
                         this.filterPool()
                     } else {
                         if (this.selectedTracks.length > 0) {
-                            if (this.selectedTracks.length == this.filteredPool.length) {
-                                this.deleteTracks()
+                            // Check if all the tracks selected; should only be possible in my music
+                            if (this.selectedTracks.length == this.allTracks.length) {
                             } else {
                                 // To avoid still darkening the criteria post deletion
                                 if (this.selectedTracks.includes(this.currentTrack)) {
