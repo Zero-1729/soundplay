@@ -198,24 +198,24 @@
 
     .flexed-div-holder
         height 30px
-        width 55%
+        width 40vw
         display flex
         overflow-x auto
         overflow-y hidden
-        margin-top 4px
+        margin-top 1.1px
         margin-left 20px
-        .flexed-div
-            button:first-child
-                margin-left 0
+
+    .flexed-div-holder .flexed-div:first-child
+        margin 0
+
+    .flexed-div-holder .flexed-div button:first-child
+        margin 0
 
     .flexed-div
         height 20px
         margin-left 4px
         display flex
-        p
-            margin 0
-            padding 0
-            align-self center
+        min-width 112px
         button
             width unset
             display flex
@@ -228,9 +228,13 @@
             transition all 0.3s linear
             cursor pointer
             p
-                margin-left 6px
-                margin-right auto
+                margin 0 6px 0 6px
                 padding-right 6px
+                overflow hidden
+                text-align left
+                text-overflow ellipsis
+                width 90px
+                white-space nowrap
             svg
                 margin-left 8px
                 margin-right 8px

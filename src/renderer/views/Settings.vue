@@ -96,6 +96,7 @@
 
     .option-item
         margin-bottom 18px
+        width 68vw
 
     .option-item .info
         display flex
@@ -123,7 +124,8 @@
 
     input#settings-input
         height 22px
-        margin-top 6px
+        margin-top 7px
+        padding-top 0
         align-self center
         border-top none
         border-right none

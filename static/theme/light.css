@@ -234,6 +234,10 @@ input#settings-input {
     background: #ff7a70;
 }
 
+.flex .flexed-div-holder::-webkit-scrollbar {
+    background: #eaeaea;
+}
+
 /* Audio */
 .option-item p {
     color: #9c9c9c;
