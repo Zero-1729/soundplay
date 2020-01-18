@@ -101,6 +101,7 @@
                     this.$emit('unlockHotKey', 'enter')
                 }
             },
+            
             allTracks(cur, old) {
                 if (cur.length == 0) {
                     this.$emit('appLoading', false)
@@ -122,11 +123,11 @@
             ]),
 
             focusedInput() {
-                this.$emit('lockHotKey', 'space')
+                this.$emit('lockHotKey', 'input')
             },
 
             unFocusedInput() {
-                this.$emit('unlockHotKey', 'space')
+                this.$emit('unlockHotKey', 'input')
             },
 
             handle_delete_all_tracks() {
@@ -153,7 +154,7 @@
             },
 
             handle_new_excluded_folder() {
-                this.$emit('lockHotKey', 'enter')
+                this.$emit('lockHotKey', 'input')
 
                 this.updateExcludedFolder(this.newFolder)
                 this.newFolder = ''

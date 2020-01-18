@@ -82,8 +82,7 @@
             'index',
             'focused',
             'openPlaylistModal',
-            'backspaceLock',
-            'enterLock',
+            'inputLock',
             'playingCriteria',
             'currentTrack',
             'filteredPool'
@@ -102,7 +101,7 @@
             // We process the playlist creation App menu action here
             ipcRenderer.on('create-playlist', (event, arg) => {
                 this.$emit('setPlaylistModal', null)
-                this.$emit('lockHotKey', 'backspace')
+                this.$emit('lockHotKey', 'input')
             })
         },
         mounted() {
@@ -190,6 +189,12 @@
                 'setCurrentDirec'
             ]),
 
+            triggerDeleteTrack (arg) {
+                if (!this.inputLock){
+                    this.deleteTrack(arg)
+                }
+            },
+
             mutateCurrentTrack(track) {
                 this.$emit('mutateCurrentTrack', track)
             },
@@ -208,7 +213,7 @@
 
             addNewPlaylist() {
                 this.$emit('setPlaylistModal', false)
-                this.$emit('unlockHotKey', 'backspace')
+                this.$emit('unlockHotKey', 'input')
 
                 this.createPlaylist(event.target.value)
 
@@ -245,7 +250,7 @@
 
                 // Since we are bluring the modal
                 // ... we should unlock the hotkey
-                this.$emit('unlockHotKey', 'backspace')
+                this.$emit('unlockHotKey', 'input')
             },
 
             clearAllHovering() {
@@ -265,10 +270,6 @@
                 } else {
                     this.setCurrentDirec('a-z')
                 }
-            },
-
-            mutatePool(tracks) {
-                this.$emit('mutatePool', tracks)
             },
 
             filterPool() {
@@ -340,7 +341,7 @@
                             // ... lock the global hotkey
                             // ... to avoid random track deletions on backspacing
                             vm.$emit('setPlaylistModal', true)
-                            vm.$emit('lockHotKey', 'backspace')
+                            vm.$emit('lockHotKey', 'input')
                         }
                     },
                     {
@@ -388,7 +389,7 @@
                                     vm.$emit('updatePlayingCriteria', null)
                                 }
 
-                                vm.deleteTrack(track)
+                                vm.triggerDeleteTrack(track)
                             }
                         }
                     }
@@ -409,11 +410,16 @@
             },
 
             mutateIndexF(resetSelection=true) {
-                this.mutateIndex(1, resetSelection)
+                // Only move arrow if outside input field
+                if (!this.inputLock) {
+                    this.mutateIndex(1, resetSelection)
+                }
             },
 
             mutateIndexB(resetSelection=true) {
-                this.mutateIndex(-1, resetSelection)
+                if (!this.inputLock) {
+                    this.mutateIndex(-1, resetSelection)
+                }
             },
 
             mutateIndex(i, resetSelection) {
@@ -499,7 +505,7 @@
             },
 
             setCurrentTrack() {
-                if (!(this.enterLock) && (this.index != -1)) {
+                if (!(this.inputLock) && (this.index != -1)) {
                     // Only trigger global (enter) hotkey action
                     // ... when the hotkey is unlocked
 
@@ -614,7 +620,7 @@
             deleteSelectedTracks() {
                 // Only trigger if '(search) input' is blurred
                 // We don't want the tracks disappearing randomly while typing
-                if (!this.backspaceLock && (this.index != -1)) {
+                if ((this.index != -1) && !this.inputLock) {
                     // Delete current track if seleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
                         this.$emit('clearCurrentTrack')
@@ -644,7 +650,7 @@
 
                                 // Make this a bit quicker later if possible
                                 for (var i = 0;i < this.selectedTracks.length;i++) {
-                                    this.deleteTrack(this.selectedTracks[i])
+                                    this.triggerDeleteTrack(this.selectedTracks[i])
                                 }
                             }
                         } else {
@@ -654,7 +660,7 @@
                             }
                             // This.currentTrack isn't set yet
                             // So we improvise and call out the current highlighted track
-                            this.deleteTrack(this.filteredPool[this.index])
+                            this.triggerDeleteTrack(this.filteredPool[this.index])
                             // Reset the previous index to the track above the deleted ones below
                             this.$emit('mutateIndex', this.index - 1)
                         }

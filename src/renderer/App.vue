@@ -8,10 +8,10 @@
             :foundArt="vars.foundArt">
         </Panel>
         <Search
-            :filteredPool="filteredPool"
+            :searchText="vars.searchText"
+            @mutateSearchText="updateSearchText"
             @lockHotKey="lockHotKey"
-            @unlockHotKey="unlockHotKey"
-            @mutatePool="updatePool">
+            @unlockHotKey="unlockHotKey">
         </Search>
         <AudioTS
             :playingCriteria="vars.playingCriteria"
@@ -35,8 +35,7 @@
                     :index="vars.index"
                     :focused="vars.playlistFocus"
                     :openPlaylistModal="vars.modals.playlist"
-                    :backspaceLock="vars.lock.backspace"
-                    :enterLock="vars.lock.enter"
+                    :inputLock="vars.lock.input"
                     :playingCriteria="vars.playingCriteria"
                     :currentTrack="vars.currentTrack"
                     @appLoading="setAppLoading"
@@ -46,7 +45,6 @@
                     @lockHotKey="lockHotKey"
                     @unlockHotKey="unlockHotKey"
                     @updateStatusMessage="updateStatusMessage"
-                    @mutatePool="updatePool"
                     @filterPool="filterPool"
                     @mutateCurrentTrack="updateCurrentTrack"
                     @clearCurrentTrack="clearCurrentTrack"
@@ -199,12 +197,11 @@
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
+                    searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
                     lock: {
-                        'backspace': false,
-                        'enter': false,
-                        'space': false
+                        'input': false // For space, enter, backspace and arrows
                     },
                     playlistFocus: false,
                     modals: {
@@ -278,12 +275,10 @@
 
             // Or use 'fullscreen' from window event listener
             ipcRenderer.on('enter-full-screen', () => {
-                console.log('[App] App in fullscreen!')
                 ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
             })
 
             ipcRenderer.on('leave-full-screen', () => {
-                console.log('[App] App left fullscreen')
                 ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
             })
 
@@ -422,6 +417,9 @@
                 // Focus search input
                 Id('search-input').focus()
                 Id('search-input').select()
+
+                // Lock input
+                this.lockHotKey('input')
             })
 
             // Media controls
@@ -706,12 +704,12 @@
                     this.vars.playlistFocus = true
 
                     // Lock space bar
-                    this.lockHotKey('space')
+                    this.lockHotKey('input')
                 } else {
                     this.vars.playlistFocus = false
 
-                    // Unlock space bar to re-enable play/pause
-                    this.unlockHotKey('space')
+                    // Unlock space bar to re-enable play/pause, etc.
+                    this.unlockHotKey('input')
                 }
             },
 
@@ -719,9 +717,9 @@
                 // We don't want the tracks to unexpectedly be loaded
                 // ... when a new playlist is created
                 if (cur) {
-                    this.lockHotKey('enter')
+                    this.lockHotKey('input')
                 } else {
-                    this.unlockHotKey('enter')
+                    this.unlockHotKey('input')
                 }
             },
 
@@ -840,6 +838,10 @@
                     actions: [ /*Fill with prev & next*/ ]
                     // renotify
                 })
+            },
+
+            updateSearchText(text) {
+                this.vars.searchText = text
             },
 
             scrobbleData() {
@@ -1071,7 +1073,7 @@
             triggerPlaypause(ev) {
                 // Find out if any input field are currently in use
                 // if not we go ahead and trigger play
-                if (!(this.vars.lock.enter && this.vars.lock.backspace)) {
+                if (!(this.vars.lock.input)) {
                     ev.preventDefault()
                     // Remember the 'enter/backspace' is locked when any input is currently focused
                     this.triggerPlay()
@@ -1467,7 +1469,13 @@
             filteredPool () {
                 var tmp = this.pool.slice(0)
 
-                return tmp.sort((a, b) => {
+                // Filter and sort
+                return tmp.filter((track) => {
+                    return track.title.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.artist.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.album.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.genre.toLowerCase().includes(this.vars.searchText.toLowerCase())
+                }).sort((a, b) => {
                     var comp = 0
                     var tmp_a = a[this.sortBy].toUpperCase()
                     var tmp_b = b[this.sortBy].toUpperCase()
