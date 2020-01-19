@@ -17,9 +17,6 @@
             </tr>
         </thead>
         <div class="empty-pool-info" v-if="filteredPool.length == 0">
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="578 291 86 86" width="86" height="86">
-                <path d=" M 578 334 C 578 310.268 597.268 291 621 291 C 644.732 291 664 310.268 664 334 C 664 357.732 644.732 377 621 377 C 597.268 377 578 357.732 578 334 Z  M 612.042 334 C 612.042 329.056 616.056 325.042 621 325.042 C 625.944 325.042 629.958 329.056 629.958 334 C 629.958 338.944 625.944 342.958 621 342.958 C 616.056 342.958 612.042 338.944 612.042 334 Z " fill-rule="evenodd" />
-            </svg>
             <h4>{{ allTracks.length > 0 ? 'No Tracks found' : 'Drag and Drop sound files here to add sound' }}</h4>
         </div>
 
@@ -825,6 +822,7 @@
         height 75vh
         animation slide 0.2s ease-in
         h4
+            margin-top 0
             text-align center
             user-select none
             -webkit-user-drag none
