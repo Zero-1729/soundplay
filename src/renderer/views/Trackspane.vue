@@ -215,7 +215,6 @@
 
             addNewPlaylist() {
                 this.$emit('setPlaylistModal', false)
-                this.$emit('unlockHotKey', 'input')
 
                 this.createPlaylist(event.target.value)
 

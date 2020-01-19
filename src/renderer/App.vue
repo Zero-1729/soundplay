@@ -707,9 +707,6 @@
                     this.lockHotKey('input')
                 } else {
                     this.vars.playlistFocus = false
-
-                    // Unlock space bar to re-enable play/pause, etc.
-                    this.unlockHotKey('input')
                 }
             },
 
