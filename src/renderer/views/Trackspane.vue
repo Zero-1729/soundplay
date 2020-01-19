@@ -216,32 +216,35 @@
             addNewPlaylist() {
                 this.$emit('setPlaylistModal', false)
 
-                this.createPlaylist(event.target.value)
+                // Only if playlist named
+                if (event.target.value.length > 0) {
+                    this.createPlaylist(event.target.value)
 
-                if (this.selectedTracks.length > 0) {
-                    for (var i = 0;i < this.selectedTracks.length;i++) {
-                        this.addTrackToPlaylist({
-                            playlist: event.target.value,
-                            track: this.selectedTracks[i]
-                        })
-                    }
-                } else {
-                    // We need to keep track of the track
-                    // ... that initiated the modal's opening
-                    if (this.pendingTrack) {
-                        this.addTrackToPlaylist({
-                            playlist: event.target.value,
-                            track: this.pendingTrack
-                        })
+                    if (this.selectedTracks.length > 0) {
+                        for (var i = 0;i < this.selectedTracks.length;i++) {
+                            this.addTrackToPlaylist({
+                                playlist: event.target.value,
+                                track: this.selectedTracks[i]
+                            })
+                        }
+                    } else {
+                        // We need to keep track of the track
+                        // ... that initiated the modal's opening
+                        if (this.pendingTrack) {
+                            this.addTrackToPlaylist({
+                                playlist: event.target.value,
+                                track: this.pendingTrack
+                            })
 
-                        // We subsequently release said track
-                        // ... for later use
-                        this.pendingTrack = null
+                            // We subsequently release said track
+                            // ... for later use
+                            this.pendingTrack = null
+                        }
                     }
+
+                    // Clear the input
+                    event.target.value = ''
                 }
-
-                // Clear the input
-                event.target.value = ''
             },
 
             closePlaylistModal() {
