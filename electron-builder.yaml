@@ -25,6 +25,8 @@ mac:
 
 dmg:
     title: Install Soundplay
+    icon: static/icons/icon.icns
+    background: #242424
     contents:
       - x: 130
         y: 150
