@@ -40,9 +40,7 @@ const Icons = {
     '64'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_64x64.png')),
     '48'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_48x48.png')),
     '32'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_32x32.png')),
-    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico')),
-    'tray-mac'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
-    'tray-win'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray.ico'))
+    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico'))
 }
 
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
