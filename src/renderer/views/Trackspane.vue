@@ -347,7 +347,7 @@
                     },
                     {
                         label: vm.selectedTracks.length > 0 ? `Add (${vm.selectedTracks.length}) Tracks to playlist...` : 'Add Track to playlist...',
-                        submenu: generateMenu(this.allPlaylists, fn),
+                        submenu: generateMenu(this.allPlaylists, fn, vm.currentTarget.name),
                         enabled: vm.allPlaylists.length > 0
                         // Update pool afterward
                     },
