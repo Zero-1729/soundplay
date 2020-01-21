@@ -1,6 +1,6 @@
 productName: Soundplay
-appId: com.github.Zero-1729.soundplay
-copyright: Copyright © 2019 Soundplay (Zero-1729)
+appId: com.app.soundplay
+copyright: Copyright © 2020 Zero-1729
 
 directories:
     output: build
@@ -26,7 +26,6 @@ mac:
 dmg:
     title: Install Soundplay
     icon: static/icons/icon.icns
-    background: #242424
     contents:
       - x: 130
         y: 150

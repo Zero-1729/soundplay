@@ -36,4 +36,4 @@ npm run build
 
 ---
 
-MIT &copy; 2019 Zero-1729
+MIT &copy; 2020 Zero-1729
