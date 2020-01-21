@@ -20,7 +20,11 @@ svg path.filled {
 }
 
 input[type="range"].slider {
-    background: #ececec;
+    background: #d6d6d6;
+}
+
+input[type="range"].slider.checked {
+    background: #e6e6e6;
 }
 
 /* - Scroll bars - */
@@ -76,10 +80,6 @@ input[type="range"].slider {
 
 .div-hor.holder input#search-input {
     background: white;
-    color: #a0a0a0;
-}
-
-.div-hor.holder input#search-input::placeholder {
     color: #a0a0a0;
 }
 
@@ -189,41 +189,45 @@ tbody tr:nth-child(odd) {
 
 /* General */
 .option-item input  {
-    border-bottom: 2px solid #bbbbbb;
-    color: #9c9c9c;
+    border-bottom: 2px solid #dcdbdc;
+    color: #cacaca;
 }
 
 .option-item input::placeholder {
-    color: grey;
+    color: #bbbbbb;
 }
 
 .flex .switch {
-    background: #ececec;
+    background: #f5f5f5;
 }
 
 .flex .slider {
-    background: #b7b8b9;
+    background: #dadada;
+}
+
+.flex .slider.checked {
+    background: #1068bfb0;
 }
 
 .flex select, select.preset-select {
     color: grey;
 }
 
-.flex select {
-    background: #f2f2f2;
-}
-
 .flex button {
-    background: rgba(33, 45, 62, 0.76);
+    background: rgba(167, 175, 187, 0.87);
     color: white;
 }
 
-.flex button:hover {
+.flex button.dialog-button:hover {
+    background: rgba(110, 133, 167, 0.87);
+}
+
+.flex button:hover, .flex button.dialog-button-alt.further.widthless:hover {
     background: #ff7a70;
 }
 
 input#settings-input {
-    border-bottom-color: grey;
+    border-bottom-color: #ececec;
 }
 
 .flex .dialog-button.furthest:hover {

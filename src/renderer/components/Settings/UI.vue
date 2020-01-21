@@ -315,7 +315,6 @@
         width 70px
         border-radius 2.5px
         border none
-        cursor pointer
 
     .flex .furthest
         margin-left 213px
@@ -335,7 +334,6 @@
         margin-top 12px
         margin-left 180px
         margin-right 110px
-        cursor pointer
 
     .flex .switch input
         opacity 0

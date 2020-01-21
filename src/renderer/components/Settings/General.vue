@@ -193,7 +193,7 @@
         border-radius 2px
         border-width inherit
         width 58px
-        transition all 0.3s linear
+        transition all 0.2s linear
         cursor pointer
 
     .flexed-div-holder
@@ -217,16 +217,6 @@
         display flex
         min-width 112px
         button
-            width unset
-            display flex
-            height 25px
-            margin-top 0
-            margin-left 8px
-            padding 0
-            border-radius 2px
-            border-width inherit
-            transition all 0.3s linear
-            cursor pointer
             p
                 margin 0 6px 0 6px
                 padding-right 6px
@@ -254,8 +244,9 @@
             margin-top 0
             margin-bottom 0
         svg
-            margin-top 2px
             height 75%
+            margin-left 2px
+            margin-top -1px
 
     .dialog-button
         transition width 0.3s ease-in

@@ -88,6 +88,9 @@
         transition all .3s ease-out
         border-bottom solid transparent 3px
 
+    select:hover, button:hover, .flex .switch:hover
+        cursor pointer
+
     .option
         width 100%
         position relative
@@ -134,7 +137,7 @@
         border-bottom-style solid
         margin-left 20px
         background transparent
-        transition all 0.4s ease-out
+        transition all 0.2s ease-out
 
     .slide-to-right-enter-active, .slide-to-right-leave-active, .slide-to-left-enter-active, .slide-to-left-leave-active
         opacity 1
