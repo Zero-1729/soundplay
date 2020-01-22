@@ -568,6 +568,9 @@
                 // We reset the waveform cursor to the begining
                 this.vars.currentPos = this.player.getCurrentPos()
 
+                // Increment the current tracks play count
+                this.incrementPlayCount(this.vars.currentTrack)
+
                 // Store index of currentTrack
                 let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
                 let cindex = oindex + 1 // Defaults to next track
@@ -809,6 +812,7 @@
                 'addTrack',
                 'editTrack',
                 'deleteTrack',
+                'incrementPlayCount',
                 'updateVolume',
                 'setVolume',
                 'restoreVolume',
