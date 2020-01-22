@@ -149,7 +149,6 @@ export default class Player {
     }
 
     getNextRandom(currentTrack, pool) {
-        let editedPool = pool
         let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
