@@ -156,6 +156,9 @@
                 // reset current highlighted track to nothing
                 // ... each time the target is changed
                 this.$emit('mutateIndex', -1)
+
+                // Clear selected tracks
+                this.selectedTracks = []
             },
 
             currentTrack () {
