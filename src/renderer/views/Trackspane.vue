@@ -463,7 +463,7 @@
                     // Then the new track clicked is 'lim'
 
                     // Log start and lim
-                    let lim = getIndexFromKey(this.filteredPool, 'source', track.source)
+                    let lim = getIndexFromKey(this.filteredPool, 'id', track.id)
                     let start = this.index 
 
                     // Edit lim and start if the order is reversed

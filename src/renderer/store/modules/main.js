@@ -129,7 +129,7 @@ const mutations = {
 
     DELETE_TRACK (state, track) {
         // Delete the track from the store
-        state.music = removeObject(state.music, 'source', track.source)
+        state.music = removeObject(state.music, 'id', track.id)
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
         // ... i.e this is the last of its `kind`
@@ -148,7 +148,7 @@ const mutations = {
 
         // Purge playlists of the track
         for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'source', track.source)
+            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'id', track.id)
         }
     },
 

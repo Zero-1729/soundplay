@@ -569,7 +569,7 @@
                 this.vars.currentPos = this.player.getCurrentPos()
 
                 // Store index of currentTrack
-                let oindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
                 let cindex = oindex + 1 // Defaults to next track
                 let onLoop = this.appAudioPrefs.loopAll || this.appAudioPrefs.loopSingle
                 let hasFloor = (oindex == this.filteredPool.length - 1) &&
@@ -932,7 +932,7 @@
                 // If in shuffle, we need to remove it from the `randoms` set
                 // ... we don't want it to later be played
                 if (this.appAudioPrefs.shuffle) {
-                    let cindex = getIndexFromKey(this.filteredPool, 'source', track.source)
+                    let cindex = getIndexFromKey(this.filteredPool, 'id', track.id)
 
                     this.player.freeRandTrack(cindex)
                 }
