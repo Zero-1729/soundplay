@@ -71,6 +71,9 @@
                     // highlight first item in items (target) listing
                     if (this.currentOptions.length > 0 && cur != 'Music') {
                         this.changeTarget(this.currentOptions[0])
+                    } else {
+                        // Set to null
+                        this.changeTarget(null)
                     }
                 }
 

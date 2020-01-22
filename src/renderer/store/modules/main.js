@@ -111,7 +111,7 @@ const mutations = {
             if (meta.activePlaylist) {
                 let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
                 // If we are in a playlist and add a track we also include it in the playlist
-                state.playlists[pindex].tracks.push(track)
+                state.playlists[pindex].tracks.push(track.id)
             }
 
             // More like status flag
@@ -300,17 +300,9 @@ const mutations = {
 
     RENAME_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.old)
-        let tracks = state.playlists[index].tracks
 
         // Rename it from the core
         state.playlists[index].name = obj.current
-
-        // Update each related tracks playlist name
-        for (var i = 0;i < state.music;i++) {
-            if (state.music[i].playlists.includes(obj.old)) {
-                state.music[i].playlists = replaceItem(state.music[i].playlists, obj.old, obj.current)
-            }
-        }
     },
 
     REMOVE_PLAYLIST (state, name) {
@@ -319,12 +311,14 @@ const mutations = {
 
     ADD_TRACK_TO_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.track)
+
+        // Our playlist just store track ids not the whole track object
+        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.trackId)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
+        state.playlists[index].tracks = remove(state.playlists[index].tracks, obj.trackId)
     },
 
     DELETE_PLAYLIST_TRACKS (state, name) {

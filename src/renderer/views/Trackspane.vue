@@ -115,6 +115,13 @@
                 }
             },
 
+            'currentTarget.tracks' (cur, old) {
+                if (cur) {
+                    // We assume an update
+                    this.filterPool()
+                }
+            },
+
             filteredPool (cur, old) {
                 // I.e no tracks
                 if (cur.length == 0) {
@@ -224,7 +231,7 @@
                         for (var i = 0;i < this.selectedTracks.length;i++) {
                             this.addTrackToPlaylist({
                                 playlist: event.target.value,
-                                track: this.selectedTracks[i]
+                                trackId: this.selectedTracks[i].id
                             })
                         }
                     } else {
@@ -233,7 +240,7 @@
                         if (this.pendingTrack) {
                             this.addTrackToPlaylist({
                                 playlist: event.target.value,
-                                track: this.pendingTrack
+                                trackId: this.pendingTrack.id
                             })
 
                             // We subsequently release said track
@@ -297,13 +304,13 @@
                             for (var i = 0;i < vm.selectedTracks.length;i++) {
                                 vm.addTrackToPlaylist({
                                     playlist: playlist.name,
-                                    track: vm.selectedTracks[i]
+                                    trackId: vm.selectedTracks[i].id
                                 })
                             }
                         } else {
                             vm.addTrackToPlaylist({
                                 playlist: playlist.name,
-                                track: track
+                                trackId: track.id
                             })
                         }
 
@@ -635,12 +642,20 @@
                     // We want to only remove the track from the playlist
                     // ... instead of deleting it entirely
                     if (this.currentCriteria == 'playlist') {
-                        this.removeFromPlaylist({
-                            playlist: this.currentTarget.name,
-                            track: this.filteredPool[this.index]
-                        })
-
-                        this.filterPool()
+                        if (this.selectedTracks.length > 0) {
+                            for (var i = 0;i < this.selectedTracks.length;i++) {
+                                this.removeFromPlaylist({
+                                    playlist: this.currentTarget.name,
+                                    trackId: this.filteredPool[i].id
+                                })
+                            }
+                        } else {
+                            // remove a single track
+                            this.removeFromPlaylist({
+                                playlist: this.currentTarget.name,
+                                trackId: this.filteredPool[this.index].id
+                            })
+                        }
                     } else {
                         if (this.selectedTracks.length > 0) {
                             // Check if all the tracks selected; should only be possible in my music

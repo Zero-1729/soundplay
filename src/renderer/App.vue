@@ -885,11 +885,6 @@
                         return
                     }
 
-                    if (this.currentCriteria == 'playlist') {
-                        this.updatePool(this.getFromPlaylist(this.currentTarget))
-                        return
-                    }
-
                     if (this.currentTarget == 'Favourites') {
                         this.updatePool(this.getFavs())
                         return
@@ -898,6 +893,15 @@
                     if (this.currentTarget == 'Most Played') {
                         // Grab average plays from state
                         // compare and return
+                        return
+                    }
+
+                    if (this.currentCriteria == 'playlist') {
+                        this.updatePool(this.allTracks.filter((track) => {
+                            if (this.currentTarget) {
+                                return this.currentTarget.tracks.includes(track.id)
+                            } else { return false }
+                        }))
                         return
                     }
 
@@ -917,11 +921,6 @@
                 return this.allTracks.filter((track) => {
                     return String(track.year).slice(2) == year
                 })
-            },
-
-            getFromPlaylist(currentPlaylist) {
-                // In case the current Playlists was just deleted
-                return currentPlaylist.tracks
             },
 
             getFavs() {
