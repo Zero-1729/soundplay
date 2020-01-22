@@ -645,6 +645,8 @@
                         if (this.selectedTracks.length > 0) {
                             // Check if all the tracks selected; should only be possible in my music
                             if (this.selectedTracks.length == this.allTracks.length) {
+                                // All tracks highlighted to be deleted asap
+                                this.deleteTracks()
                             } else {
                                 // To avoid still darkening the criteria post deletion
                                 if (this.selectedTracks.includes(this.currentTrack)) {
