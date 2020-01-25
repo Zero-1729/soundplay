@@ -132,7 +132,6 @@
 
             handle_delete_all_tracks() {
                 // If all tracks are removed then we definitely know the current track is also
-
                 // Pause player here
                 this.$emit('mutatePlayingCriteria', null)
                 // Destructive version, which deletes even playlists

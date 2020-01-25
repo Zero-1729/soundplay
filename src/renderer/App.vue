@@ -1282,7 +1282,7 @@
                 }
 
                 // Fill in the track template
-                let raw_name = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
+                let raw_name = meta.source.slice(meta.source.lastIndexOf('/') + 1, meta.source.length)
 
                 meta.title = this.isEmpty(tags.title) ? raw_name.slice(0, raw_name.lastIndexOf('.')) : tags.title
 
@@ -1302,7 +1302,7 @@
                 if (!ret) {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, true)
+                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, false)
                 }
             },
 

@@ -98,12 +98,12 @@ const mutations = {
             year: meta.year
         }
 
-        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
-        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', true) : state.albums = add(state.albums, track.album, true)
-        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', true) : state.genres = add(state.genres, track.genre, true)
+        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', false) : state.artists = add(state.artists, track.artist, false)
+        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', false) : state.albums = add(state.albums, track.album, false)
+        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', false) : state.genres = add(state.genres, track.genre, false)
 
         // Only add the track if its not a duplicate
-        let result = add(state.music, track)
+        let result = add(state.music, track, false)
 
         if (result != state.music) {
             state.music = result
