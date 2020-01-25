@@ -429,38 +429,11 @@
             })
 
             ipcRenderer.on('media-prev', (event, arg) => {
-                let cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
-
-                if (cindex > 0) {
-                    if (this.appAudioPrefs.shuffle) {
-                        cindex = this.player.playHistory.pop()
-                    } else { cindex = cindex - 1 }
-
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.prevTrack()
             })
 
             ipcRenderer.on('media-next', (event, arg) => {
-                // Get index of current playing track
-                let cindex
-
-                if (this.appAudioPrefs.shuffle) {
-                    // If shuffled, then grab next random index to play
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
-                } else {
-                    // Set to normal next track index from current track
-                    cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)+1
-                }
-
-                // Check if a next track exists
-                if (cindex <= this.filteredPool.length-1) {
-                    this.vars.loadingTrack = true
-
-                    // If true, we just play it!
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.nextTrack()
             })
 
             ipcRenderer.on('toggle-shuffle', (event, arg) => {
@@ -1081,6 +1054,41 @@
 
             updateIndex(val) {
                 this.vars.index = val
+            },
+
+            prevTrack() {
+                let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+
+                if (cindex > 0) {
+                    if (this.appAudioPrefs.shuffle) {
+                        cindex = this.player.playHistory.pop()
+                    } else { cindex = cindex - 1 }
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+                }
+            },
+
+            nextTrack() {
+                // Get index of current playing track
+                let cindex
+
+                if (this.appAudioPrefs.shuffle) {
+                    // If shuffled, then grab next random index to play
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                } else {
+                    // Set to normal next track index from current track
+                    cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
+                }
+
+                // Check if a next track exists
+                if (cindex <= this.filteredPool.length-1) {
+                    this.vars.loadingTrack = true
+
+                    // If true, we just play it!
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+                }
             },
 
             handleTBScroll(ev) {
