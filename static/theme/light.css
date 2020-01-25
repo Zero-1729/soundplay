@@ -143,6 +143,10 @@ td, th {
     color: #a0a0a0;
 }
 
+tr.dim-track {
+    opacity: 0.4;
+}
+
 tr th {
     background: none;
     color: #808088;

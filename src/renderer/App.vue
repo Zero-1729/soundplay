@@ -659,10 +659,30 @@
                     let ret = this.player.playNew(cur.source)
 
                     if (!ret) {
-                        // If track has been renamed or deleted on the machine
-                        // ... We delete it for now
-                        this.deleteTrack(cur)
-                        this.clearCurrentTrack()
+                        // If track has been renamed or deleted on the machine or tracks are locked
+                        // ... We proceed to skip it
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                        let oindex = getIndexFromKey(this.filteredPool, 'id', old.id)
+
+                        // First, we remove it from `randoms` if in shuffle mode
+                        if (this.appAudioPrefs.shuffle && (oindex < cindex)) {
+                            this.player.freeRandTrack(getIndexFromKey(this.filteredPool, 'id', cur.id))
+                        }
+
+                        // Dim track 
+                        document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+
+                        // Then seek to next playable track, if its ahead of previously playing track
+                        if (oindex < cindex) {
+                            this.nextTrack()
+                        } else {
+                            this.prevTrack()
+                        }
+                    } else {
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+
+                        // Undim track 
+                        document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
                     }
                 }
             },

@@ -148,6 +148,10 @@ th {
     background: #262626;
 }
 
+tr.dim-track {
+    opacity: 0.2;
+}
+
 tr:nth-child(odd) {
     background: #353535;
 }
