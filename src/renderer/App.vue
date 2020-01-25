@@ -539,9 +539,6 @@
                         this.scrobbleData()
                     },
                     onError: (err) => {
-                        // Decide What do to with error later
-                        console.log(err)
-
                         // If the metas can't be read then we know it has no album art
                         this.vars.foundArt = false
 
@@ -557,7 +554,6 @@
                 // When track playing
 
                 // So we update the current track position
-
                 this.vars.currentPos = this.player.getCurrentPos()
             })
 

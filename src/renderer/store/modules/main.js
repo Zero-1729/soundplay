@@ -291,6 +291,12 @@ const mutations = {
         }
     },
 
+    INCREMENT_PLAY_COUNT (state, track) {
+        let index = getIndexFromKey(state.music, 'id', track.id)
+
+        state.music[index].plays += 1
+    },
+
     CREATE_PLAYLIST (state, name) {
         state.playlists.push({
             name: name,
@@ -519,6 +525,10 @@ const actions = {
 
     unfavouriteTrack: ({ commit }, track) => {
         commit('UNFAVOURITE_TRACK', track)
+    },
+
+    incrementPlayCount: ({ commit }, track) => {
+        commit('INCREMENT_PLAY_COUNT', track)
     },
 
     createPlaylist: ({ commit }, name) => {
