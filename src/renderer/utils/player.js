@@ -194,7 +194,7 @@ export default class Player {
     emptyRandoms() { this.randoms = [] }
 
     freeRandTrack (index) {
-        // Removes a track from the set of randoms, to avoid potential double play
+        // Removes a track from the set of `this.randoms` to avoid potential double play
         this.randoms = remove(this.randoms, index)
     }
 

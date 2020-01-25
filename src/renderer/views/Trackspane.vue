@@ -197,6 +197,12 @@
 
             triggerDeleteTrack (arg) {
                 if (!this.inputLock){
+                    // Remove from `randoms` if in shuffle mode
+                    if (this.appAudioPrefs.shuffle) {
+                        this.player.freeRandTrack(getIndexFromKey(this.filteredPool, 'id', cur.id))
+                    }
+
+                    // Then actually delete the track
                     this.deleteTrack(arg)
                 }
             },
@@ -707,7 +713,8 @@
                 'currentTarget',
                 'currentCriteria',
                 'sortBy',
-                'currentDirec'
+                'currentDirec',
+                'appAudioPrefs'
             ]),
 
             keymap() {
