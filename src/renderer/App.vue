@@ -197,6 +197,7 @@
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
+                    skippedCurrentTrack: false,
                     searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
@@ -563,7 +564,7 @@
                 // If shuffle mode on, then we get the index to next track
                 // ... only if we haven't hit EOSP
                 if (this.appAudioPrefs.shuffle && (!EOSP)) {
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                 }
 
                 // Loop code
@@ -667,23 +668,34 @@
                         // If track has been renamed or deleted on the machine or tracks are locked
                         // ... We proceed to skip it
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
-                        let oindex = getIndexFromKey(this.filteredPool, 'id', old.id)
+                        let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
 
                         // First, we remove it from `randoms` if in shuffle mode
-                        if (this.appAudioPrefs.shuffle && (oindex < cindex)) {
-                            this.player.freeRandTrack(getIndexFromKey(this.filteredPool, 'id', cur.id))
+                        if (this.appAudioPrefs.shuffle) {
+                            // We only need to rid the playhistory of it
+                            // ... as it was not played
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (0)
+                            this.vars.skippedCurrentTrack = true
                         }
 
                         // Dim track 
                         document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
 
                         // Then seek to next playable track, if its ahead of previously playing track
-                        if (oindex < cindex) {
+                        if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (1)
+                            // This is also triggered automatically in shuffle
+                            // ... Remember the previous track is form the `playHistory` Array
+                            // ... and this Array does not store unplayable tracks
+                            // ... So we just keep moving on as the track essentially does not exist
                             this.nextTrack()
                         } else {
                             this.prevTrack()
                         }
                     } else {
+                        // Not skipped
+                        this.vars.skippedCurrentTrack = false
+
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
 
                         // Undim track 
@@ -925,14 +937,6 @@
 
             updateCurrentTrack (track) {
                 this.vars.currentTrack = track
-
-                // If in shuffle, we need to remove it from the `randoms` set
-                // ... we don't want it to later be played
-                if (this.appAudioPrefs.shuffle) {
-                    let cindex = getIndexFromKey(this.filteredPool, 'id', track.id)
-
-                    this.player.freeRandTrack(cindex)
-                }
             },
 
             clearCurrentTrack () {
@@ -1038,12 +1042,11 @@
 
                         if (this.appAudioPrefs.shuffle) {
                             // In case the randoms haven't been filled
-                            if (this.player.randoms.length == 0) {
-                                this.player.fillRandoms(this.filteredPool[index], this.filteredPool)
-                            }
+                            // No need since in new App session it is triggered if shuffle enabled in the previous session
+                            // ... even if newly activated shuffle, this is handled as well
 
                             // then reset index
-                            index = this.player.getNextRandom()
+                            index = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                         }
           
                         // Only if there are indeed tracks to play
@@ -1098,21 +1101,30 @@
                 // Get index of current playing track
                 let cindex
 
+                // Only invoke `getNextRandom` if not in loop single
+                // ... we can't pop randoms unless it is actually going to be used
+                // ... since the loop single does not move on, no need
                 if (this.appAudioPrefs.shuffle) {
                     // If shuffled, then grab next random index to play
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                 } else {
                     // Set to normal next track index from current track
                     cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
                 }
 
-                // Check if a next track exists
-                if (cindex <= this.filteredPool.length-1) {
-                    this.vars.loadingTrack = true
-
-                    // If true, we just play it!
-                    this.updateCurrentTrack(this.filteredPool[cindex])
+                // Loop check first since its just to repeat the track
+                // ... it blocks the next track trigger since its checked first
+                if (this.appAudioPrefs.loopSingle && !this.vars.skippedCurrentTrack) {
                     this.player.playNew(this.vars.currentTrack.source)
+                } else {
+                    // Check if a next track exists
+                    if (cindex <= this.filteredPool.length-1) {
+                        this.vars.loadingTrack = true
+
+                        // If true, we just play it!
+                        this.updateCurrentTrack(this.filteredPool[cindex])
+                        this.player.playNew(this.vars.currentTrack.source)
+                    }
                 }
             },
 
