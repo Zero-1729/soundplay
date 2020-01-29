@@ -489,6 +489,11 @@
             // ... set of tracks
             this.filterPool()
 
+            // If shuffled, trigger randoms fill
+            if (this.appAudioPrefs.shuffle) {
+                this.player.fillRandoms(null, this.filteredPool)
+            }
+
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here

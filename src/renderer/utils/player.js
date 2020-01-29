@@ -51,10 +51,13 @@ export default class Player {
 
     activate(currentTrack, pool) {
         this.activated = true
-
-        if (this.shuffle) {
-            this.fillRandoms(currentTrack, pool)
-        }
+        // Previously we triggered the randoms refill fn here
+        // ... but that caused it to be re-reshuffled
+        // ... because when the App is newly launched the 'fillRandoms' fn
+        // ... is triggered if the 'shuffle' is on
+        // ... If not, even if the user toggles the shuffle mode,
+        // ... the 'fillRandoms' fn is called in 'App.vue'
+        // ... Meaning, we essentially don't need the call aswell
     }
 
     setProgressColor(color) {
