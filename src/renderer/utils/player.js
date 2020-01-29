@@ -149,15 +149,16 @@ export default class Player {
     }
 
     getNextRandom(currentTrack, pool) {
+        // [WIP] Test if triggering next still works in shuffle
         let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
-        if (this.playHistory.length < 10) {
+        if ((this.playHistory.length < 10) && (this.playHistory.length > 0)) {
             this.playHistory.push(index)
         } else {
-            this.playHistory = [index]
+            this.playHistory = index > -1 ? [index] : []
         }
 
         // Check if randoms empty, so we can refill
@@ -174,7 +175,7 @@ export default class Player {
     fillRandoms(currentTrack, pool) {
         // Create a properly shuffled pool
         // Exclude playing track, to avoid any collisions
-        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : []
+        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : pool.slice(0)
 
         // Durstenfeld Algo
         for (var i = tmpPool.length - 1;i > 0;i--) {
@@ -194,7 +195,11 @@ export default class Player {
     emptyRandoms() { this.randoms = [] }
 
     freeRandTrack (index) {
+        // [WIP] Fn should be invoked oonly when a track has been deleted or added
+        // ... as randoms is popped, so this has no effect
+
         // Removes a track from the set of `this.randoms` to avoid potential double play
+        // [WIP] Fn actually appropriatelly deletes tracks from randoms
         this.randoms = remove(this.randoms, index)
     }
 
