@@ -38,6 +38,7 @@
                     :inputLock="vars.lock.input"
                     :playingCriteria="vars.playingCriteria"
                     :currentTrack="vars.currentTrack"
+                    :appIsLoading="vars.appIsLoading"
                     @appLoading="setAppLoading"
                     @mutateIndex="updateIndex"
                     @setPlaylistFocus="setPlaylistFocus"
@@ -55,7 +56,9 @@
                     @clearWarnMessage="clearWarnMessage"
                     @clearFailMessage="clearFailMessage"
                     @clearJobsFn="clearJobsFn"
-                    @setJobsFn="setJobsFn">
+                    @setJobsFn="setJobsFn"
+                    
+                    :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
             </transition>
         </span>

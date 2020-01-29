@@ -3,12 +3,14 @@
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view
+                :appLoading="appIsLoading"
                 @mutatePlayingCriteria="mutatePlayingCriteria"
                 @lockHotKey="lockHotKey"
                 @unlockHotKey="unlockHotKey"
                 @mutateStatusMessage="mutateStatusMessage"
                 @clearJobsFn="handle_clearJobs"
-                @setJobsFn="handle_setJobs">
+                @setJobsFn="handle_setJobs"
+                @appLoading="push_loading_state">
             </router-view>
         </transition>
     </div>
@@ -17,6 +19,7 @@
 <script>
     export default {
         inheritAttrs: false,
+        props: ['appIsLoading'],
         data() {
             return {
                 transition: ''
@@ -35,6 +38,10 @@
             }
         },
         methods: {
+            push_loading_state (arg) {
+                this.$emit('appLoading', arg)
+            },
+
             handle_clearJobs () {
                 this.$emit('clearJobsFn', null)
             },

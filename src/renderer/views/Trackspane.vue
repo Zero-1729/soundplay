@@ -1,5 +1,5 @@
 <template>
-    <table class="tracklist" v-hotkey="keymap" :class="{'fade-pane': appIsLoading}" @click="clearAllHovering">
+    <table class="tracklist" v-hotkey="keymap" @click="clearAllHovering">
         <thead>
             <tr>
                 <th @click="sort('title')">
@@ -74,7 +74,6 @@
     export default {
         props: [
             'player',
-            'appIsLoading',
             'index',
             'focused',
             'openPlaylistModal',
