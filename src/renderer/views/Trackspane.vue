@@ -239,6 +239,10 @@
                                 trackId: this.selectedTracks[i].id
                             })
                         }
+
+                        // Mutate index to give completion effect
+                        this.$emit('mutateIndex', this.index)
+                        this.selectedTracks = []
                     } else {
                         // We need to keep track of the track
                         // ... that initiated the modal's opening
@@ -918,9 +922,9 @@
     .vanish-active, .vanish-leave-to
         transition 0.4s
         opacity 0
-        transform translateY(-200px)/*scale(0)*/
+        transform translateY(-200px)
 
     .vanish-enter-to
         opacity 1
-        transform translateY(0) /*scale(1)*/
+        transform translateY(0)
 </style>
