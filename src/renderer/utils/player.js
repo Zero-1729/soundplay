@@ -176,7 +176,7 @@ export default class Player {
         return this.randoms.pop()
     }
 
-    fillRandoms(currentTrack, pool) {
+    fillRandoms(currentTrack, pool, excludePlayed=false) {
         // Create a properly shuffled pool
         // Exclude playing track, to avoid any collisions
         let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : pool.slice(0)
@@ -193,6 +193,15 @@ export default class Player {
 
         // Fill randoms with newly created (in place) shuffled indexes
         this.randoms = tmpPool.map((item) => { return pool.indexOf(item) })
+
+        // Remove alreaady played tracks
+        // Only triggered if playing target resumed to avoid collisions
+        // ... since the randoms is refilled each time its updated
+        if (excludePlayed) {
+            for (var x = 0;x < this.playHistory.length;x++) {
+                this.randoms = remove(this.randoms, this.playHistory[x])
+            }
+        }
     }
 
     // We don't want indexes from previous 'pools' to persist
