@@ -199,7 +199,7 @@
                 if (!this.inputLock){
                     // Remove from `randoms` if in shuffle mode
                     if (this.appAudioPrefs.shuffle) {
-                        this.player.freeRandTrack(getIndexFromKey(this.filteredPool, 'id', cur.id))
+                        this.player.freeRandTrack(getIndexFromKey(this.filteredPool, 'id', arg.id))
                     }
 
                     // Then actually delete the track
