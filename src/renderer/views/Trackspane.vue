@@ -195,6 +195,15 @@
                 'setCurrentDirec'
             ]),
 
+            triggerRemove (arg) {
+                // Reset selected tracks first
+                // ... and the index
+                this.$emit('mutateIndex', this.index)
+                this.selectedTracks = []
+
+                this.removeFromPlaylist(arg)
+            },
+
             triggerDeleteTrack (arg) {
                 if (!this.inputLock){
                     // Remove from `randoms` if in shuffle mode
@@ -376,10 +385,7 @@
                     vm.currentCriteria == 'playlist' ? {
                         label: 'Remove Track',
                         click() {
-                            vm.removeFromPlaylist({
-                                playlist: vm.currentTarget.name,
-                                track: track
-                            })
+                            vm.triggerRemove({playlist: vm.currentTarget.name, trackId: track.id})
 
                             vm.filterPool()
                         }
@@ -653,17 +659,11 @@
                     if (this.currentCriteria == 'playlist') {
                         if (this.selectedTracks.length > 0) {
                             for (var i = 0;i < this.selectedTracks.length;i++) {
-                                this.removeFromPlaylist({
-                                    playlist: this.currentTarget.name,
-                                    trackId: this.filteredPool[i].id
-                                })
+                                this.triggerRemove({playlist: this.currentTarget.name, trackId: this.filteredPool[i].id})
                             }
                         } else {
                             // remove a single track
-                            this.removeFromPlaylist({
-                                playlist: this.currentTarget.name,
-                                trackId: this.filteredPool[this.index].id
-                            })
+                            this.triggerRemove({playlist: this.currentTarget.name, trackId: this.filteredPool[this.index].id})
                         }
                     } else {
                         if (this.selectedTracks.length > 0) {
