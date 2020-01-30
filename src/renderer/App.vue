@@ -773,7 +773,7 @@
 
                     // In case duplicated files are droped
                     // [wip] wonky
-                    if (this.failed_imports.length == 0) {
+                    if (this.failed_imports.length > 0) {
                         this.updateFailMessage({
                             heading: 'Detected potential sound file(s) duplication',
                             message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
