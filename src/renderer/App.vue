@@ -312,20 +312,8 @@
                     properties: ['openFile', 'multiSelections']
                 }, (items) => {
                     if (items) {
-                        // Log number of files to import
-                        this.imports += items.length
-                        this.imports_count += items.length
-
-                        // Make sure we check whether the user canceled the dialog first
-                        // ... before we start performing any actions
                         if (items.length > 0) {
-                            // Only make App display load effect when tracks
-                            // ... actually inmported
-                            vm.appIsLoading = true
-
-                            for (var i = 0;i < items.length;i++) {
-                                vm.deref(items[i])
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })
@@ -340,19 +328,7 @@
                 }, (items) => {
                     if (items) {
                         if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                let tracks = vm.crawl(items[i])
-                                // Log number files to import
-                                vm.imports += tracks.length
-                                vm.imports_count += tracks.length
-
-                                // We now activate App loading effect
-                                vm.appIsLoading = true
-
-                                for (var j = 0;j < tracks.length;j++) {
-                                    vm.deref(tracks[j])
-                                }
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })

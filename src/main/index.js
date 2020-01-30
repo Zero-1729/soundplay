@@ -216,14 +216,14 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Import Tracks...',
+                label: 'Import Track(s)...',
                 click() {
                     mainWindow.webContents.send('import-tracks', null)
                 },
                 accelerator: 'CmdOrCtrl+O'
             },
             {
-                label: 'Import Folder...',
+                label: 'Import Folder(s)...',
                 click() {
                     mainWindow.webContents.send('import-folder', null)
                 },
