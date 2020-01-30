@@ -191,6 +191,8 @@
                 failed_imports: [],
                 imports: 0,
                 imports_count: 0,
+                imported_non_sound_folders: false, // To handle overloaded non sound folders
+                imported_non_sound_files: false, // To handle overloaded non sound
                 player: null,
                 pool: [],
                 vars: {
@@ -749,45 +751,45 @@
                     // Outsource finale code
                     this.handle_import_finish()
                 }
+            },
 
-                    // Overwrite success message with errors
-                    // [wip] wonky
-                    if (this.error_imports.length > 0) {
-                        // Then issues with non sound files
-                        this.updateFailMessage({
-                            heading: 'Error during file(s) scan', 
-                            message: `Detected ${this.error_imports.length} non sound file(s):`, 
-                            items: this.error_imports
-                        })
-                    }
+            imported_non_sound_folders (cur, old) {
+                if (cur) {
+                    let multiple_folders = this.error_imports.length > 1
 
-                    // In case duplicated files are droped
-                    // [wip] wonky
-                    if (this.failed_imports.length == 0) {
-                        this.updateFailMessage({
-                            heading: 'Detected potential sound file(s) duplication',
-                            message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
-                            items: this.failed_imports
-                        })
-                    }
+                    this.updateFailMessage({
+                        heading: 'Error during folder(s) scan', 
+                        message: `Folder${multiple_folders ? 's' : ''} ${multiple_folders ? 'have' : 'has'} no sound files`, 
+                        items: this.error_imports
+                    })
 
-                    // Report warning
-                    // [wip] Works
-                    if (this.warn_imports.length > 0) {
-                        // Metas warning report
-                        this.updateWarnMessage({
-                            heading: 'Detected sound file(s) with weird media tags',
-                            message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
-                            items: this.warn_imports
-                        })
-                    }
+                    this.error_imports = []
 
-                    // Reset imports count
-                    this.imports_count = 0
+                    this.vars.appIsLoading = false
+                }
+            },
 
-                    // Final catch for autoplay
-                    // reset flag
-                    this.vars.autoplay = false
+            imported_non_sound_files (cur, old) {
+                if (cur) {
+                    let multiple_files = this.error_imports.length > 1
+
+                    this.updateFailMessage({
+                        heading: `Error during ${this.error_imports.length} file(s) scan`, 
+                        message: `File${multiple_files ? 's' : ''} ${multiple_files ? 'are not sound files' : 'is not a sound file'}`, 
+                        items: this.error_imports
+                    })
+
+                    this.error_imports = []
+
+                    this.vars.appIsLoading = false
+                }
+            },
+
+            error_imports (cur, old) {
+                if (cur.length == 0) {
+                    // Stricly to reset whole non sound file drop
+                    this.imported_non_sound_folders = false
+                    this.imported_non_sound_files = false
                 }
             }
         },
@@ -1458,9 +1460,20 @@
                         // Count to import
                         this.imports += tracks.length
 
-                        for (var j = 0;j < tracks.length;j++) {
-                            this.deref(tracks[j])
+                        // Only go ahead if the folder or some deeply nested one has tracks
+                        if (tracks.length > 0) {
+                            for (var j = 0;j < items.length;j++) {
+                                this.deref(items[j])
+                            }
+                        } else {
+                            // If this cond is reached then the parent folder has problems
+                            // Extract non sound filepath
+                            let filepath = this.resolveObjectPath(objs[i])
+
+                            this.imported_non_sound_folders = true
+                            this.error_imports = add(this.error_imports, filepath)
                         }
+                        
                     } else {
                         // Find out whether it is a sound file
                         let is_sound_file = this.isObjectAudioFile(objs[i])
@@ -1478,10 +1491,10 @@
                             // Scan and add Track
                             this.deref(filepath)
                         } else {
-                            // Retrieve sound filepath
+                            // Extract non sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
 
-                            this.imports -= 1
+                            this.imported_non_sound_files = true
                             this.error_imports = add(this.error_imports, filepath)
                         }
                     }
