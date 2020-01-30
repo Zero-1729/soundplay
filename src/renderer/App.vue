@@ -746,17 +746,9 @@
 
             imports (cur, old) {
                 if (cur == 0) {
-                    // Removing App loading effect when all tracks imported
-                    this.vars.appIsLoading = false
-
-                    // Only display a success message if at least 1 or more non duplicates were imported
-                    // ... and there are at least 1 or more files without errors or warnings
-                    if (this.imports_count > 0) {
-                        this.updateStatusMessage({
-                            heading: `Successfully imported ${this.imports_count} sounds`,
-                            isEmpty: false
-                        })
-                    }
+                    // Outsource finale code
+                    this.handle_import_finish()
+                }
 
                     // Overwrite success message with errors
                     // [wip] wonky
@@ -1495,6 +1487,59 @@
                     }
                 }
             },
+
+            handle_import_finish() {
+                // Removing App loading effect when all tracks imported
+                this.vars.appIsLoading = false
+
+                // Only display a success message if at least 1 or more non duplicates were imported
+                // ... and there are at least 1 or more files without errors or warnings
+                if (this.imports_count > 0) {
+                    this.updateStatusMessage({
+                        heading: `Successfully imported ${this.imports_count} sounds`,
+                        isEmpty: false
+                    })
+                }
+
+                // Overwrite success message with errors
+                // [wip] wonky
+                if (this.error_imports.length > 0) {
+                    // Then issues with non sound files
+                    this.updateFailMessage({
+                        heading: 'Error during file(s) scan', 
+                        message: `Detected ${this.error_imports.length} non sound file(s):`, 
+                        items: this.error_imports
+                    })
+                }
+
+                // In case duplicated files are droped
+                // [wip] wonky
+                if (this.failed_imports.length == 0) {
+                    this.updateFailMessage({
+                        heading: 'Detected potential sound file(s) duplication',
+                        message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
+                        items: this.failed_imports
+                    })
+                }
+
+                // Report warning
+                // [wip] Works
+                if (this.warn_imports.length > 0) {
+                    // Metas warning report
+                    this.updateWarnMessage({
+                        heading: 'Detected sound file(s) with weird media tags',
+                        message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
+                        items: this.warn_imports
+                    })
+                }
+
+                // Reset imports count
+                this.imports_count = 0
+
+                // Final catch for autoplay
+                // reset flag
+                this.vars.autoplay = false
+            }
         },
         computed: {
             ...mapGetters([
