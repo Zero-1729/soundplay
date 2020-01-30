@@ -1336,11 +1336,10 @@
                 } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source)
-
-                    // We handle the autoplay in the imports hook
+                    this.failed_imports = add(this.failed_imports, meta.source)
                 }
 
+                // We handle the autoplay in the imports hook
                 // If new track and autoplay triggered
                 // We automatically play it
                 if (this.vars.autoplay && ret) {
@@ -1357,9 +1356,7 @@
             handle_new_track_warn(track_path) {
                 // Log it in the warning
                 // we still accept metaless tracks
-
-                //this.error_imports.push(track_path)
-                this.warn_imports.push(track_path)
+                this.warn_imports = add(this.warn_imports, track_path)
                 this.imports -= 1
             },
 
@@ -1476,17 +1473,17 @@
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
 
-                            // Scan and add Track
                             // file to import increases count as well
                             this.imports += 1
 
+                            // Scan and add Track
                             this.deref(filepath)
                         } else {
                             // Retrieve sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
 
                             this.imports -= 1
-                            this.failed_imports.push(filepath)
+                            this.error_imports = add(this.error_imports, filepath)
                         }
                     }
                 }
