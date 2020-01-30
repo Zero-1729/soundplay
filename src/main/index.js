@@ -10,7 +10,7 @@ import {
 
 const WindowManager = require('./utils/windowManager').default
 
-const { add } = require('./../renderer/utils/list')
+const { add, removePattern } = require('./../renderer/utils/list')
 
 import '../renderer/store'
 
@@ -18,7 +18,7 @@ const path = require('path')
 
 // App version
 // Note: Should match 'package.json'
-const APP_VERSION = 'v.0.2.0-a'
+const APP_VERSION = 'v0.2.0 (Alpha)'
 
 /**
  * Set `__static` path to static files in production
@@ -47,7 +47,8 @@ const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
 : `file://${__dirname}/index.html`
 
 // args provided during startup
-var startup_args = process.env.NODE_ENV != 'development' ? process.argv.slice(1) : []
+var startup_args = process.env.NODE_ENV != 'development' ? 
+                    removePattern(process.argv.slice(1), new RegExp(/-psn_.+/)) : []
 
 var mainWindow = null
 
@@ -64,7 +65,7 @@ app.on('open-file', (event, arg) => {
     event.preventDefault()
 
     // Add trigger file
-    openFiles = add(openFiles, arg, true)
+    openFiles = add(openFiles, arg)
 
     // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
     if (mainWindow != null) {
@@ -215,14 +216,14 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Import Tracks...',
+                label: 'Import Track(s)...',
                 click() {
                     mainWindow.webContents.send('import-tracks', null)
                 },
                 accelerator: 'CmdOrCtrl+O'
             },
             {
-                label: 'Import Folder...',
+                label: 'Import Folder(s)...',
                 click() {
                     mainWindow.webContents.send('import-folder', null)
                 },
@@ -537,9 +538,9 @@ template[template.length - 1].submenu = [
         type: 'separator'
     },
     {
-        label: 'Follow Us on Twitter',
+        label: 'Report Bug',
         click() {
-            shell.openExternal('https://twitter.com/Soundplay')
+            shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
         }
     }
 ]

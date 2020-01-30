@@ -188,10 +188,11 @@
             return {
                 error_imports: [],
                 warn_imports: [],
-                imported_folders: [],
                 failed_imports: [],
                 imports: 0,
                 imports_count: 0,
+                imported_non_sound_folders: false, // To handle overloaded non sound folders
+                imported_non_sound_files: false, // To handle overloaded non sound
                 player: null,
                 pool: [],
                 vars: {
@@ -204,6 +205,7 @@
                     searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
+                    autoplay: false,
                     lock: {
                         'input': false // For space, enter, backspace and arrows
                     },
@@ -292,6 +294,10 @@
             ipcRenderer.on('ack-startup-process-args', (event, arg) => {
                 // Only begin parsing arg if sound path or folder path injected
                 if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
+                    // Catch in imports hook
+                    // ... and when we check for duplicate tracks
+                    this.vars.autoplay = true
+
                     this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
                 }
 
@@ -307,20 +313,8 @@
                     properties: ['openFile', 'multiSelections']
                 }, (items) => {
                     if (items) {
-                        // Log number of files to import
-                        this.imports += items.length
-                        this.imports_count += items.length
-
-                        // Make sure we check whether the user canceled the dialog first
-                        // ... before we start performing any actions
                         if (items.length > 0) {
-                            // Only make App display load effect when tracks
-                            // ... actually inmported
-                            vm.appIsLoading = true
-
-                            for (var i = 0;i < items.length;i++) {
-                                vm.deref(items[i])
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })
@@ -335,19 +329,7 @@
                 }, (items) => {
                     if (items) {
                         if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                let tracks = vm.crawl(items[i])
-                                // Log number files to import
-                                vm.imports += tracks.length
-                                vm.imports_count += tracks.length
-
-                                // We now activate App loading effect
-                                vm.appIsLoading = true
-
-                                for (var j = 0;j < tracks.length;j++) {
-                                    vm.deref(tracks[j])
-                                }
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })
@@ -765,56 +747,77 @@
             },
 
             imports (cur, old) {
-                if (cur == 0 || cur < 0) {
+                if (cur == 0) {
                     // Removing App loading effect when all tracks imported
                     this.vars.appIsLoading = false
 
-                    // Log the number of imports that had issues
-                    // Only perform calc if there are failed import items
-                    // ... we don't want negetive values
-                    let import_issues_count = this.failed_imports.length > 0 ? this.failed_imports.length - (this.error_imports.length + 
-                                                                                                            this.warn_imports.length + 
-                                                                                                            this.vars.reporter.failure.items.length) : 0
-
-                    // ... and obtain the number of actual imported items
-                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + import_issues_count
-
                     // Only display a success message if at least 1 or more non duplicates were imported
                     // ... and there are at least 1 or more files without errors or warnings
-                    if (successful_imports_count > 0) {
+                    if (this.imports_count > 0) {
                         this.updateStatusMessage({
-                            heading: `Successfully imported ${successful_imports_count} sounds`,
+                            heading: `Successfully imported ${this.imports_count} sounds`,
                             isEmpty: false
                         })
                     }
 
-                    this.imports_count = 0
-
-                    // We want to show issues with folders first
-                    if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected and scanned ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
-                    }
-
-                    if (this.failed_imports.length > 0) {
+                    // Overwrite success message with errors
+                    // [wip] wonky
+                    if (this.error_imports.length > 0) {
                         // Then issues with non sound files
-                        this.updateFailMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.failed_imports.length + ' non sound file(s):', items: this.failed_imports})
-                    }
-
-                    // In case duplicated files are droped
-                    if (this.failed_imports.length == 0 && this.vars.reporter.failure.items.length > 0) {
                         this.updateFailMessage({
-                            heading: 'Detected potential sound file(s) duplication',
-                            message: `Discovered ${this.vars.reporter.failure.items.length} duplicate track(s)`,
-                            items: this.vars.reporter.failure.items
+                            heading: 'Error during file(s) scan', 
+                            message: `Detected ${this.error_imports.length} non sound file(s):`, 
+                            items: this.error_imports
                         })
                     }
 
+                    // In case duplicated files are droped
+                    // [wip] wonky
+                    if (this.failed_imports.length > 0) {
+                        this.updateFailMessage({
+                            heading: 'Detected potential sound file(s) duplication',
+                            message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
+                            items: this.failed_imports
+                        })
+                    }
 
                     // Report warning
+                    // [wip] Works
                     if (this.warn_imports.length > 0) {
                         // Metas warning report
-                        this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
+                        this.updateWarnMessage({
+                            heading: 'Detected sound file(s) with weird media tags',
+                            message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
+                            items: this.warn_imports
+                        })
                     }
+
+                    // Reset imports count
+                    this.imports_count = 0
+
+                    // Final catch for autoplay
+                    // reset flag
+                    this.vars.autoplay = false
+                }
+            },
+
+            imported_non_sound_folders (cur, old) {
+                if (cur) {
+                    this.vars.appIsLoading = false
+                }
+            },
+
+            imported_non_sound_files (cur, old) {
+                if (cur) {
+                    this.vars.appIsLoading = false
+                }
+            },
+
+            error_imports (cur, old) {
+                if (cur.length == 0) {
+                    // Stricly to reset whole non sound file drop
+                    this.imported_non_sound_folders = false
+                    this.imported_non_sound_files = false
                 }
             }
         },
@@ -1264,7 +1267,6 @@
             },
 
             clearAllWarnMessage() {
-                this.imported_folders = []
                 this.warn_imports = []
 
                 this.clearWarnMessage()
@@ -1303,7 +1305,7 @@
 
                 new FS(dir).forEachFile((file) => {
                     // file extension starts after last '.'
-                    let format = file.slice(file.lastIndexOf('.') + 1)
+                    let format = path.extname(file).slice(1)
 
                     // All supported formats
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
@@ -1315,6 +1317,10 @@
             },
 
             handle_new_track(obj) {
+                // The track has the following properties:
+                // Not a folder
+                // Is a supported sound file
+                // Might have metas; we can't tell until we try to load it
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
@@ -1346,23 +1352,44 @@
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
-                // Finally we add the track to our store
-                let ret = this.addTrack(meta)
+                // Only add the track if its not a duplicate
+                let result = add(this.allTracks, meta, false, 'source')
 
-                if (!ret) {
+                // Lets check length instead
+                if (result.length > this.allTracks.length) {
+                    // Finally we add the track to our store
+                    this.addTrack(meta)
+
+                    // This is the ultimate decider of a successful import 
+                    this.imports_count += 1
+                } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, false)
+                    this.failed_imports = add(this.failed_imports, meta.source)
+                }
+
+                // We handle the autoplay in the imports hook
+                // If new track and autoplay triggered
+                // We automatically play it
+                if (this.vars.autoplay && ret) {
+                    let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+
+                    // Done with catch
+                    this.vars.autoplay = false
                 }
             },
 
             handle_new_track_warn(track_path) {
                 // Log it in the warning
                 // we still accept metaless tracks
-
-                //this.error_imports.push(track_path)
-                this.warn_imports.push(track_path)
+                this.warn_imports = add(this.warn_imports, track_path)
                 this.imports -= 1
+
+                // Log as imported
+                this.imports_count += 1
             },
 
             deref(track) {
@@ -1457,19 +1484,25 @@
                         this.vars.appIsLoading = true
 
                         // Get folder path
-                        let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
-
-                        // We have (a potential) directory dropped
-                        this.imported_folders.push(folder_path)
+                        let folder_path = this.resolveObjectPath(objs[i])
 
                         let tracks = this.crawl(folder_path)
 
+                        // Count to import
                         this.imports += tracks.length
-                        this.imports_count += tracks.length
 
-                        for (var j = 0;j < tracks.length;j++) {
-                            this.deref(tracks[j])
+                        // Only go ahead if the folder or some deeply nested one has tracks
+                        if (tracks.length > 0) {
+                            for (var j = 0;j < tracks.length;j++) {
+                                this.deref(tracks[j])
+                            }
+                        } else {
+                            // If this cond is reached then the parent folder has problems
+                            // Non sound files folder edge case we let it slip
+                            // then reset app loading var
+                            this.imported_non_sound_folders = true
                         }
+                        
                     } else {
                         // Find out whether it is a sound file
                         let is_sound_file = this.isObjectAudioFile(objs[i])
@@ -1481,20 +1514,19 @@
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
 
-                            // Scan and add Track
+                            // file to import increases count as well
                             this.imports += 1
-                            this.imports_count += 1
+
+                            // Scan and add Track
                             this.deref(filepath)
                         } else {
-                            // Retrieve sound filepath
-                            let filepath = this.resolveObjectPath(objs[i])
-
-                            this.imports -= 1
-                            this.failed_imports.push(filepath)
+                            // if non sound files edge case we let it slip
+                            // then reset app loading var
+                            this.imported_non_sound_files = true
                         }
                     }
                 }
-            },
+            }
         },
         computed: {
             ...mapGetters([

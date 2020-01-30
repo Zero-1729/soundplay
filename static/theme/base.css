@@ -35,6 +35,14 @@ input[type="range"].slider::-webkit-slider-thumb {
     fill: #ff7a70;
 }
 
+.error-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #df1203;
+}
+
+.error-message .tight-listing::-webkit-scrollbar {
+    background: #ff7a70;
+}
+
 .warn-message {
     border-color: #ffc107;
     color: #ffc107;
@@ -44,6 +52,14 @@ input[type="range"].slider::-webkit-slider-thumb {
     fill: #ffc107;
 }
 
+.warn-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #9c790f;
+}
+
+.warn-message .tight-listing::-webkit-scrollbar {
+    background: #ffc107;
+}
+
 .fail-message {
     border-color: orange;
     color: orange;
@@ -51,6 +67,14 @@ input[type="range"].slider::-webkit-slider-thumb {
 
 .fail-message .cancel-btn svg path {
     fill: orange;
+}
+
+.fail-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #b16201;
+}
+
+.fail-message .tight-listing::-webkit-scrollbar {
+    background: orange;
 }
 
 

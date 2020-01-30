@@ -22,14 +22,13 @@
 
         <tbody v-if="allTracks.length > 0">
             <transition-group :name="trackTransition" tag="tbody" class="trackslist">
-            <tr id="track-item" v-for="track in filteredPool" @dblclick="mutateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track)}"
+            <tr id="track-item" :key="track.id" v-for="track in filteredPool" @dblclick="mutateCurrentTrack(track)" :class="{activeTrack: filteredPool.indexOf(track) == index || selectedTracks.includes(track), playingTrack: isSameSource(track)}"
                 @contextmenu.prevent
                 @mousedown.right.capture="showTrackOptions(track)"
                 @keydown.40="mutateIndex(1)"
                 @keydown.38="mutateIndex(-1)"
                 @click="setIndex(track)"
-                @keydown.enter.prevent="mutateCurrentTrack(track)"
-                :key="track.id">
+                @keydown.enter.prevent="mutateCurrentTrack(track)">
                     <td>
                         <div class="fav-bar" :class="{fav: track.favourite}"></div>
 

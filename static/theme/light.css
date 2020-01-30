@@ -31,12 +31,12 @@ input[type="range"].slider.checked {
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
-    background: #b7b8b9;
+    background: #eaeaea;
 }
 
 /* Scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-    background: #808088;
+    background: #b2b2b5;
 }
 
 /* - Error messages - */
@@ -218,7 +218,7 @@ tbody tr:nth-child(odd) {
 }
 
 .flex button {
-    background: rgba(167, 175, 187, 0.87);
+    background: #97a4b7de;
     color: white;
 }
 

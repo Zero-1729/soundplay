@@ -32,7 +32,7 @@
                     :class="{'greyed-button': appMusicFolder == null, widthless: appMusicFolder}"
                     @click="removeMusicFolder">
                         <p>{{ appMusicFolder ? appMusicFolder : 'None' }}</p>
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="8" height="8">
+                        <svg :class="{hidden: !appMusicFolder}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="8" height="8">
                             <path d="M 0.397 0.397 L 0.397 0.397 C 0.927 -0.132 1.788 -0.132 2.318 0.397 L 19.603 17.682 C 20.132 18.212 20.132 19.073 19.603 19.603 L 19.603 19.603 C 19.073 20.132 18.212 20.132 17.682 19.603 L 0.397 2.318 C -0.132 1.788 -0.132 0.927 0.397 0.397 Z" style="stroke:none;stroke-miterlimit:10;"/>
                             <path d="M 19.603 0.397 L 19.603 0.397 C 20.132 0.927 20.132 1.788 19.603 2.318 L 2.318 19.603 C 1.788 20.132 0.927 20.132 0.397 19.603 L 0.397 19.603 C -0.132 19.073 -0.132 18.212 0.397 17.682 L 17.682 0.397 C 18.212 -0.132 19.073 -0.132 19.603 0.397 Z" style="stroke:none;stroke-miterlimit:10;"/>
                         </svg>
@@ -255,11 +255,12 @@
         p
             display flex
             height 100%
-            align-self center
             margin-right 4px
             margin-left 0
             margin-top 0
             margin-bottom 0
+        svg.hidden
+            opacity 0
         svg
             height 75%
             margin-left 2px
