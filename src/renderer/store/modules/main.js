@@ -111,7 +111,7 @@ const mutations = {
         // Add the track
         // We already its unique if it reaches here
         // ... so we just append it
-        state.music.push(meta)
+        state.music.push(track)
     },
 
     EDIT_TRACK (state, obj) {
