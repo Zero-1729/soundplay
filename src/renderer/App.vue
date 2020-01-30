@@ -188,7 +188,6 @@
             return {
                 error_imports: [],
                 warn_imports: [],
-                imported_folders: [],
                 failed_imports: [],
                 imports: 0,
                 imports_count: 0,
@@ -759,17 +758,16 @@
                         })
                     }
 
-                    // We want to show issues with folders first
-                    if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected and scanned ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
-                    }
-
-                    if (this.failed_imports.length > 0) {
+                    // Overwrite success message with errors
+                    // if (this.failed_imports.length > 0) {
+                    // [wip] wonky
+                    if (this.error_imports.length > 0) {
                         // Then issues with non sound files
                         this.updateFailMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.failed_imports.length + ' non sound file(s):', items: this.failed_imports})
                     }
 
                     // In case duplicated files are droped
+                    // [wip] wonky
                     if (this.failed_imports.length == 0 && this.vars.reporter.failure.items.length > 0) {
                         this.updateFailMessage({
                             heading: 'Detected potential sound file(s) duplication',
@@ -779,6 +777,7 @@
                     }
 
                     // Report warning
+                    // [wip] Works
                     if (this.warn_imports.length > 0) {
                         // Metas warning report
                         this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
@@ -1239,7 +1238,6 @@
             },
 
             clearAllWarnMessage() {
-                this.imported_folders = []
                 this.warn_imports = []
 
                 this.clearWarnMessage()
@@ -1458,9 +1456,6 @@
 
                         // Get folder path
                         let folder_path = this.resolveObjectPath(objs[i])
-
-                        // We have (a potential) directory dropped
-                        this.imported_folders.push(folder_path)
 
                         let tracks = this.crawl(folder_path)
 
