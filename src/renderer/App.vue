@@ -746,32 +746,18 @@
             },
 
             imports (cur, old) {
-                if (cur == 0 || cur < 0) {
+                if (cur == 0) {
                     // Removing App loading effect when all tracks imported
                     this.vars.appIsLoading = false
 
-                    // Log the number of imports that had issues
-                    // Only perform calc if there are failed import items
-                    // ... we don't want negetive values
-                    let import_issues_count = this.failed_imports.length > 0 ? this.failed_imports.length - (this.error_imports.length + 
-                                                                                                            this.warn_imports.length + 
-                                                                                                            this.vars.reporter.failure.items.length) : 0
-
-                    // ... and obtain the number of actual imported items
-                    // HACK: If no issues then all imports are assumed successful
-                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + this.import_issues_count
-
-
                     // Only display a success message if at least 1 or more non duplicates were imported
                     // ... and there are at least 1 or more files without errors or warnings
-                    if (successful_imports_count > 0) {
+                    if (this.imports_count > 0) {
                         this.updateStatusMessage({
-                            heading: `Successfully imported ${successful_imports_count} sounds`,
+                            heading: `Successfully imported ${this.imports_count} sounds`,
                             isEmpty: false
                         })
                     }
-
-                    this.imports_count = 0
 
                     // We want to show issues with folders first
                     if (this.imported_folders.length > 0) {
@@ -797,6 +783,9 @@
                         // Metas warning report
                         this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
                     }
+
+                    // Reset imports count
+                    this.imports_count = 0
 
                     // Final catch for autoplay
                     // reset flag
@@ -1343,6 +1332,9 @@
                 if (result.length > this.allTracks.length) {
                     // Finally we add the track to our store
                     this.addTrack(meta)
+
+                    // This is the ultimate decider of a successful import 
+                    this.imports_count += 1
                 } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
@@ -1472,8 +1464,8 @@
 
                         let tracks = this.crawl(folder_path)
 
+                        // Count to import
                         this.imports += tracks.length
-                        this.imports_count += tracks.length
 
                         for (var j = 0;j < tracks.length;j++) {
                             this.deref(tracks[j])
@@ -1490,8 +1482,9 @@
                             let filepath = this.resolveObjectPath(objs[i])
 
                             // Scan and add Track
+                            // file to import increases count as well
                             this.imports += 1
-                            this.imports_count += 1
+
                             this.deref(filepath)
                         } else {
                             // Retrieve sound filepath
