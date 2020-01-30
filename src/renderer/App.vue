@@ -1387,6 +1387,9 @@
                 // we still accept metaless tracks
                 this.warn_imports = add(this.warn_imports, track_path)
                 this.imports -= 1
+
+                // Log as imported
+                this.imports_count += 1
             },
 
             deref(track) {
