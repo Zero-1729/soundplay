@@ -319,12 +319,12 @@ const mutations = {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
 
         // Our playlist just store track ids not the whole track object
-        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.trackId)
+        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.id)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = remove(state.playlists[index].tracks, obj.trackId)
+        state.playlists[index].tracks = remove(state.playlists[index].tracks, obj.id)
     },
 
     DELETE_PLAYLIST_TRACKS (state, name) {

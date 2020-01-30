@@ -238,13 +238,13 @@
 
                 // Only if playlist named
                 if (event.target.value.length > 0) {
-                    this.createPlaylist(event.target.value)
+                    this.createPlaylist(playlistName)
 
                     if (this.selectedTracks.length > 0) {
                         for (var i = 0;i < this.selectedTracks.length;i++) {
                             this.addTrackToPlaylist({
                                 playlist: event.target.value,
-                                trackId: this.selectedTracks[i].id
+                                id: this.selectedTracks[i].id
                             })
                         }
 
@@ -257,7 +257,7 @@
                         if (this.pendingTrack) {
                             this.addTrackToPlaylist({
                                 playlist: event.target.value,
-                                trackId: this.pendingTrack.id
+                                id: this.pendingTrack.id
                             })
 
                             // We subsequently release said track
@@ -321,13 +321,13 @@
                             for (var i = 0;i < vm.selectedTracks.length;i++) {
                                 vm.addTrackToPlaylist({
                                     playlist: playlist.name,
-                                    trackId: vm.selectedTracks[i].id
+                                    id: vm.selectedTracks[i].id
                                 })
                             }
                         } else {
                             vm.addTrackToPlaylist({
                                 playlist: playlist.name,
-                                trackId: track.id
+                                id: track.id
                             })
                         }
 
@@ -384,7 +384,7 @@
                     vm.currentCriteria == 'playlist' ? {
                         label: 'Remove Track',
                         click() {
-                            vm.triggerRemove({playlist: vm.currentTarget.name, trackId: track.id})
+                            vm.triggerRemove({playlist: vm.currentTarget.name, id: track.id})
 
                             vm.filterPool()
                         }
@@ -658,11 +658,11 @@
                     if (this.currentCriteria == 'playlist') {
                         if (this.selectedTracks.length > 0) {
                             for (var i = 0;i < this.selectedTracks.length;i++) {
-                                this.triggerRemove({playlist: this.currentTarget.name, trackId: this.filteredPool[i].id})
+                                this.triggerRemove({playlist: this.currentTarget.name, id: this.filteredPool[i].id})
                             }
                         } else {
                             // remove a single track
-                            this.triggerRemove({playlist: this.currentTarget.name, trackId: this.filteredPool[this.index].id})
+                            this.triggerRemove({playlist: this.currentTarget.name, id: this.filteredPool[this.index].id})
                         }
                     } else {
                         if (this.selectedTracks.length > 0) {
