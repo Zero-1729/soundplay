@@ -1301,6 +1301,10 @@
             },
 
             handle_new_track(obj) {
+                // The track has the following properties:
+                // Not a folder
+                // Is a supported sound file
+                // Might have metas; we can't tell until we try to load it
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
