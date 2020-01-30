@@ -1275,7 +1275,7 @@
 
                 new FS(dir).forEachFile((file) => {
                     // file extension starts after last '.'
-                    let format = file.slice(file.lastIndexOf('.') + 1)
+                    let format = path.extname(file).slice(1)
 
                     // All supported formats
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
