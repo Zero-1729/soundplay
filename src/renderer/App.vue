@@ -1357,7 +1357,7 @@
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
                 // Only add the track if its not a duplicate
-                let result = add(this.allTracks, meta)
+                let result = add(this.allTracks, meta, false, 'source')
 
                 if (result != this.allTracks) {
                     // Finally we add the track to our store
@@ -1365,12 +1365,13 @@
                 } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, true)
+                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source)
 
                     // We handle the autoplay in the imports hook
                 }
 
-                // If new track
+                // If new track and autoplay triggered
+                // We automatically play it
                 if (this.vars.autoplay && ret) {
                     let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
 
@@ -1483,7 +1484,7 @@
                         this.vars.appIsLoading = true
 
                         // Get folder path
-                        let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
+                        let folder_path = this.resolveObjectPath(objs[i])
 
                         // We have (a potential) directory dropped
                         this.imported_folders.push(folder_path)

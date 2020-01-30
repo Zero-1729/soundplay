@@ -65,7 +65,7 @@ app.on('open-file', (event, arg) => {
     event.preventDefault()
 
     // Add trigger file
-    openFiles = add(openFiles, arg, true)
+    openFiles = add(openFiles, arg)
 
     // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
     if (mainWindow != null) {
