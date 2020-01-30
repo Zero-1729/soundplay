@@ -1335,7 +1335,8 @@
                 // Only add the track if its not a duplicate
                 let result = add(this.allTracks, meta, false, 'source')
 
-                if (result != this.allTracks) {
+                // Lets check length instead
+                if (result.length > this.allTracks.length) {
                     // Finally we add the track to our store
                     this.addTrack(meta)
                 } else {
