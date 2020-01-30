@@ -759,20 +759,23 @@
                     }
 
                     // Overwrite success message with errors
-                    // if (this.failed_imports.length > 0) {
                     // [wip] wonky
                     if (this.error_imports.length > 0) {
                         // Then issues with non sound files
-                        this.updateFailMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.failed_imports.length + ' non sound file(s):', items: this.failed_imports})
+                        this.updateFailMessage({
+                            heading: 'Error during file(s) scan', 
+                            message: `Detected ${this.error_imports.length} non sound file(s):`, 
+                            items: this.error_imports
+                        })
                     }
 
                     // In case duplicated files are droped
                     // [wip] wonky
-                    if (this.failed_imports.length == 0 && this.vars.reporter.failure.items.length > 0) {
+                    if (this.failed_imports.length == 0) {
                         this.updateFailMessage({
                             heading: 'Detected potential sound file(s) duplication',
-                            message: `Discovered ${this.vars.reporter.failure.items.length} duplicate track(s)`,
-                            items: this.vars.reporter.failure.items
+                            message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
+                            items: this.failed_imports
                         })
                     }
 
@@ -780,7 +783,11 @@
                     // [wip] Works
                     if (this.warn_imports.length > 0) {
                         // Metas warning report
-                        this.updateWarnMessage({heading: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, items: this.warn_imports})
+                        this.updateWarnMessage({
+                            heading: 'Detected sound file(s) with weird media tags',
+                            message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
+                            items: this.warn_imports
+                        })
                     }
 
                     // Reset imports count
