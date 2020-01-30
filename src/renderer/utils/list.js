@@ -6,10 +6,10 @@
 */
 
 // Fn for Adding unique items to arrays
-const add = (list, item, basic=false) => {
+const add = (list, item, basic=true) => {
     for (var i = 0;i < list.length;i++) {
     	if (!basic) {
-            if (list[i].source == item.source) {
+            if (list[i].id == item.id) {
                 return list
             }
         } else {

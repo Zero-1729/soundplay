@@ -1,7 +1,7 @@
 <template>
     <div class="player-container">
         <div class="panel-holder">
-            <div class="image-holder">
+            <div class="image-holder" :class="{darken: loading}">
                 <img id="album-art" :class="{show: showArt}">
                 <svg class="default-album-art" :class="{show: !showArt, hide: showArt}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="56 56 400 400" width="82.5pt" height="82.5pt">
                     <path d=" M 56 256 C 56 145.617 145.617 56 256 56 C 366.383 56 456 145.617 456 256 C 456 366.383 366.383 456 256 456 C 145.617 456 56 366.383 56 256 Z  M 206 256 C 206 228.404 228.404 206 256 206 C 283.596 206 306 228.404 306 256 C 306 283.596 283.596 306 256 306 C 228.404 306 206 283.596 206 256 Z " fill-rule="evenodd" fill="none"/>
@@ -52,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            <div class="lower">
+            <div class="lower" :class="{darken: loading}">
                 <div class="waveform" id="waveform" :class="{hide: track == null}"></div>
             </div>
         </div>
@@ -72,7 +72,8 @@
             'pos',
             'player',
             'loading',
-            'foundArt'
+            'foundArt',
+            'loading'
         ],
         data() {
             return {
@@ -94,8 +95,8 @@
                 }
             },
 
-            loading (cur, prev) {
-                if (this.foundArt) {
+            foundArt (cur, prev) {
+                if (cur) {
                     this.showArt = true
 
                     // Redraw waveform here
@@ -136,7 +137,7 @@
             ]),
 
             currentTrack() {
-                return this.track ? this.track : {
+                return this.track && !this.loading? this.track : {
                     title: '-',
                     artist: '-',
                     img: null,
@@ -156,6 +157,9 @@
 </script>
 
 <style lang="stylus">
+    .darken
+        opacity 0.2
+
     .player-container
         width calc(100% - 250px)
         height 110px

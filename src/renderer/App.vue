@@ -8,10 +8,10 @@
             :foundArt="vars.foundArt">
         </Panel>
         <Search
-            :filteredPool="filteredPool"
+            :searchText="vars.searchText"
+            @mutateSearchText="updateSearchText"
             @lockHotKey="lockHotKey"
-            @unlockHotKey="unlockHotKey"
-            @mutatePool="updatePool">
+            @unlockHotKey="unlockHotKey">
         </Search>
         <AudioTS
             :playingCriteria="vars.playingCriteria"
@@ -33,18 +33,19 @@
                     :player="player"
                     :filteredPool="filteredPool"
                     :index="vars.index"
+                    :focused="vars.playlistFocus"
                     :openPlaylistModal="vars.modals.playlist"
-                    :backspaceLock="vars.lock.backspace"
-                    :enterLock="vars.lock.enter"
+                    :inputLock="vars.lock.input"
                     :playingCriteria="vars.playingCriteria"
                     :currentTrack="vars.currentTrack"
+                    :appIsLoading="vars.appIsLoading"
                     @appLoading="setAppLoading"
                     @mutateIndex="updateIndex"
+                    @setPlaylistFocus="setPlaylistFocus"
                     @setPlaylistModal="setPlaylistModal"
                     @lockHotKey="lockHotKey"
                     @unlockHotKey="unlockHotKey"
                     @updateStatusMessage="updateStatusMessage"
-                    @mutatePool="updatePool"
                     @filterPool="filterPool"
                     @mutateCurrentTrack="updateCurrentTrack"
                     @clearCurrentTrack="clearCurrentTrack"
@@ -55,7 +56,9 @@
                     @clearWarnMessage="clearWarnMessage"
                     @clearFailMessage="clearFailMessage"
                     @clearJobsFn="clearJobsFn"
-                    @setJobsFn="setJobsFn">
+                    @setJobsFn="setJobsFn"
+                    
+                    :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
             </transition>
         </span>
@@ -197,13 +200,15 @@
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
+                    skippedCurrentTrack: false,
+                    searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
                     autoplay: false,
                     lock: {
-                        'backspace': false,
-                        'enter': false
+                        'input': false // For space, enter, backspace and arrows
                     },
+                    playlistFocus: false,
                     modals: {
                         playlist: false
                     },
@@ -255,7 +260,7 @@
 
             // Lets watch for 'spacebar' event to trigger player's 'play/pause'
             window.addEventListener('keydown', (ev) => {
-                if (ev.code == 'Space') {
+                if ((ev.code == 'Space') && (!this.vars.lock.space)) {
                     this.triggerPlaypause(ev)
                 }
 
@@ -272,6 +277,15 @@
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
+
+            // Or use 'fullscreen' from window event listener
+            ipcRenderer.on('enter-full-screen', () => {
+                ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
+            })
+
+            ipcRenderer.on('leave-full-screen', () => {
+                ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
+            })
 
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
@@ -407,6 +421,16 @@
                 }
             }
 
+            // Search
+            ipcRenderer.on('focus-search', (event, arg) => {
+                // Focus search input
+                Id('search-input').focus()
+                Id('search-input').select()
+
+                // Lock input
+                this.lockHotKey('input')
+            })
+
             // Media controls
             // Playback
             ipcRenderer.on('media-playpause', (event, arg) => {
@@ -414,36 +438,11 @@
             })
 
             ipcRenderer.on('media-prev', (event, arg) => {
-                let cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
-
-                if (cindex > 0) {
-                    if (this.appAudioPrefs.shuffle) {
-                        cindex = this.player.playHistory.pop()
-                    } else { cindex = cindex - 1 }
-
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.prevTrack()
             })
 
             ipcRenderer.on('media-next', (event, arg) => {
-                // Get index of current playing track
-                let cindex
-
-                if (this.appAudioPrefs.shuffle) {
-                    // If shuffled, then grab next random index to play
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
-                } else {
-                    // Set to normal next track index from current track
-                    cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)+1
-                }
-
-                // Check if a next track exists
-                if (cindex <= this.filteredPool.length-1) {
-                    // If true, we just play it!
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.nextTrack()
             })
 
             ipcRenderer.on('toggle-shuffle', (event, arg) => {
@@ -499,10 +498,15 @@
             // ... set of tracks
             this.filterPool()
 
+            // If shuffled, trigger randoms fill
+            if (this.appAudioPrefs.shuffle) {
+                this.player.fillRandoms(null, this.filteredPool)
+            }
+
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
-                this.vars.loadingTrack = true
+                this.vars.loadingTrack = false
 
                 if (!this.player.activated) {
                     this.player.activate(this.vars.currentTrack, this.filteredPool)
@@ -522,9 +526,6 @@
                         this.scrobbleData()
                     },
                     onError: (err) => {
-                        // Decide What do to with error later
-                        console.log(err)
-
                         // If the metas can't be read then we know it has no album art
                         this.vars.foundArt = false
 
@@ -540,7 +541,6 @@
                 // When track playing
 
                 // So we update the current track position
-
                 this.vars.currentPos = this.player.getCurrentPos()
             })
 
@@ -551,8 +551,11 @@
                 // We reset the waveform cursor to the begining
                 this.vars.currentPos = this.player.getCurrentPos()
 
+                // Increment the current tracks play count
+                this.incrementPlayCount(this.vars.currentTrack)
+
                 // Store index of currentTrack
-                let oindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
                 let cindex = oindex + 1 // Defaults to next track
                 let onLoop = this.appAudioPrefs.loopAll || this.appAudioPrefs.loopSingle
                 let hasFloor = (oindex == this.filteredPool.length - 1) &&
@@ -569,7 +572,7 @@
                 // If shuffle mode on, then we get the index to next track
                 // ... only if we haven't hit EOSP
                 if (this.appAudioPrefs.shuffle && (!EOSP)) {
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                 }
 
                 // Loop code
@@ -591,6 +594,9 @@
                         // ... can allow last track to be played then first, etc.
                         // ... Essentially, shuffle does not have a floor
                         if (hasFloor && this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.vars.currentTrack.source)
 
@@ -618,6 +624,8 @@
                 // ... i.e. last track, or loop on, then
                 // ... we proceed to play the next
                 if (shouldPlayNext) {
+                    this.vars.loadingTrack = true
+
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
@@ -659,14 +667,73 @@
 
             'vars.currentTrack' (cur, old) {
                 if (cur) {
+                    // Loading state init
+                    this.vars.loadingTrack = true
+
                     let ret = this.player.playNew(cur.source)
 
                     if (!ret) {
-                        // If track has been renamed or deleted on the machine
-                        // ... We delete it for now
-                        this.deleteTrack(cur)
-                        this.clearCurrentTrack()
+                        // If track has been renamed or deleted on the machine or tracks are locked
+                        // ... We proceed to skip it
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                        let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
+
+                        // First, we remove it from `randoms` if in shuffle mode
+                        if (this.appAudioPrefs.shuffle) {
+                            // We only need to rid the playhistory of it
+                            // ... as it was not played
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (0)
+                            this.vars.skippedCurrentTrack = true
+                        }
+
+                        // Dim track 
+                        document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+
+                        // Then seek to next playable track, if its ahead of previously playing track
+                        if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (1)
+                            // This is also triggered automatically in shuffle
+                            // ... Remember the previous track is form the `playHistory` Array
+                            // ... and this Array does not store unplayable tracks
+                            // ... So we just keep moving on as the track essentially does not exist
+                            this.nextTrack()
+                        } else {
+                            this.prevTrack()
+                        }
+                    } else {
+                        // Not skipped
+                        this.vars.skippedCurrentTrack = false
+
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+
+                        // Undim track 
+                        document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
                     }
+                }
+            },
+
+            'vars.modals.playlist' (cur, prev) {
+                if (cur) {
+                    // Auto focus
+                    Id('playlist-input').focus()
+
+                    // Add focus class
+                    this.vars.playlistFocus = true
+
+                    // Lock space bar
+                    this.lockHotKey('input')
+                } else {
+                    this.vars.playlistFocus = false
+                }
+            },
+
+            focused (cur, prev) {
+                // We don't want the tracks to unexpectedly be loaded
+                // ... when a new playlist is created
+                if (cur) {
+                    this.lockHotKey('input')
+                } else {
+                    this.unlockHotKey('input')
                 }
             },
 
@@ -678,8 +745,10 @@
 
             filteredPool (cur, prev) {
                 if (this.vars.currentTrack && this.appAudioPrefs.shuffle) {
-                    // recalc randoms
-                    this.player.fillRandoms(this.vars.currentTrack, cur)
+                    // Recalc randoms when current currentTarget updated
+                    // REM: current pool view is the queue
+                    // When we refill we need to ensure that the already played tracks are excluded
+                    this.player.fillRandoms(this.vars.currentTrack, cur, true)
                 }
             },
 
@@ -766,6 +835,7 @@
                 'addTrack',
                 'editTrack',
                 'deleteTrack',
+                'incrementPlayCount',
                 'updateVolume',
                 'setVolume',
                 'restoreVolume',
@@ -794,6 +864,10 @@
                 })
             },
 
+            updateSearchText(text) {
+                this.vars.searchText = text
+            },
+
             scrobbleData() {
                 // Only add track meta when track doesn't have 'duration set'
                 if (!this.vars.currentTrack.duration) {
@@ -808,9 +882,6 @@
                 this.player.device.play()
 
                 // We update the tracks peeks here
-
-                // Unset 'loading' flag here
-                this.vars.loadingTrack = false
 
                 // Displaying the notification is now optional
                 if (this.appNotifs) {
@@ -837,11 +908,6 @@
                         return
                     }
 
-                    if (this.currentCriteria == 'playlist') {
-                        this.updatePool(this.getFromPlaylist(this.currentTarget))
-                        return
-                    }
-
                     if (this.currentTarget == 'Favourites') {
                         this.updatePool(this.getFavs())
                         return
@@ -850,6 +916,15 @@
                     if (this.currentTarget == 'Most Played') {
                         // Grab average plays from state
                         // compare and return
+                        return
+                    }
+
+                    if (this.currentCriteria == 'playlist') {
+                        this.updatePool(this.allTracks.filter((track) => {
+                            if (this.currentTarget) {
+                                return this.currentTarget.tracks.includes(track.id)
+                            } else { return false }
+                        }))
                         return
                     }
 
@@ -871,11 +946,6 @@
                 })
             },
 
-            getFromPlaylist(currentPlaylist) {
-                // In case the current Playlists was just deleted
-                return currentPlaylist.tracks
-            },
-
             getFavs() {
                 return this.allTracks.filter((track) => {
             		return track.favourite == true
@@ -884,14 +954,6 @@
 
             updateCurrentTrack (track) {
                 this.vars.currentTrack = track
-
-                // If in shuffle, we need to remove it from the `randoms` set
-                // ... we don't want it to later be played
-                if (this.appAudioPrefs.shuffle) {
-                    let cindex = getIndexFromKey(this.filteredPool, 'source', track.source)
-
-                    this.player.freeRandTrack(cindex)
-                }
             },
 
             clearCurrentTrack () {
@@ -997,19 +1059,26 @@
 
                         if (this.appAudioPrefs.shuffle) {
                             // In case the randoms haven't been filled
-                            if (this.player.randoms.length == 0) {
-                                this.player.fillRandoms(this.filteredPool[index], this.filteredPool)
-                            }
+                            // No need since in new App session it is triggered if shuffle enabled in the previous session
+                            // ... even if newly activated shuffle, this is handled as well
 
                             // then reset index
-                            index = this.player.getNextRandom()
+                            index = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                         }
           
-                        this.updateCurrentTrack(this.filteredPool[index])
-                        this.player.playNew(this.vars.currentTrack.source)
+                        // Only if there are indeed tracks to play
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
+                            this.updateCurrentTrack(this.filteredPool[index])
+                            this.player.playNew(this.vars.currentTrack.source)
+                        } 
                     } else {
                         // We only attempt to play a new track if it does exist
-                        if (this.filteredPool.length > 0) {
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
+                            this.vars.loadingTrack = true
+
                             // If not we play the track currently active (indexed)
                             this.updateCurrentTrack(this.filteredPool[this.vars.index])
                             this.player.playNew(this.vars.currentTrack.source)
@@ -1021,7 +1090,7 @@
             triggerPlaypause(ev) {
                 // Find out if any input field are currently in use
                 // if not we go ahead and trigger play
-                if (!(this.vars.lock.enter && this.vars.lock.backspace)) {
+                if (!(this.vars.lock.input)) {
                     ev.preventDefault()
                     // Remember the 'enter/backspace' is locked when any input is currently focused
                     this.triggerPlay()
@@ -1030,6 +1099,50 @@
 
             updateIndex(val) {
                 this.vars.index = val
+            },
+
+            prevTrack() {
+                let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+
+                if (cindex > 0) {
+                    if (this.appAudioPrefs.shuffle) {
+                        cindex = this.player.playHistory.pop()
+                    } else { cindex = cindex - 1 }
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+                }
+            },
+
+            nextTrack() {
+                // Get index of current playing track
+                let cindex
+
+                // Only invoke `getNextRandom` if not in loop single
+                // ... we can't pop randoms unless it is actually going to be used
+                // ... since the loop single does not move on, no need
+                if (this.appAudioPrefs.shuffle) {
+                    // If shuffled, then grab next random index to play
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                } else {
+                    // Set to normal next track index from current track
+                    cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
+                }
+
+                // Loop check first since its just to repeat the track
+                // ... it blocks the next track trigger since its checked first
+                if (this.appAudioPrefs.loopSingle && !this.vars.skippedCurrentTrack) {
+                    this.player.playNew(this.vars.currentTrack.source)
+                } else {
+                    // Check if a next track exists
+                    if (cindex <= this.filteredPool.length-1) {
+                        this.vars.loadingTrack = true
+
+                        // If true, we just play it!
+                        this.updateCurrentTrack(this.filteredPool[cindex])
+                        this.player.playNew(this.vars.currentTrack.source)
+                    }
+                }
             },
 
             handleTBScroll(ev) {
@@ -1134,8 +1247,13 @@
                 if (this.player) this.player.device.drawBuffer()
             },
 
+            setPlaylistFocus (val) {
+                this.vars.playlistFocus = val
+            },
+
             setPlaylistModal(val) {
-                this.vars.modals.playlist = !this.vars.modals.playlist
+                // Defaults to toggle if not val passed
+                this.vars.modals.playlist = val ? val : !this.vars.modals.playlist
             },
 
             closeModals(ev) {
@@ -1226,7 +1344,7 @@
                 }
 
                 // Fill in the track template
-                let raw_name = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
+                let raw_name = meta.source.slice(meta.source.lastIndexOf('/') + 1, meta.source.length)
 
                 meta.title = this.isEmpty(tags.title) ? raw_name.slice(0, raw_name.lastIndexOf('.')) : tags.title
 
@@ -1428,7 +1546,13 @@
             filteredPool () {
                 var tmp = this.pool.slice(0)
 
-                return tmp.sort((a, b) => {
+                // Filter and sort
+                return tmp.filter((track) => {
+                    return track.title.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.artist.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.album.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.genre.toLowerCase().includes(this.vars.searchText.toLowerCase())
+                }).sort((a, b) => {
                     var comp = 0
                     var tmp_a = a[this.sortBy].toUpperCase()
                     var tmp_b = b[this.sortBy].toUpperCase()

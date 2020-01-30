@@ -98,15 +98,27 @@ const mutations = {
             year: meta.year
         }
 
-        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
-        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', true) : state.albums = add(state.albums, track.album, true)
-        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', true) : state.genres = add(state.genres, track.genre, true)
+        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', false) : state.artists = add(state.artists, track.artist, false)
+        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', false) : state.albums = add(state.albums, track.album, false)
+        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', false) : state.genres = add(state.genres, track.genre, false)
 
-        if (meta.activePlaylist) {
-            let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
-            
-            // If we are in a playlist and add a track we also include it in the playlist
-            state.playlists[pindex].tracks.push(track)
+        // Only add the track if its not a duplicate
+        let result = add(state.music, track, false)
+
+        if (result != state.music) {
+            state.music = result
+
+            if (meta.activePlaylist) {
+                let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
+                // If we are in a playlist and add a track we also include it in the playlist
+                state.playlists[pindex].tracks.push(track.id)
+            }
+
+            // More like status flag
+            return true
+        } else {
+            // to be used for import failure flag
+            return false
         }
     },
 
@@ -117,7 +129,7 @@ const mutations = {
 
     DELETE_TRACK (state, track) {
         // Delete the track from the store
-        state.music = removeObject(state.music, 'source', track.source)
+        state.music = removeObject(state.music, 'id', track.id)
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
         // ... i.e this is the last of its `kind`
@@ -136,7 +148,7 @@ const mutations = {
 
         // Purge playlists of the track
         for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'source', track.source)
+            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'id', track.id)
         }
     },
 
@@ -279,6 +291,12 @@ const mutations = {
         }
     },
 
+    INCREMENT_PLAY_COUNT (state, track) {
+        let index = getIndexFromKey(state.music, 'id', track.id)
+
+        state.music[index].plays += 1
+    },
+
     CREATE_PLAYLIST (state, name) {
         state.playlists.push({
             name: name,
@@ -288,17 +306,9 @@ const mutations = {
 
     RENAME_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.old)
-        let tracks = state.playlists[index].tracks
 
         // Rename it from the core
         state.playlists[index].name = obj.current
-
-        // Update each related tracks playlist name
-        for (var i = 0;i < state.music;i++) {
-            if (state.music[i].playlists.includes(obj.old)) {
-                state.music[i].playlists = replaceItem(state.music[i].playlists, obj.old, obj.current)
-            }
-        }
     },
 
     REMOVE_PLAYLIST (state, name) {
@@ -307,12 +317,14 @@ const mutations = {
 
     ADD_TRACK_TO_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.track)
+
+        // Our playlist just store track ids not the whole track object
+        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.id)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
+        state.playlists[index].tracks = remove(state.playlists[index].tracks, obj.id)
     },
 
     DELETE_PLAYLIST_TRACKS (state, name) {
@@ -513,6 +525,10 @@ const actions = {
 
     unfavouriteTrack: ({ commit }, track) => {
         commit('UNFAVOURITE_TRACK', track)
+    },
+
+    incrementPlayCount: ({ commit }, track) => {
+        commit('INCREMENT_PLAY_COUNT', track)
     },
 
     createPlaylist: ({ commit }, name) => {

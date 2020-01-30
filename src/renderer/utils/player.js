@@ -51,10 +51,13 @@ export default class Player {
 
     activate(currentTrack, pool) {
         this.activated = true
-
-        if (this.shuffle) {
-            this.fillRandoms(currentTrack, pool)
-        }
+        // Previously we triggered the randoms refill fn here
+        // ... but that caused it to be re-reshuffled
+        // ... because when the App is newly launched the 'fillRandoms' fn
+        // ... is triggered if the 'shuffle' is on
+        // ... If not, even if the user toggles the shuffle mode,
+        // ... the 'fillRandoms' fn is called in 'App.vue'
+        // ... Meaning, we essentially don't need the call aswell
     }
 
     setProgressColor(color) {
@@ -148,17 +151,18 @@ export default class Player {
         if (!this.cleared) this.device.playPause()
     }
 
-    getNextRandom(currentTrack, pool) {
-        let editedPool = pool
+    getNextRandom(currentTrack, pool, exclude=false) {
         let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
-        if (this.playHistory.length < 10) {
-            this.playHistory.push(index)
-        } else {
-            this.playHistory = [index]
+        if (!exclude && (index != -1)) {
+            if ((this.playHistory.length <= 10) && (this.playHistory.length >= 0)) {
+                this.playHistory.push(index)
+            } else {
+                this.playHistory = [index]
+            }    
         }
 
         // Check if randoms empty, so we can refill
@@ -172,10 +176,10 @@ export default class Player {
         return this.randoms.pop()
     }
 
-    fillRandoms(currentTrack, pool) {
+    fillRandoms(currentTrack, pool, excludePlayed=false) {
         // Create a properly shuffled pool
         // Exclude playing track, to avoid any collisions
-        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : []
+        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : pool.slice(0)
 
         // Durstenfeld Algo
         for (var i = tmpPool.length - 1;i > 0;i--) {
@@ -189,13 +193,24 @@ export default class Player {
 
         // Fill randoms with newly created (in place) shuffled indexes
         this.randoms = tmpPool.map((item) => { return pool.indexOf(item) })
+
+        // Remove alreaady played tracks
+        // Only triggered if playing target resumed to avoid collisions
+        // ... since the randoms is refilled each time its updated
+        if (excludePlayed) {
+            for (var x = 0;x < this.playHistory.length;x++) {
+                this.randoms = remove(this.randoms, this.playHistory[x])
+            }
+        }
     }
 
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
 
     freeRandTrack (index) {
-        // Removes a track from the set of randoms, to avoid potential double play
+        // Fn should be invoked oonly when a track has been deleted or added
+        // ... as randoms is popped, so this has no effect
+        // Removes a track from the set of `this.randoms` to avoid potential double play
         this.randoms = remove(this.randoms, index)
     }
 

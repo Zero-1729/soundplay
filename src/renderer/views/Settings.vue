@@ -3,12 +3,14 @@
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view
+                :appLoading="appIsLoading"
                 @mutatePlayingCriteria="mutatePlayingCriteria"
                 @lockHotKey="lockHotKey"
                 @unlockHotKey="unlockHotKey"
                 @mutateStatusMessage="mutateStatusMessage"
                 @clearJobsFn="handle_clearJobs"
-                @setJobsFn="handle_setJobs">
+                @setJobsFn="handle_setJobs"
+                @appLoading="push_loading_state">
             </router-view>
         </transition>
     </div>
@@ -17,6 +19,7 @@
 <script>
     export default {
         inheritAttrs: false,
+        props: ['appIsLoading'],
         data() {
             return {
                 transition: ''
@@ -35,6 +38,10 @@
             }
         },
         methods: {
+            push_loading_state (arg) {
+                this.$emit('appLoading', arg)
+            },
+
             handle_clearJobs () {
                 this.$emit('clearJobsFn', null)
             },
@@ -88,6 +95,9 @@
         transition all .3s ease-out
         border-bottom solid transparent 3px
 
+    select:hover, button:hover, .flex .switch:hover
+        cursor pointer
+
     .option
         width 100%
         position relative
@@ -96,6 +106,7 @@
 
     .option-item
         margin-bottom 18px
+        width 68vw
 
     .option-item .info
         display flex
@@ -123,7 +134,8 @@
 
     input#settings-input
         height 22px
-        margin-top 6px
+        margin-top 7px
+        padding-top 0
         align-self center
         border-top none
         border-right none
@@ -132,7 +144,7 @@
         border-bottom-style solid
         margin-left 20px
         background transparent
-        transition all 0.4s ease-out
+        transition all 0.2s ease-out
 
     .slide-to-right-enter-active, .slide-to-right-leave-active, .slide-to-left-enter-active, .slide-to-left-leave-active
         opacity 1

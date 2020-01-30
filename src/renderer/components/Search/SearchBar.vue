@@ -4,7 +4,7 @@
             <path d=" M 19.105 77.099 C 20.086 77.798 21.286 78.209 22.581 78.209 C 25.893 78.209 28.581 75.521 28.581 72.209 C 28.581 68.898 25.893 66.209 22.581 66.209 C 19.27 66.209 16.581 68.898 16.581 72.209 L 16.581 72.209 C 16.581 73.504 16.992 74.704 17.691 75.685 L 13.873 79.504 C 13.469 79.907 13.459 80.551 13.849 80.942 L 13.849 80.942 C 14.239 81.332 14.883 81.321 15.287 80.918 L 19.105 77.099 Z  M 18.381 72.209 C 18.381 69.891 20.263 68.009 22.581 68.009 C 24.899 68.009 26.781 69.891 26.781 72.209 C 26.781 74.527 24.899 76.409 22.581 76.409 C 20.263 76.409 18.381 74.527 18.381 72.209 L 18.381 72.209 Z " fill-rule="evenodd" />
         </svg>
 
-        <input id="search-input" :placeholder="'Search ' + currentCriteria[0].toUpperCase()+currentCriteria.slice(1)" @input="mutateST" @click="highlight" @keyup.esc="blur" @keydown.enter.prevent="blur" @blur="blur" @keydown.8="deletePrevText"/>
+        <input id="search-input" :placeholder="'Search ' + currentCriteria[0].toUpperCase()+currentCriteria.slice(1)" @input="mutateST" @click="highlight" @keyup.esc="blur" @keydown.enter.prevent="blur" @blur="blur"/>
     </div>
 </template>
 
@@ -14,45 +14,20 @@
 
     export default {
         name: 'search',
-        props: ['filteredPool'],
-        data() {
-            return {
-                cahedPool: null,
-                searchText: '',
-            }
-        },
-        watch: {
-            // Only cached when we Criteria & Target are changed,
-            // ... i.e pool requires refiltering
-            currentCriteria () {
-                this.cachedPool = this.filteredPool
-            },
-
-            currentTarget () {
-                this.cachedPool = this.filteredPool
-            },
-
-            filteredPool () {
-                if (Id('search-input') != document.activeElement) {
-                    this.cachedPool = this.filteredPool
-                }
-            }
-        },
+        props: ['searchText'],
         methods: {
             mutateSearchText (value) {
-                this.searchText = value
+                this.$emit('mutateSearchText', value)
             },
 
             highlight() {
                 Id('search-input').select()
-                this.$emit('lockHotKey', 'backspace')
-                this.$emit('lockHotKey', 'enter')
+                this.$emit('lockHotKey', 'input')
             },
 
             blur() {
                 Id('search-input').blur()
-                this.$emit('unlockHotKey', 'backspace')
-                this.$emit('unlockHotKey', 'enter')
+                this.$emit('unlockHotKey', 'input')
             },
 
             focus() {
@@ -61,24 +36,7 @@
             },
 
             mutateST() {
-                this.mutateSearchText(event.target.value)
-                this.$emit('mutatePool', this.searchTracks())
-            },
-
-            searchTracks() {
-                return this.cachedPool.filter((track) => {
-                        return track.title.toLowerCase().includes(this.searchText) || track.artist.toLowerCase().includes(this.searchText) || track.album.toLowerCase().includes(this.searchText) || track.genre.toLowerCase().includes(this.searchText.toLowerCase())
-                })
-            },
-
-            deletePrevText() {
-                if (Id('search-input').value == 0) {
-                    // Lets restore pool
-                    this.$emit('mutatePool', this.cachedPool)
-                } else {
-                    // We force a re-evaluation of track search during 'backspacing'
-                    this.mutateST()
-                }
+                this.$emit('mutateSearchText', event.target.value)
             }
         },
         computed: {

@@ -111,7 +111,6 @@
         margin-left 15px
         button
             height 20px
-            cursor pointer
             border none
             align-self center
         button:hover

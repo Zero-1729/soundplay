@@ -40,9 +40,7 @@ const Icons = {
     '64'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_64x64.png')),
     '48'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_48x48.png')),
     '32'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_32x32.png')),
-    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico')),
-    'tray-mac'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
-    'tray-win'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray.ico'))
+    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico'))
 }
 
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
@@ -109,6 +107,15 @@ function createWindow () {
     })
 
     mainWindow.loadURL(winURL)
+
+    // Full screen detection
+    mainWindow.on('enter-full-screen', () => {
+        mainWindow.webContents.send('enter-full-screen')
+    })
+
+    mainWindow.on('leave-full-screen', () => {
+        mainWindow.webContents.send('leave-full-screen')
+    })
 
     mainWindow.on('closed', () => {
         mainWindow = null
@@ -340,6 +347,16 @@ const template = [
             },
             {
                 role: 'forcereload'
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Search',
+                accelerator: 'CmdOrCtrl+F',
+                click() {
+                    mainWindow.webContents.send('focus-search', null)
+                }
             },
             {
                 type: 'separator'
