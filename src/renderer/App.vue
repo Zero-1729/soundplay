@@ -748,39 +748,67 @@
 
             imports (cur, old) {
                 if (cur == 0) {
-                    // Outsource finale code
-                    this.handle_import_finish()
+                    // Removing App loading effect when all tracks imported
+                    this.vars.appIsLoading = false
+
+                    // Only display a success message if at least 1 or more non duplicates were imported
+                    // ... and there are at least 1 or more files without errors or warnings
+                    if (this.imports_count > 0) {
+                        this.updateStatusMessage({
+                            heading: `Successfully imported ${this.imports_count} sounds`,
+                            isEmpty: false
+                        })
+                    }
+
+                    // Overwrite success message with errors
+                    // [wip] wonky
+                    if (this.error_imports.length > 0) {
+                        // Then issues with non sound files
+                        this.updateFailMessage({
+                            heading: 'Error during file(s) scan', 
+                            message: `Detected ${this.error_imports.length} non sound file(s):`, 
+                            items: this.error_imports
+                        })
+                    }
+
+                    // In case duplicated files are droped
+                    // [wip] wonky
+                    if (this.failed_imports.length == 0) {
+                        this.updateFailMessage({
+                            heading: 'Detected potential sound file(s) duplication',
+                            message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
+                            items: this.failed_imports
+                        })
+                    }
+
+                    // Report warning
+                    // [wip] Works
+                    if (this.warn_imports.length > 0) {
+                        // Metas warning report
+                        this.updateWarnMessage({
+                            heading: 'Detected sound file(s) with weird media tags',
+                            message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
+                            items: this.warn_imports
+                        })
+                    }
+
+                    // Reset imports count
+                    this.imports_count = 0
+
+                    // Final catch for autoplay
+                    // reset flag
+                    this.vars.autoplay = false
                 }
             },
 
             imported_non_sound_folders (cur, old) {
                 if (cur) {
-                    let multiple_folders = this.error_imports.length > 1
-
-                    this.updateFailMessage({
-                        heading: 'Error during folder(s) scan', 
-                        message: `Folder${multiple_folders ? 's' : ''} ${multiple_folders ? 'have' : 'has'} no sound files`, 
-                        items: this.error_imports
-                    })
-
-                    this.error_imports = []
-
                     this.vars.appIsLoading = false
                 }
             },
 
             imported_non_sound_files (cur, old) {
                 if (cur) {
-                    let multiple_files = this.error_imports.length > 1
-
-                    this.updateFailMessage({
-                        heading: `Error during ${this.error_imports.length} file(s) scan`, 
-                        message: `File${multiple_files ? 's' : ''} ${multiple_files ? 'are not sound files' : 'is not a sound file'}`, 
-                        items: this.error_imports
-                    })
-
-                    this.error_imports = []
-
                     this.vars.appIsLoading = false
                 }
             },
@@ -1462,16 +1490,14 @@
 
                         // Only go ahead if the folder or some deeply nested one has tracks
                         if (tracks.length > 0) {
-                            for (var j = 0;j < items.length;j++) {
-                                this.deref(items[j])
+                            for (var j = 0;j < tracks.length;j++) {
+                                this.deref(tracks[j])
                             }
                         } else {
                             // If this cond is reached then the parent folder has problems
-                            // Extract non sound filepath
-                            let filepath = this.resolveObjectPath(objs[i])
-
+                            // Non sound files folder edge case we let it slip
+                            // then reset app loading var
                             this.imported_non_sound_folders = true
-                            this.error_imports = add(this.error_imports, filepath)
                         }
                         
                     } else {
@@ -1491,67 +1517,12 @@
                             // Scan and add Track
                             this.deref(filepath)
                         } else {
-                            // Extract non sound filepath
-                            let filepath = this.resolveObjectPath(objs[i])
-
+                            // if non sound files edge case we let it slip
+                            // then reset app loading var
                             this.imported_non_sound_files = true
-                            this.error_imports = add(this.error_imports, filepath)
                         }
                     }
                 }
-            },
-
-            handle_import_finish() {
-                // Removing App loading effect when all tracks imported
-                this.vars.appIsLoading = false
-
-                // Only display a success message if at least 1 or more non duplicates were imported
-                // ... and there are at least 1 or more files without errors or warnings
-                if (this.imports_count > 0) {
-                    this.updateStatusMessage({
-                        heading: `Successfully imported ${this.imports_count} sounds`,
-                        isEmpty: false
-                    })
-                }
-
-                // Overwrite success message with errors
-                // [wip] wonky
-                if (this.error_imports.length > 0) {
-                    // Then issues with non sound files
-                    this.updateFailMessage({
-                        heading: 'Error during file(s) scan', 
-                        message: `Detected ${this.error_imports.length} non sound file(s):`, 
-                        items: this.error_imports
-                    })
-                }
-
-                // In case duplicated files are droped
-                // [wip] wonky
-                if (this.failed_imports.length == 0) {
-                    this.updateFailMessage({
-                        heading: 'Detected potential sound file(s) duplication',
-                        message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
-                        items: this.failed_imports
-                    })
-                }
-
-                // Report warning
-                // [wip] Works
-                if (this.warn_imports.length > 0) {
-                    // Metas warning report
-                    this.updateWarnMessage({
-                        heading: 'Detected sound file(s) with weird media tags',
-                        message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
-                        items: this.warn_imports
-                    })
-                }
-
-                // Reset imports count
-                this.imports_count = 0
-
-                // Final catch for autoplay
-                // reset flag
-                this.vars.autoplay = false
             }
         },
         computed: {
