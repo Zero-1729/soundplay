@@ -777,15 +777,13 @@
                     // Log the number of imports that had issues
                     // Only perform calc if there are failed import items
                     // ... we don't want negetive values
-                    // 
-                    // HACK: Defaults to failed items length
                     let import_issues_count = this.failed_imports.length > 0 ? this.failed_imports.length - (this.error_imports.length + 
                                                                                                             this.warn_imports.length + 
-                                                                                                            this.vars.reporter.failure.items.length) : this.vars.reporter.failure.items.length
+                                                                                                            this.vars.reporter.failure.items.length) : 0
 
                     // ... and obtain the number of actual imported items
                     // HACK: If no issues then all imports are assumed successful
-                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count
+                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + this.import_issues_count
 
 
                     // Only display a success message if at least 1 or more non duplicates were imported
