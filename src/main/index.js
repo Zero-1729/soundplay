@@ -538,9 +538,9 @@ template[template.length - 1].submenu = [
         type: 'separator'
     },
     {
-        label: 'Follow Us on Twitter',
+        label: 'Report Bug',
         click() {
-            shell.openExternal('https://twitter.com/Soundplay')
+            shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
         }
     }
 ]
