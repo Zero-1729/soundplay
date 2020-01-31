@@ -53,6 +53,8 @@ These are words used in previous commits on all branches, comments in the code b
 
 **inc** (Interim Necessary Change) - Any change required to build stability for other changes being made; A stability change any WIP.
 
+**dhu** (Dev Handbook Update) - Any content update to Dev Handbook
+
 # Internal Design and Workings
 
 ### GetNextRandom
@@ -232,7 +234,28 @@ attempt_import (track):
 |------------|-------------|
 | Error | Attempting to import a non audio file |
 | Warn | Track does have properfly formatted metadata |
-| Warn | Track already eists |
+| Fail | Track already exists |
+
+`error_imports`, `warn_imports`, and `failed_imports` are there to trigger reporting errors, warnings and failed imports, along with keep count of the suspect items.
+
+### Fn notes
+
+#### crawl()
+
+Traverses entire folders and their subfolders, returning the sound files.
+
+### Import code key info
+
+In any software project errors should be reported faster than successful code execution, and in this case that means successful importing. It should be noted however that for software with crypto involved the fail and code success time should be equivalent to avoid timing attacks and such. Thankfully we do not yet have any crypto in the project.
+
+Make any synchronous code blocks: i.e. `for (var i = 0) ...`
+
+| fn | triggers |
+|----|----------|
+| addFiles | DnD, drop on icon, CLI args, open with ..., `Import Track(s)`, `Import Folder(s)` |
+| deref | `addFiles` |
+
+> Future: Make import ipcRenderer fns async.
 
 # Soundcloud Integration
 
