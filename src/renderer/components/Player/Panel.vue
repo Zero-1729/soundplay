@@ -72,8 +72,7 @@
             'pos',
             'player',
             'loading',
-            'foundArt',
-            'loading'
+            'foundArt'
         ],
         data() {
             return {
