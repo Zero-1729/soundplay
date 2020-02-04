@@ -664,7 +664,9 @@
                         }
 
                         // Dim track 
-                        document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+                        if (document.getElementsByTagName('tr')) {
+                            document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+                        }
 
                         // Then seek to next playable track, if its ahead of previously playing track
                         if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
@@ -684,7 +686,9 @@
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
 
                         // Undim track 
-                        document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
+                        if (document.getElementsByTagName('tr')) {
+                            document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
+                        }
                     }
                 }
             },
