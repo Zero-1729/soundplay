@@ -718,10 +718,17 @@
                 }
             },
 
-            allTracks () {
+            allTracks (cur, prev) {
                 // Each time we detect a change in the 'state.music'
                 // ... we rehydrate the current render of tracks
                 this.filterPool()
+
+                // Clear player if all tracks gone
+                if (cur.length == 0) {
+                    // Clear player and reset track
+                    this.player.clear()
+                    this.updateCurrentTrack(null)
+                }
             },
 
             filteredPool (cur, prev) {
