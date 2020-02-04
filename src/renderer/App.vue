@@ -1378,7 +1378,7 @@
                 // We handle the autoplay in the imports hook
                 // If new track and autoplay triggered
                 // We automatically play it
-                if (this.vars.autoplay && ret) {
+                if (this.vars.autoplay) {
                     let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
 
                     this.updateCurrentTrack(this.filteredPool[cindex])
