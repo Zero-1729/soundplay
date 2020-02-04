@@ -1205,14 +1205,17 @@
                 var thead = QuerySelectorAll('thead')[0]
                 var tbody = QuerySelectorAll('tbody')[0]
 
-                if (tbody.scrollHeight > tbody.clientHeight) {
-                    // We use the static width of the window not the table
-                    // ... To avoid mutating both thead and tbody
-                    thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
-                } else {
-                    // If no scollbars are detected the width is automatically
-                    // ... the window's minus the sidpane's width
-                    thead.style.width = String(window.innerWidth - 250) + "px"
+                // Tired of seeing the error
+                if (tbody) {
+                    if (tbody.scrollHeight > tbody.clientHeight) {
+                        // We use the static width of the window not the table
+                        // ... To avoid mutating both thead and tbody
+                        thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
+                    } else {
+                        // If no scollbars are detected the width is automatically
+                        // ... the window's minus the sidpane's width
+                        thead.style.width = String(window.innerWidth - 250) + "px"
+                    }
                 }
             },
 
