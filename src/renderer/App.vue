@@ -663,10 +663,10 @@
                             this.vars.skippedCurrentTrack = true
                         }
 
-                        // Dim track 
-                        if (document.getElementsByTagName('tr')) {
-                            document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
-                        }
+                            // Dim track 
+                            if (document.getElementsByTagName('tr')) {
+                                document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+                            }
 
                         // Then seek to next playable track, if its ahead of previously playing track
                         if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
