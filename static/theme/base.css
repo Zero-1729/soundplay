@@ -61,12 +61,12 @@ input[type="range"].slider::-webkit-slider-thumb {
 }
 
 .fail-message {
-    border-color: orange;
-    color: orange;
+    border-color: #ff8d00;
+    color: #ff8d00;
 }
 
 .fail-message .cancel-btn svg path {
-    fill: orange;
+    fill: #ff8d00;
 }
 
 .fail-message .tight-listing::-webkit-scrollbar-thumb {
@@ -74,7 +74,7 @@ input[type="range"].slider::-webkit-slider-thumb {
 }
 
 .fail-message .tight-listing::-webkit-scrollbar {
-    background: orange;
+    background: #ff8d00;
 }
 
 
