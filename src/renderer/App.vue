@@ -301,8 +301,6 @@
                     this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
                 }
 
-                // Trigger play when done parsing
-
                 ipcRenderer.send('clear-open-files', null)
             })
 
@@ -612,10 +610,6 @@
             '$route' (cur, old) {
                 if (cur.path == '/') {
                     this.redrawWaveform()
-
-                    if (!this.vars.reporter.status.isEmpty) {
-                        this.clearStatusMessage()
-                    }
                 }
             },
 
@@ -1393,6 +1387,9 @@
 
                     // Done with catch
                     this.vars.autoplay = false
+
+                    // Stop loading
+                    // this.vars.appIsLoading = false
                 }
             },
 
@@ -1430,10 +1427,6 @@
                     // And we handle error reporting using the JS Object
                     // ... containing the details of the scan error
                     // ... aswell as the sound filepath
-
-                    // We just warn the user, but still go ahead and import it
-                    this.handle_new_track_warn(track_path)
-
                     // continue processing with dummy meta
                     this.handle_new_track({
                         tags: {
@@ -1445,6 +1438,9 @@
                         },
                         track_name: track_path
                     })
+
+                    // We just warn the user, but still go ahead and import it
+                    this.handle_new_track_warn(track_path)
                 })
             },
 
