@@ -98,9 +98,9 @@ const mutations = {
             year: meta.year
         }
 
-        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', false) : state.artists = add(state.artists, track.artist, false)
-        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', false) : state.albums = add(state.albums, track.album, false)
-        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', false) : state.genres = add(state.genres, track.genre, false)
+        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown') : state.artists = add(state.artists, track.artist)
+        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown') : state.albums = add(state.albums, track.album)
+        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown') : state.genres = add(state.genres, track.genre)
 
         if (meta.activePlaylist) {
             let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
