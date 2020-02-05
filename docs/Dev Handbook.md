@@ -150,6 +150,10 @@ $ /Applications/Soundplay.app/Contents/MacOS/Soundplay ~/Music/SAINt\ JHN/Collec
 
 ```
 
+### Open behaviour
+
+The first track in the folder or list selection passed by the OS (in our `startup_args` & `trigger_files` Arrays) is played if CLI launch, open with, or track file default open is used. In the future we allow the user to specify whether to play the first or last track instead.
+
 ### Drop on Icon
 
 The users can drop a track or tracks on the App icon on the dock, and then the App launches and it imports it or them, and the latest imported one is autoplayed.
