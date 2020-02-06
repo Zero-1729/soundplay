@@ -51,6 +51,8 @@ These are words used in previous commits on all branches, comments in the code b
 
 **ugs** (User Given Suggestion) - As the name implies, this a suggestion given by one or more early users.
 
+**bhu** (Behaviour Update) - Changed App behaviour. It could be in how it handles importing, playback, etc.
+
 **inc** (Interim Necessary Change) - Any change required to build stability for other changes being made; A stability change any WIP.
 
 **dhu** (Dev Handbook Update) - Any content update to Dev Handbook

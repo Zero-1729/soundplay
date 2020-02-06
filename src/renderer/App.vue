@@ -175,6 +175,9 @@
 
     const waveColors      = require('./data/wavecolors.json')
 
+    // Host home directory
+    const hostHomeDir     = require('os').homedir()
+
     export default {
         components: {
             Panel,
@@ -202,6 +205,7 @@
                     playingTarget: null,
                     playingCriteria: null,
                     skippedCurrentTrack: false,
+                    reset_current_track: false,
                     searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
@@ -636,7 +640,18 @@
                 }
             },
 
+            'vars.reset_current_track' (cur, old) {
+                if (cur) {
+                    this.updateCurrentTrack(null)
+                }
+            },
+
             'vars.currentTrack' (cur, old) {
+                // Reset flag
+                if (this.reset_current_track) {
+                    this.reset_current_track = false
+                }
+
                 if (cur) {
                     // Loading state init
                     this.vars.loadingTrack = true
@@ -644,6 +659,7 @@
                     let ret = this.player.playNew(cur.source)
 
                     if (!ret) {
+                        // Means it was from an external source (like a hard drive or something)
                         // If track has been renamed or deleted on the machine or tracks are locked
                         // ... We proceed to skip it
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
@@ -657,10 +673,28 @@
                             this.vars.skippedCurrentTrack = true
                         }
 
-                            // Dim track 
+                        // If the initial path is on the host machine
+                        // ... we can delete the track
+                        if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
+                            // We assume the track was deleted off the fs or moved to another location
+                            this.deleteTrack(cur)
+
+                            // Lets clear the wave DOM that might be created as well
+                            // That's if it was the last track
+                            // TODO: in the future, if loopAll triggers playing from top again
+                            // ... we must ensure the behaviour below does not get in the way
+                            if (cindex == this.filteredPool.length - 1) {
+                                // reset index
+                                this.vars.index = -1
+                                // reset current
+                                this.vars.reset_current_track = true
+                            }
+                        } else {
+                            // Dim track if from external drive
                             if (document.getElementsByTagName('tr')) {
                                 document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
                             }
+                        }
 
                         // Then seek to next playable track, if its ahead of previously playing track
                         if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
