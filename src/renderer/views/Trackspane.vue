@@ -234,15 +234,16 @@
 
             addNewPlaylist() {
                 this.$emit('setPlaylistModal', false)
+		        let playlistName = event.target.value
 
                 // Only if playlist named
-                if (event.target.value.length > 0) {
+                if (playlistName.length > 0) {
                     this.createPlaylist(playlistName)
 
                     if (this.selectedTracks.length > 0) {
                         for (var i = 0;i < this.selectedTracks.length;i++) {
                             this.addTrackToPlaylist({
-                                playlist: event.target.value,
+                                playlist: playlistName,
                                 id: this.selectedTracks[i].id
                             })
                         }
@@ -255,7 +256,7 @@
                         // ... that initiated the modal's opening
                         if (this.pendingTrack) {
                             this.addTrackToPlaylist({
-                                playlist: event.target.value,
+                                playlist: playlistName,
                                 id: this.pendingTrack.id
                             })
 
