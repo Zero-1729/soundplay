@@ -159,9 +159,11 @@
 
     const { isNightTime,
             getCurrentTime,
-            formatTo24Hours } = require('./utils/time')
+            formatTo24Hours }   = require('./utils/time')
 
     const { getIndexFromKey }   = require('./utils/object')
+
+    const { isFile }            = require('./utils/file')
 
     const { remote,
             dialog,
@@ -1407,7 +1409,11 @@
                 } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.failed_imports = add(this.failed_imports, meta.source)
+                    // But only log the error to display if not autoplayed
+                    // ... the user does not need the error message since the track probably already exists
+                    if (!this.vars.autoplay) {
+                        this.failed_imports = add(this.failed_imports, meta.source)
+                    }
                 }
 
                 // We handle the autoplay in the imports hook
@@ -1421,9 +1427,6 @@
 
                     // Done with catch
                     this.vars.autoplay = false
-
-                    // Stop loading
-                    // this.vars.appIsLoading = false
                 }
             },
 
@@ -1431,10 +1434,6 @@
                 // Log it in the warning
                 // we still accept metaless tracks
                 this.warn_imports = add(this.warn_imports, track_path)
-                this.imports -= 1
-
-                // Log as imported
-                this.imports_count += 1
             },
 
             deref(track) {
@@ -1458,6 +1457,10 @@
                     // Here we simply obtain the JS Object containing the scanned tags and filepath
                     this.handle_new_track(obj)
                 }).catch(track_path => {
+                    // freeze data
+                    // To be used to disallow reporting duplicate & bad meta messages
+                    let autoplay = this.vars.autoplay
+
                     // And we handle error reporting using the JS Object
                     // ... containing the details of the scan error
                     // ... aswell as the sound filepath
@@ -1473,8 +1476,12 @@
                         track_name: track_path
                     })
 
-                    // We just warn the user, but still go ahead and import it
-                    this.handle_new_track_warn(track_path)
+                    // Do not log error if autoplayed
+                    // We don't need to bother the user with unecessary messages
+                    if (!autoplay) {
+                        // We just warn the user, but still go ahead and import it
+                        this.handle_new_track_warn(track_path)
+                    }
                 })
             },
 
@@ -1491,7 +1498,7 @@
                 if (typeof obj == 'object') {
                     return obj.type == ''
                 } else {
-                    return !fs.statSync(obj).isFile()
+                    return !isFile(obj)
                 }
             },
 
@@ -1518,6 +1525,9 @@
 
                 // Check if Dir or audio dropped or processing arg
                 let objs = this.resolveObjectFiles(obj)
+
+                // Log track counts at once instead of logging singles
+                this.imports += objs.filter((fp) => { return isFile(fp) }).length
 
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder
@@ -1557,9 +1567,6 @@
 
                             // Obtain sound filepath
                             let filepath = this.resolveObjectPath(objs[i])
-
-                            // file to import increases count as well
-                            this.imports += 1
 
                             // Scan and add Track
                             this.deref(filepath)
