@@ -90,10 +90,10 @@ function createWindow () {
     */
 
     mainWindow = new BrowserWindow({
-        minHeight: 600,
+        minHeight: 680,
         height: windowState.windowBounds.height,
         useContentSize: true,
-        minWidth: 1100,
+        minWidth: 1170,
         width: windowState.windowBounds.width,
         fullScreen: windowState.isFullScreen,
         x: windowState.windowBounds.x,
