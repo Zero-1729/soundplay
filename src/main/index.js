@@ -362,13 +362,6 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Toggle Developer Tools',
-                accelerator: 'Alt+CmdOrCtrl+I',
-                click() {
-                    mainWindow.webContents.openDevTools({ mode: 'detach' })
-                }
-            },
-            {
                 type: 'separator'
             },
             {
@@ -406,6 +399,16 @@ const template = [
             {
                 label: `Version ${APP_VERSION} (64-bit)`,
                 enabled: false
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toggle Developer Tools',
+                accelerator: 'Alt+CmdOrCtrl+I',
+                click() {
+                    mainWindow.webContents.openDevTools({ mode: 'detach' })
+                }
             }
         ]
     }
@@ -541,6 +544,16 @@ template[template.length - 1].submenu = [
         label: 'Report Bug',
         click() {
             shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
+        }
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'Toggle Developer Tools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click() {
+            mainWindow.webContents.openDevTools({ mode: 'detach' })
         }
     }
 ]
