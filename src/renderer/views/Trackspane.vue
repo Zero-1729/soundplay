@@ -777,6 +777,7 @@
         width 24%
 
     tr th:last-child
+        padding-left 4px
         width 16%
 
     tr td:nth-child(2)
