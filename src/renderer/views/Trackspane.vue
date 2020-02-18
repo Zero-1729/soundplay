@@ -324,6 +324,10 @@
                                     id: vm.selectedTracks[i].id
                                 })
                             }
+
+                            // Mutate index to give completion effect
+                            vm.$emit('mutateIndex', vm.index)
+                            vm.selectedTracks = []
                         } else {
                             vm.addTrackToPlaylist({
                                 playlist: playlist.name,
