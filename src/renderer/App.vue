@@ -1494,6 +1494,16 @@
                 }
             },
 
+            resolveObjPath (obj) {
+                // The dropped items might be from DnD (File objects)
+                // or from open with ... or CLI args (list of paths)
+                if (typeof obj == 'string') {
+                    return obj
+                } else {
+                    return obj.path
+                }
+            },
+
             isObjectFolder(obj) {
                 if (typeof obj == 'object') {
                     return obj.type == ''
@@ -1527,7 +1537,7 @@
                 let objs = this.resolveObjectFiles(obj)
 
                 // Log track counts at once instead of logging singles
-                this.imports += objs.filter((fp) => { return isFile(fp) }).length
+                this.imports += Array.from(objs).filter((obj) => { return isFile(this.resolveObjPath(obj)) }).length
 
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder

@@ -57,6 +57,8 @@ These are words used in previous commits on all branches, comments in the code b
 
 **dhu** (Dev Handbook Update) - Any content update to Dev Handbook
 
+**DnD** (Drag 'n' Drop)
+
 # Internal Design and Workings
 
 ### GetNextRandom
