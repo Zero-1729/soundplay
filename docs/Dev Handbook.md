@@ -80,6 +80,12 @@ So effectively, `playHistory` + `randoms` + 1 = `filteredPool`, because there is
 
 The Audio player can be controlled from the host media keys (prev, play/pause, next) or through the playback Menu Item.
 
+#### Audio Context Change
+
+Q) What happens if the playing track is not in the filteredPool?
+
+A) The first track in the current (new) filteredPool is played.
+
 ## Audio playback behavaiour
 
 Tracks that are no longer in the same path on the filesystem are skipped (then track item is dimmed). This causes the track listing to re-adjust according to the listing criteria: alphabetic and meta criteria, such as Album, Artist, Title and Genre.
