@@ -954,7 +954,7 @@
                     if (this.currentCriteria == 'playlist') {
                         this.updatePool(this.allTracks.filter((track) => {
                             if (this.currentTarget) {
-                                return this.currentTarget.tracks.includes(track.id)
+                                return this.currentTarget.ids.length > 0 ? this.currentTarget.ids.includes(track.id) : false
                             } else { return false }
                         }))
                         return

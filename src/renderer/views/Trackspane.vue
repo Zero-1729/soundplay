@@ -112,11 +112,9 @@
                 }
             },
 
-            'currentTarget.tracks' (cur, old) {
-                if (cur) {
-                    // We assume an update
-                    this.filterPool()
-                }
+            'currentTarget.ids' (cur, old) {
+                // We assume an update
+                this.filterPool()
             },
 
             filteredPool (cur, old) {
@@ -147,7 +145,7 @@
                     // Artificially clear playlist
                     this.changeTarget({
                         name: this.currentTarget.name,
-                        tracks: []
+                        ids: []
                     })
 
                     this.filterPool()
@@ -193,11 +191,15 @@
                 'setCurrentDirec'
             ]),
 
-            triggerRemove (arg) {
+            triggerRemove (arg, i=0) {
                 // Reset selected tracks first
                 // ... and the index
-                this.$emit('mutateIndex', this.index)
-                this.selectedTracks = []
+                this.$emit('mutateIndex', this.selectedTracks.length > 1 ? -1 : this.index)
+
+                if (i == this.selectedTracks.length - 1) {
+                    // If all tracks removed, we reset the array
+                    this.selectedTracks = []
+                }
 
                 this.removeFromPlaylist(arg)
             },
@@ -389,7 +391,6 @@
                         label: 'Remove Track',
                         click() {
                             vm.triggerRemove({playlist: vm.currentTarget.name, id: track.id})
-
                             vm.filterPool()
                         }
                     } :
@@ -610,7 +611,7 @@
                 } else {
                     if (this.currentCriteria == 'music') {
                         if (this.currentTarget == 'All Tracks') {
-                            this.deleteAllTracks()
+                            this.deleteAllTracks(true)
                         }
 
                         if (this.currentTarget == 'Favourites') {
@@ -649,7 +650,7 @@
             deleteSelectedTracks() {
                 // Only trigger if '(search) input' is blurred
                 // We don't want the tracks disappearing randomly while typing
-                if ((this.index != -1) && !this.inputLock) {
+                if (((this.index != -1) || (this.filteredPool.length == this.selectedTracks.length)) && !this.inputLock) {
                     // Delete current track if seleted
                     if (this.isSameSource(this.filteredPool[this.index])) {
                         this.$emit('clearCurrentTrack')
@@ -662,7 +663,7 @@
                     if (this.currentCriteria == 'playlist') {
                         if (this.selectedTracks.length > 0) {
                             for (var i = 0;i < this.selectedTracks.length;i++) {
-                                this.triggerRemove({playlist: this.currentTarget.name, id: this.filteredPool[i].id})
+                                this.triggerRemove({playlist: this.currentTarget.name, id: this.selectedTracks[i].id}, i)
                             }
                         } else {
                             // remove a single track
@@ -685,6 +686,9 @@
                                 for (var i = 0;i < this.selectedTracks.length;i++) {
                                     this.triggerDeleteTrack(this.selectedTracks[i])
                                 }
+
+                                // If batch delete, just resetting the index to give the effect of it gone
+                                this.$emit('mutateIndex', -1)
                             }
                         } else {
                             if (this.currentTrack == this.filteredPool[this.index]) {
@@ -694,8 +698,6 @@
                             // This.currentTrack isn't set yet
                             // So we improvise and call out the current highlighted track
                             this.triggerDeleteTrack(this.filteredPool[this.index])
-                            // Reset the previous index to the track above the deleted ones below
-                            this.$emit('mutateIndex', this.index - 1)
                         }
                     }
                 }

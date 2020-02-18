@@ -105,7 +105,7 @@ const mutations = {
         if (meta.activePlaylist) {
             let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
             // If we are in a playlist and add a track we also include it in the playlist
-            state.playlists[pindex].tracks.push(track.id)
+            state.playlists[pindex].ids.push(track.id)
         }
 
         // Add the track
@@ -140,7 +140,7 @@ const mutations = {
 
         // Purge playlists of the track
         for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'id', track.id)
+            state.playlists[i].ids = removeObject(state.playlists[i].ids, 'id', track.id)
         }
     },
 
@@ -258,7 +258,7 @@ const mutations = {
         } else {
             // Empty playlist
             for (var i = 0;i < state.playlists.length;i++) {
-                state.playlists[i].tracks = []
+                state.playlists[i].ids = []
             }
         }
     },
@@ -292,7 +292,7 @@ const mutations = {
     CREATE_PLAYLIST (state, name) {
         state.playlists.push({
             name: name,
-            tracks: []
+            ids: []
         })
     },
 
@@ -311,18 +311,18 @@ const mutations = {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
 
         // Our playlist just store track ids not the whole track object
-        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.id)
+        state.playlists[index].ids = add(state.playlists[index].ids, obj.id)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = remove(state.playlists[index].tracks, obj.id)
+        state.playlists[index].ids = remove(state.playlists[index].ids, obj.id)
     },
 
     DELETE_PLAYLIST_TRACKS (state, name) {
         let index = getIndexFromKey(state.playlists, name)
 
-        state.playlists[index].tracks = []
+        state.playlists[index].ids = []
     },
 
     // App Routes
