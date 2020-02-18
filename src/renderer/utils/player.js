@@ -158,7 +158,7 @@ export default class Player {
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
         if (!exclude && (index != -1)) {
-            if ((this.playHistory.length <= 10) && (this.playHistory.length >= 0)) {
+            if (this.playHistory.length <= 10) {
                 this.playHistory.push(index)
             } else {
                 this.playHistory = [index]
