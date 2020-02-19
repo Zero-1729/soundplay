@@ -326,7 +326,6 @@
             p
                 margin 18px
                 cursor pointer
-                font-weight bold
                 user-select none
                 text-overflow ellipsis
                 overflow hidden

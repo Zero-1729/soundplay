@@ -188,6 +188,7 @@
                     h4
                         text-align center
                         margin-right 120px
+                        font-weight 100
                     h4.t-title
                         margin-top 20px
                         margin-bottom 10px
