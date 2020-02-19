@@ -74,11 +74,6 @@
             'loading',
             'foundArt'
         ],
-        data() {
-            return {
-                showArt: false
-            }
-        },
         mounted() {
             window.$vue = this
         },
@@ -87,21 +82,10 @@
                 this.player.setPlaybackRate(cur)
             },
 
-            'player.cleared' (cur, prev) {
-                if (cur) {
-                    // We should clear the art when the player hasn been cleared
-                    this.showArt = false
-                }
-            },
-
             foundArt (cur, prev) {
                 if (cur) {
-                    this.showArt = true
-
                     // Redraw waveform here
                     if (this.player) this.player.device.drawBuffer()
-                } else {
-                    this.showArt = false
                 }
             }
         },
@@ -142,6 +126,9 @@
                     img: null,
                     duraction: '-'
                 }
+            },
+            showArt() {
+                return this.player.cleared ? false : this.foundArt
             },
             volume: {
                 set(val) {
