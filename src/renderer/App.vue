@@ -693,6 +693,9 @@
                                 this.vars.index = -1
                                 // reset current
                                 this.vars.reset_current_track = true
+
+                                // Avoids trying to trigger playback
+                                return
                             }
                         } else {
                             // Dim track if from external drive
