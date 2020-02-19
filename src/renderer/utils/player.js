@@ -11,7 +11,8 @@ export default class Player {
         this.shuffle = props.shuffle // Only used to assert shuffle on when App newly launched
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
-        this.playHistory = [] // For storing previously played tracks in shuffle mode
+        this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
+        this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
         this.bands = {
             60: "Hz_60",
@@ -158,11 +159,18 @@ export default class Player {
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
         if (!exclude && (index != -1)) {
-            if (this.playHistory.length <= 10) {
-                this.playHistory.push(index)
+            if (this.tmpPlayHistory.length <= 10) {
+                this.tmpPlayHistory.push(index)
             } else {
-                this.playHistory = [index]
-            }    
+                this.tmpPlayHistory = [index]
+            }
+
+            // All indexes are pushed until the floor is reached
+            if (this.playHistory.length == this.pool) {
+                this.playHistory - [index]
+            } else {
+                this.playHistory.push(index)
+            }
         }
 
         // Check if randoms empty, so we can refill

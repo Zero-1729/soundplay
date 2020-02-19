@@ -636,7 +636,10 @@
             'appAudioPrefs.shuffle' (cur, prev) {
                 if (cur) {
                     // create random indexes array for shuffled tracks
-                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool)
+                    // Refills with exclusion if we are in the playing Target
+                    // ... we are assuming the user is triggering on/off
+                    // ... to make playback consistent we ensure history is repected
+                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
                 } else {
                     this.player.emptyRandoms()
                 }
@@ -766,7 +769,8 @@
                     // Recalc randoms when current currentTarget updated
                     // REM: current pool view is the queue
                     // When we refill we need to ensure that the already played tracks are excluded
-                    this.player.fillRandoms(this.vars.currentTrack, cur, true)
+                    // ... if the user is re-entered the playing target
+                    this.player.fillRandoms(this.vars.currentTrack, cur, this.currentTarget == this.vars.playingTarget)
                 }
             },
 
@@ -839,6 +843,11 @@
                     // Final catch for autoplay
                     // reset flag
                     this.vars.autoplay = false
+
+                    // Add new tracks to randoms
+                    if (this.appAudioPrefs.shuffle) {
+                        this.player.fillRandoms(this.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
+                    }
                 }
             },
 
@@ -1138,7 +1147,7 @@
 
                 if (cindex > 0) {
                     if (this.appAudioPrefs.shuffle) {
-                        cindex = this.player.playHistory.pop()
+                        cindex = this.player.tmpPlayHistory.pop()
                     } else { cindex = cindex - 1 }
 
                     this.updateCurrentTrack(this.filteredPool[cindex])

@@ -59,6 +59,8 @@ These are words used in previous commits on all branches, comments in the code b
 
 **DnD** (Drag 'n' Drop)
 
+**floor** - an abstract concept that refers to the end if playback, when the last track in playing queue is hit.
+
 # Internal Design and Workings
 
 ### GetNextRandom
@@ -114,7 +116,35 @@ Triggering the prev media key or Menu Item would:
 | No      | Yes/No   | Yes/No      | Seeks to the track below the currenlty playing track, until the last track in the current view is reached. |
 | Yes     | Yes/No   | Yes/No      | Seeks to the track next in the player's `randoms` Array. |
 
+## Shuffle Mode
+
+Shuffle mode allows tracks to be randomly ordered for playback, however, this ordering if truely random (i.e. potential of track collisions exists) then it results in a poor audio experience. Nobody wants the track they just heard to be replayed again, hence, Soundplay's shuffle mode is intended to provide true shuffle behaviour: each track is only played once, and can only be played again once all the tracks in the pool have been exhausted.
+
+### Player behaviour
+
+The player keeps track of the indexes of the randomly ordered tracks, and remember Soundplay keeps a track of the currently playing Criteria and Target, which means, if the user were to switch to a separate criteria (and target) then the player needs to rebuild the `randoms` array. However, if the user user changes the criteria (and target) to a different one from the one playing and then back, the player rebuilds the list but excludes indexes of the tracks already played - the indexes in its `playHistory` array.
+
+### playback behaviour
+
+In shuffle mode, whenever the user triggers the next track the player fetches a new index from `randoms`. However, when the user triggers the previous track, the player pops the index of the previously played track in the `tmpPlayHistory` array, which only spans the last five tracks, this way we keep the possibility of collisions.
+
+### `tmpPlayHistory` vs `playHistory`
+
+The `tmpPlayHistory` is a temporary array that stores the indexes of the last 10 played tracks in shuffle mode, however, the `playHistory` is an array that keeps track of all played tracks in shuffle mode, and gets emptied once all tracks have been played, before then getting refilled again.
+
+### TODO
+
+```
+Q) What happens when the `tmpPlayHistory` is exhausted from user triggering previous?
+
+A) For now it just prevents them from going any further until new tracks are played. The real issue is trying to ensure they can trigger previous tracks but without causing the playback to appear to have collisions.
+```
+
+---
+
 ## Import
+
+> **Note:** In shuffle mode, newly imported tracks are added the `randoms` array.
 
 Soundplay allows tracks to be imported from a variety of methods and sources:
 
@@ -183,6 +213,8 @@ The sudo code below illustrates an overview of the steps
 import (array_of_import_items):
     [ list of items ] # Could be a mix of folders and track paths
 
+    log the number of single sound files
+
     for each item in the list above:
 
         is the current item folder?
@@ -192,6 +224,8 @@ import (array_of_import_items):
         # Traverse (recursive decent style)
         Are there tracks here item? (^)
             [yes]
+
+            log the number of sound files
 
             for track in tracks:
                 import_track(track)
@@ -269,7 +303,9 @@ Make any synchronous code blocks: i.e. `for (var i = 0) ...`
 | addFiles | DnD, drop on icon, CLI args, open with ..., `Import Track(s)`, `Import Folder(s)` |
 | deref | `addFiles` |
 
-> Future: Make import ipcRenderer fns async.
+> Future: Make import flow faster.
+
+---
 
 # Soundcloud Integration
 
