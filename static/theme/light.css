@@ -112,7 +112,7 @@ input[type="range"].slider.checked {
 
 /* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {
-    box-shadow: 0px 4px 15px 0px lightsteelblue;
+    box-shadow: 0px 4px 15px 0px #d2d2d2;
 }
 
 .main-toolset-container .item .icon path, .main-toolset-container-alt .item .icon path {
