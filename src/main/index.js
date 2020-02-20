@@ -10,7 +10,7 @@ import {
 
 const WindowManager = require('./utils/windowManager').default
 
-const { add } = require('./../renderer/utils/list')
+const { add, removePattern } = require('./../renderer/utils/list')
 
 import '../renderer/store'
 
@@ -18,7 +18,7 @@ const path = require('path')
 
 // App version
 // Note: Should match 'package.json'
-const APP_VERSION = 'v.0.2.0-a'
+const APP_VERSION = 'v0.2.0 (Alpha)'
 
 /**
  * Set `__static` path to static files in production
@@ -40,16 +40,15 @@ const Icons = {
     '64'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_64x64.png')),
     '48'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_48x48.png')),
     '32'        :  nativeImage.createFromPath(path.join(logosPath, 'icon_32x32.png')),
-    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico')),
-    'tray-mac'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray-mac.png')),
-    'tray-win'  :  nativeImage.createFromPath(path.join(logosPath, 'icon-tray.ico'))
+    'ico'       :  nativeImage.createFromPath(path.join(logosPath, 'icon_256x256.ico'))
 }
 
 const winURL = process.env.NODE_ENV === 'development' ? `http://localhost:9080`
 : `file://${__dirname}/index.html`
 
 // args provided during startup
-var startup_args = process.env.NODE_ENV != 'development' ? process.argv.slice(1) : []
+var startup_args = process.env.NODE_ENV != 'development' ? 
+                    removePattern(process.argv.slice(1), new RegExp(/-psn_.+/)) : []
 
 var mainWindow = null
 
@@ -66,7 +65,7 @@ app.on('open-file', (event, arg) => {
     event.preventDefault()
 
     // Add trigger file
-    openFiles = add(openFiles, arg, true)
+    openFiles = add(openFiles, arg)
 
     // MainWindow is a 'BrowserWindow' here so we directly call 'webContents' to send the dropped items
     if (mainWindow != null) {
@@ -91,10 +90,10 @@ function createWindow () {
     */
 
     mainWindow = new BrowserWindow({
-        minHeight: 600,
+        minHeight: 680,
         height: windowState.windowBounds.height,
         useContentSize: true,
-        minWidth: 1100,
+        minWidth: 1170,
         width: windowState.windowBounds.width,
         fullScreen: windowState.isFullScreen,
         x: windowState.windowBounds.x,
@@ -109,17 +108,26 @@ function createWindow () {
 
     mainWindow.loadURL(winURL)
 
+    // Full screen detection
+    mainWindow.on('enter-full-screen', () => {
+        mainWindow.webContents.send('enter-full-screen')
+    })
+
+    mainWindow.on('leave-full-screen', () => {
+        mainWindow.webContents.send('leave-full-screen')
+    })
+
     mainWindow.on('closed', () => {
         mainWindow = null
     })
 
-    ipcMain.on('clear-open-files', (event, arg) => {
+    ipcMain.on('clear-open-files', () => {
         // Clear open files
         openFiles = []
     })
 
     // Check whether file path specified, if so we send it over to our render for processing
-    ipcMain.on('request-startup-process-args', (event, args) => {
+    ipcMain.on('request-startup-process-args', (event) => {
         event.sender.send('ack-startup-process-args', { startup_args: startup_args, trigger_files: openFiles })
 
         // Reset startup files
@@ -152,7 +160,7 @@ function createWindow () {
         mainWindow.webContents.send('media-next', null)
     })
 
-    if (!(mpp || mp || np)) { console.log('Media keys registration failed') }
+    if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
 }
 
 app.on('ready', createWindow)
@@ -208,14 +216,14 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Import Tracks...',
+                label: 'Import Track(s)...',
                 click() {
                     mainWindow.webContents.send('import-tracks', null)
                 },
                 accelerator: 'CmdOrCtrl+O'
             },
             {
-                label: 'Import Folder...',
+                label: 'Import Folder(s)...',
                 click() {
                     mainWindow.webContents.send('import-folder', null)
                 },
@@ -318,6 +326,16 @@ const template = [
                 click() {
                     mainWindow.webContents.send('volume', -1)
                 }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toggle EQ',
+                accelerator: 'CmdOrCtrl+Shift+E',
+                click() {
+                    mainWindow.webContents.send('toggle-eq', null)
+                }
             }
         ]
     },
@@ -334,11 +352,14 @@ const template = [
                 type: 'separator'
             },
             {
-                label: 'Toggle Developer Tools',
-                accelerator: 'Alt+CmdOrCtrl+I',
+                label: 'Search',
+                accelerator: 'CmdOrCtrl+F',
                 click() {
-                    mainWindow.webContents.openDevTools({ mode: 'detach' })
+                    mainWindow.webContents.send('focus-search', null)
                 }
+            },
+            {
+                type: 'separator'
             },
             {
                 type: 'separator'
@@ -372,12 +393,22 @@ const template = [
             {
                 label: 'About ' + app.getName(),
                 click() {
-                    shell.openExternal('https://github.com/zero-1729/soundplay')
+                    shell.openExternal('https://github.com/Zero-1729/soundplay')
                 }
             },
             {
                 label: `Version ${APP_VERSION} (64-bit)`,
                 enabled: false
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Toggle Developer Tools',
+                accelerator: 'Alt+CmdOrCtrl+I',
+                click() {
+                    mainWindow.webContents.openDevTools({ mode: 'detach' })
+                }
             }
         ]
     }
@@ -391,7 +422,7 @@ if (process.platform == 'darwin') {
                 {
                     label: 'About ' + app.getName(),
                     click() {
-                        shell.openExternal('https://github.com/zero-1729/soundplay')
+                        shell.openExternal('https://github.com/Zero-1729/soundplay')
                     }
                 },
                 {
@@ -503,16 +534,26 @@ template[template.length - 1].submenu = [
     {
         label: 'Documentation',
         click() {
-            shell.openExternal('https://github.com/Zero-1729/soundplay#docs.md')
+            shell.openExternal('https://github.com/Zero-1729/soundplay')
         }
     },
     {
         type: 'separator'
     },
     {
-        label: 'Follow Us on Twitter',
+        label: 'Report Bug',
         click() {
-            shell.openExternal('https://twitter.com/Soundplay')
+            shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
+        }
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'Toggle Developer Tools',
+        accelerator: 'Alt+CmdOrCtrl+I',
+        click() {
+            mainWindow.webContents.openDevTools({ mode: 'detach' })
         }
     }
 ]

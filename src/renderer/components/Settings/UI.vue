@@ -72,13 +72,31 @@
                 </div>
             </div>
         </div>
+        <div class="option">
+            <div class="option-item">
+                <div class="flex">
+                    <h3>
+                        Notifications
+                    </h3>
+                    <label class="switch" :class="{checked: notifs}">
+                        <input type="checkbox" v-model="notifs"/>
+                        <span class="slider" :class="{checked: notifs}"></span>
+                    </label>
+                </div>
+                <p class="info">
+                    Display App Notifications such as current playing track.
+                </p>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-    import { mapGetters, mapActions }         from 'vuex'
+    import { mapGetters, mapActions }  from 'vuex'
 
-    import { isNightTime, reformatTo24Hours } from './../../utils/time'
+    const { isNightTime,
+             formatTo24Hours,
+             getCurrentTime }          = require('./../../utils/time')
 
     const schedule = require('node-schedule')
 
@@ -104,46 +122,9 @@
                 }
             },
             appAutoNightModeTime(cur, old) {
-                let vm = this
-
-                // Check whether in night mode time
-                if (this.appAutoNightMode) {
-                    let {am, pm} = cur
-
-                    // Reschedule here
-                    this.clearJobsFn()
-
-                    this.setJobsFn({
-                        start: schedule.scheduleJob({hour: pm, minute: 0}, function () {
-                            if (vm.appAutoNightMode) {
-                                if (!vm.appNightMode) {
-                                    vm.setNightMode(true)
-                                }
-                            }
-                        }),
-                        end: schedule.scheduleJob({hour: am, minute: 0}, function () {
-                            if (vm.appAutoNightMode) {
-                                if (vm.appNightMode) {
-                                    vm.setNightMode(false)
-                                }
-                            }
-                        })
-                    })
-
-                    if (isNightTime(new Date().getHours(), reformatTo24Hours(pm), am)) {
-                        if (!this.appNightMode) {
-                            // If the current time after change is in the night
-                            // ... turn on night mode
-                            this.setNightMode(true)
-                        }
-                    } else {
-                        if (this.appNightMode) {
-                            // Otherwise we turn it off
-                            this.setNightMode(false)
-                        }
-                    }
-                }
+                this.reschedule()
             },
+
             currentAutoNightMode(cur, old) {
                 // Check if autoNightMode is set
                 if (cur) {
@@ -151,7 +132,7 @@
                     let { am, pm } = this.appAutoNightModeTime
                     let time = new Date().getHours()
 
-                    if (isNightTime(time, reformatTo24Hours(pm), am) && !this.appNightMode) {
+                    if (isNightTime(time, formatTo24Hours(pm), am) && !this.appNightMode) {
                         this.setNightMode(true)
                     }
                 }
@@ -167,9 +148,52 @@
                 'setAutoNightModeAm',
                 'setAutoNightModePm',
                 'setNightMode',
-                'setJobsFn',
-                'clearJobsFn'
+                'displayNotif'
             ]),
+
+            reschedule() {
+                let vm = this
+
+                // Check whether in night mode time
+                if (this.appAutoNightMode) {
+                    let {am, pm} = this.appAutoNightModeTime
+                    let [hrs, min, sec] = getCurrentTime()
+
+                    // Reschedule here
+                    this.$emit('clearJobsFn', null)
+
+                    this.$emit('setJobsFn', {
+                        start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 10}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (!vm.appNightMode) {
+                                    vm.setNightMode(true)
+                                }
+                            }
+                        }),
+                        end: schedule.scheduleJob({hour: am, minute: 10}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (vm.appNightMode) {
+                                    vm.setNightMode(false)
+                                }
+                            }
+                        })
+                    })
+
+                    if (isNightTime(hrs, formatTo24Hours(pm), am)) {
+                        if (!this.appNightMode) {
+                            // If the current time after change is in the night
+                            // ... turn on night mode
+                            this.setNightMode(true)
+                        }
+                    } else {
+                        if (this.appNightMode) {
+                            // Otherwise we turn it off
+                            this.setNightMode(false)
+                        }
+                    }
+                }
+            },
+
             handle_input_inc(period) {
                 let time = Number(event.target.value)
 
@@ -196,8 +220,9 @@
                 'appNightModeTheme',
                 'appAutoNightMode',
                 'appAutoNightModeTime',
-                'appScheduleJobs'
+                'appNotifs'
             ]),
+
             currentTheme: {
                 get() {
                     return this.appTheme
@@ -269,7 +294,15 @@
                 set(value) {
                     this.setAutoNightModePm(Number(value))
                 }
-            }
+            },
+            notifs: {
+                get() {
+                    return this.appNotifs
+                },
+                set(value) {
+                    this.displayNotif(value)
+                }
+            },
         }
     }
 </script>
@@ -282,7 +315,6 @@
         width 70px
         border-radius 2.5px
         border none
-        cursor pointer
 
     .flex .furthest
         margin-left 213px
@@ -296,13 +328,12 @@
     .flex .switch
         position relative
         display inline-block
-        width 45px
+        width 44px
         height 20px
         border-radius 34px
         margin-top 12px
         margin-left 180px
         margin-right 110px
-        cursor pointer
 
     .flex .switch input
         opacity 0

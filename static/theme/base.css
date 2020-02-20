@@ -35,6 +35,14 @@ input[type="range"].slider::-webkit-slider-thumb {
     fill: #ff7a70;
 }
 
+.error-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #df1203;
+}
+
+.error-message .tight-listing::-webkit-scrollbar {
+    background: #ff7a70;
+}
+
 .warn-message {
     border-color: #ffc107;
     color: #ffc107;
@@ -44,13 +52,29 @@ input[type="range"].slider::-webkit-slider-thumb {
     fill: #ffc107;
 }
 
+.warn-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #9c790f;
+}
+
+.warn-message .tight-listing::-webkit-scrollbar {
+    background: #ffc107;
+}
+
 .fail-message {
-    border-color: orange;
-    color: orange;
+    border-color: #ff8d00;
+    color: #ff8d00;
 }
 
 .fail-message .cancel-btn svg path {
-    fill: orange;
+    fill: #ff8d00;
+}
+
+.fail-message .tight-listing::-webkit-scrollbar-thumb {
+    background: #b16201;
+}
+
+.fail-message .tight-listing::-webkit-scrollbar {
+    background: #ff8d00;
 }
 
 
@@ -67,19 +91,19 @@ input[type="range"].slider::-webkit-slider-thumb {
 
 
 /* SidePane Component colors */
-#app .virtical-div .entity-listing h4 {
+#app .vertical-div .entity-listing h4 {
     color: #cecece;
 }
 
-#app .virtical-div .entity.activeTarget p {
+#app .vertical-div .entity.activeTarget p {
     color: dodgerblue;
 }
 
-#app .virtical-div .entity p:hover {
+#app .vertical-div .entity p:hover {
     color: rgba(30, 144, 255, 0.51);
 }
 
-#app .virtical-div .entity p#hovered-text {
+#app .vertical-div .entity p#hovered-text {
     color: rgba(30, 144, 255, 0.51);
 }
 

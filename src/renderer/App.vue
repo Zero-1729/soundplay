@@ -8,10 +8,10 @@
             :foundArt="vars.foundArt">
         </Panel>
         <Search
-            :filteredPool="filteredPool"
+            :searchText="vars.searchText"
+            @mutateSearchText="updateSearchText"
             @lockHotKey="lockHotKey"
-            @unlockHotKey="unlockHotKey"
-            @mutatePool="updatePool">
+            @unlockHotKey="unlockHotKey">
         </Search>
         <AudioTS
             :playingCriteria="vars.playingCriteria"
@@ -22,7 +22,7 @@
         <Sidepane
             :playingTarget="vars.playingTarget"
             :playingCriteria="vars.playingCriteria"
-            @caheRoute="cacheRoute"
+            @cacheRoute="cacheRoute"
             @lockHotKey="lockHotKey"
             @unlockHotKey="unlockHotKey">
         </Sidepane>
@@ -33,18 +33,20 @@
                     :player="player"
                     :filteredPool="filteredPool"
                     :index="vars.index"
+                    :focused="vars.playlistFocus"
                     :openPlaylistModal="vars.modals.playlist"
-                    :backspaceLock="vars.lock.backspace"
-                    :enterLock="vars.lock.enter"
+                    :inputLock="vars.lock.input"
                     :playingCriteria="vars.playingCriteria"
                     :currentTrack="vars.currentTrack"
+                    :appIsLoading="vars.appIsLoading"
                     @appLoading="setAppLoading"
                     @mutateIndex="updateIndex"
+                    @setPlaylistFocus="setPlaylistFocus"
                     @setPlaylistModal="setPlaylistModal"
                     @lockHotKey="lockHotKey"
                     @unlockHotKey="unlockHotKey"
                     @updateStatusMessage="updateStatusMessage"
-                    @mutatePool="updatePool"
+                    @filterPool="filterPool"
                     @mutateCurrentTrack="updateCurrentTrack"
                     @clearCurrentTrack="clearCurrentTrack"
                     @mutatePlayingTarget="updatePlayingTarget"
@@ -52,13 +54,17 @@
                     @clearStatusMessage="clearStatusMessage"
                     @clearErrorMessage="clearErrorMessage"
                     @clearWarnMessage="clearWarnMessage"
-                    @clearFailMessage="clearFailMessage">
+                    @clearFailMessage="clearFailMessage"
+                    @clearJobsFn="clearJobsFn"
+                    @setJobsFn="setJobsFn"
+                    
+                    :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
             </transition>
         </span>
 
         <!-- App EQ Component -->
-        <equalizer></equalizer>
+        <equalizer :player="player"></equalizer>
 
         <transition name="rise">
             <div class="status-message" v-show="!vars.reporter.status.isEmpty">
@@ -110,7 +116,9 @@
         <transition name="rise">
             <div class="fail-message" v-show="!vars.reporter.failure.isEmpty">
                 <div class="cancel-btn" @click="clearAllFailMessage">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15"><path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 40 40" width="15" height="15">
+						<path d=" M 20 17.879 L 7.979 5.858 C 7.394 5.272 6.443 5.272 5.858 5.858 L 5.858 5.858 C 5.272 6.443 5.272 7.394 5.858 7.979 L 17.879 20 L 5.858 32.021 C 5.272 32.606 5.272 33.557 5.858 34.142 L 5.858 34.142 C 6.443 34.728 7.394 34.728 7.979 34.142 L 20 22.121 L 32.021 34.142 C 32.606 34.728 33.557 34.728 34.142 34.142 L 34.142 34.142 C 34.728 33.557 34.728 32.606 34.142 32.021 L 22.121 20 L 34.142 7.979 C 34.728 7.394 34.728 6.443 34.142 5.858 L 34.142 5.858 C 33.557 5.272 32.606 5.272 32.021 5.858 L 20 17.879 Z " fill-rule="evenodd" />
+					</svg>
                 </div>
                 <h4>
                     {{ vars.reporter.failure.heading }}
@@ -142,20 +150,22 @@
 
     import Player               from './utils/player'
 
-    import { add }              from './utils/list'
+    const { add }               = require('./utils/list')
 
-    import { Id,
+    const { Id,
             ClassName,
             ClassNameSingle,
-            QuerySelectorAll }  from './utils/htmlQuery'
+            QuerySelectorAll }  = require('./utils/htmlQuery')
 
-    import { isNightTime,
-            reformatTo24Hours } from './utils/time'
+    const { isNightTime,
+            getCurrentTime,
+            formatTo24Hours }   = require('./utils/time')
 
-    import { getIndexFromKey }  from './utils/object'
+    const { getIndexFromKey }   = require('./utils/object')
 
-    const {
-            remote,
+    const { isFile }            = require('./utils/file')
+
+    const { remote,
             dialog,
             ipcRenderer } = require('electron')
 
@@ -166,6 +176,9 @@
     const path            = require('path')
 
     const waveColors      = require('./data/wavecolors.json')
+
+    // Host home directory
+    const hostHomeDir     = require('os').homedir()
 
     export default {
         components: {
@@ -179,10 +192,12 @@
         data() {
             return {
                 error_imports: [],
-                imported_folders: [],
+                warn_imports: [],
                 failed_imports: [],
                 imports: 0,
                 imports_count: 0,
+                imported_non_sound_folders: false, // To handle overloaded non sound folders
+                imported_non_sound_files: false, // To handle overloaded non sound
                 player: null,
                 pool: [],
                 vars: {
@@ -191,18 +206,22 @@
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
+                    skippedCurrentTrack: false,
+                    reset_current_track: false,
+                    searchText: '',
                     loadingTrack: false,
                     appIsLoading: false,
+                    autoplay: false,
                     lock: {
-                        'backspace': false,
-                        'enter': false
+                        'input': false // For space, enter, backspace and arrows
                     },
+                    playlistFocus: false,
                     modals: {
                         playlist: false
                     },
-                    cached: {
-                        mainRoute: '/',
-                        childRoute: '/'
+                    jobs: {
+                        start: null,
+                        end: null
                     },
                     reporter: {
                         status: {
@@ -235,20 +254,23 @@
         created() {
             // Print Welcome message
             console.log("Welcome to Soundplay v0.2.0 (Alpha)")
+            console.log("\nAs an Alpha/Beta tester, you are the first to see this App.")
+            console.log("If you have suggestions or find bugs Open up an issue here:")
+            console.log("https://gihtub.com/soundplay/issues.")
 
             // Hide App Audio EQ if it was opened in a previous session
             if (this.appAudioEQ.visible) {
                 this.toggleAudioEQVisibility()
             }
 
-            // Clear jobs
-            this.setJobsFn({start: null, end: null})
-
             // - End of session clearing -
+
+            // Inject tracks
+            this.pool = this.allTracks
 
             // Lets watch for 'spacebar' event to trigger player's 'play/pause'
             window.addEventListener('keydown', (ev) => {
-                if (ev.code == 'Space') {
+                if ((ev.code == 'Space') && (!this.vars.lock.space)) {
                     this.triggerPlaypause(ev)
                 }
 
@@ -266,16 +288,31 @@
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
 
+            // Or use 'fullscreen' from window event listener
+            ipcRenderer.on('enter-full-screen', () => {
+                if (ClassNameSingle('vertical-div-holder').length > 0) {
+                    ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
+                }
+            })
+
+            ipcRenderer.on('leave-full-screen', () => {
+                if (ClassNameSingle('vertical-div-holder').length > 0) {
+                    ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
+                }
+            })
+
             // Request startup args from Main
             ipcRenderer.send('request-startup-process-args')
 
             ipcRenderer.on('ack-startup-process-args', (event, arg) => {
                 // Only begin parsing arg if sound path or folder path injected
                 if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
+                    // Catch in imports hook
+                    // ... and when we check for duplicate tracks
+                    this.vars.autoplay = true
+
                     this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
                 }
-
-                // Trigger play when done parsing
 
                 ipcRenderer.send('clear-open-files', null)
             })
@@ -287,20 +324,8 @@
                     properties: ['openFile', 'multiSelections']
                 }, (items) => {
                     if (items) {
-                        // Log number of files to import
-                        this.imports += items.length
-                        this.imports_count += items.length
-
-                        // Make sure we check whether the user canceled the dialog first
-                        // ... before we start performing any actions
                         if (items.length > 0) {
-                            // Only make App display load effect when tracks
-                            // ... actually inmported
-                            vm.appIsLoading = true
-
-                            for (var i = 0;i < items.length;i++) {
-                                vm.deref(items[i])
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })
@@ -309,24 +334,13 @@
             // Check fn for infinte loops
             ipcRenderer.on('import-folder', (event, arg) => {
                 let vm = this
+
                 remote.dialog.showOpenDialog({
                     properties: ['openDirectory', 'multiSelections']
                 }, (items) => {
                     if (items) {
                         if (items.length > 0) {
-                            for (var i = 0;i < items.length;i++) {
-                                let tracks = vm.crawl(items[i])
-                                // Log number files to import
-                                vm.imports += tracks.length
-                                vm.imports_count += tracks.length
-
-                                // We now activate App loading effect
-                                vm.appIsLoading = true
-
-                                for (var j = 0;j < tracks.length;j++) {
-                                    vm.deref(tracks[j])
-                                }
-                            }
+                            this.addFiles(items)
                         }
                     }
                 })
@@ -340,47 +354,70 @@
                 this.toggleNightMode()
             })
 
+            ipcRenderer.on('toggle-eq', (event, arg) => {
+                this.toggleAudioEQVisibility()
+            })
+
             // Load style files
             this.loadTheme()
 
             // Resume last route
-            if (this.vars.cached.mainRoute == '/settings') {
-                this.$router.push(this.vars.cached.childRoute)
+            if (this.appRoutes.mainRoute == '/settings') {
+                this.$router.push(this.appRoutes.childRoute)
             } else {
-                this.$router.push(this.vars.cached.mainRoute)
+                this.$router.push(this.appRoutes.mainRoute)
             }
 
             // Create autoNightMode scheduler
             let vm = this
 
-            // Reschedule here
-            this.setJobsFn({
-                start: schedule.scheduleJob({hour: this.appAutoNightModeTime.pm, minute: 0}, function () {
-                    if (vm.appAutoNightMode) {
-                        if (!vm.appNightMode) {
-                            vm.setNightMode(true)
-                        }
-                    }
-                }),
-                end: schedule.scheduleJob({hour: this.appAutoNightModeTime.am, minute: 0}, function () {
-                    if (vm.appAutoNightMode) {
-                        if (vm.appNightMode) {
-                            vm.setNightMode(false)
-                        }
-                    }
-                })
-            })
-
-            // Check if autoNightMode is set
+            // Check whether in night mode time
             if (this.appAutoNightMode) {
-                // check whether we are in the night and adjust theme accordingly
-                let { am, pm } = this.appAutoNightModeTime
-                let time = new Date().getHours()
+                let {am, pm} = this.appAutoNightModeTime
 
-                if (isNightTime(time, reformatTo24Hours(pm), am) && !this.appNightMode) {
-                    this.setNightMode(true)
+                let [hrs, min, sec] = getCurrentTime()
+
+                // Reschedule here
+                this.setJobsFn({
+                    start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
+                        if (vm.appAutoNightMode) {
+                            if (!vm.appNightMode) {
+                                vm.setNightMode(true)
+                            }
+                        }
+                    }),
+                    end: schedule.scheduleJob({hour: am, minute: 0}, function () {
+                        if (vm.appAutoNightMode) {
+                            if (vm.appNightMode) {
+                                vm.setNightMode(false)
+                            }
+                        }
+                    })
+                })
+
+                // Check if autoNightMode is set
+                if (isNightTime(hrs, formatTo24Hours(pm), am)) {
+                    // check whether we are in the night and adjust theme accordingly
+                    if (!this.appNightMode) {
+                        this.setNightMode(true)
+                    }
+                } else {
+                    if (this.appNightMode) {
+                        // Otherwise we turn it off
+                        this.setNightMode(false)
+                    }
                 }
             }
+
+            // Search
+            ipcRenderer.on('focus-search', (event, arg) => {
+                // Focus search input
+                Id('search-input').focus()
+                Id('search-input').select()
+
+                // Lock input
+                this.lockHotKey('input')
+            })
 
             // Media controls
             // Playback
@@ -389,36 +426,11 @@
             })
 
             ipcRenderer.on('media-prev', (event, arg) => {
-                let cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
-
-                if (cindex > 0) {
-                    if (this.appAudioPrefs.shuffle) {
-                        cindex = this.player.playHistory.pop()
-                    } else { cindex = cindex - 1 }
-
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.prevTrack()
             })
 
             ipcRenderer.on('media-next', (event, arg) => {
-                // Get index of current playing track
-                let cindex
-
-                if (this.appAudioPrefs.shuffle) {
-                    // If shuffled, then grab next random index to play
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
-                } else {
-                    // Set to normal next track index from current track
-                    cindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)+1
-                }
-
-                // Check if a next track exists
-                if (cindex < this.filteredPool.length-1) {
-                    // If true, we just play it!
-                    this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
-                }
+                this.nextTrack()
             })
 
             ipcRenderer.on('toggle-shuffle', (event, arg) => {
@@ -461,13 +473,28 @@
                 shuffle: this.appAudioPrefs.shuffle,
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
-                waveColor:  waveColors[this.appTheme].waveColor
+                waveColor:  waveColors[this.appTheme].waveColor,
+                playbackRate: this.appAudioPrefs.playbackRate
             })
+
+            // If EQ was enabled in last session, continue with it
+            if (this.appAudioEQ.enabled) {
+                this.player.initEQ(this.appAudioEQ.channels)
+            }
+
+            // If launched we fill the view with the appropriately filtered
+            // ... set of tracks
+            this.filterPool()
+
+            // If shuffled, trigger randoms fill
+            if (this.appAudioPrefs.shuffle) {
+                this.player.fillRandoms(null, this.filteredPool)
+            }
 
             this.player.device.on('ready', () => {
                 // When track fully loaded
                 // We set the loading flag here
-                this.vars.loadingTrack = true
+                this.vars.loadingTrack = false
 
                 if (!this.player.activated) {
                     this.player.activate(this.vars.currentTrack, this.filteredPool)
@@ -483,26 +510,17 @@
                             this.vars.foundArt = false
                         }
 
-                        // Only add track meta when track doesn't have 'duration set'
-                        if (!this.vars.currentTrack.duration) {
-                            this.editTrack({
-                                id: this.vars.currentTrack.id,
-                                meta: 'duration',
-                                value: this.player.getDuration()
-                            })
-                        }
-
-                        // We immediately play track
-                        this.player.device.play()
-
-                        // We update the tracks peeks here
-
-                        // Unset 'loading' flag here
-                        this.vars.loadingTrack = false
+                         // Pass to scrobbler
+                        this.scrobbleData()
                     },
                     onError: (err) => {
-                        // Decide What do to with error later
-                        console.log(err)
+                        // If the metas can't be read then we know it has no album art
+                        this.vars.foundArt = false
+
+                        // If the tag is problematic, we just continue
+                        if (err.type == "tagFormat") {
+                            this.scrobbleData()
+                        }
                     }
                 })
             })
@@ -511,7 +529,6 @@
                 // When track playing
 
                 // So we update the current track position
-
                 this.vars.currentPos = this.player.getCurrentPos()
             })
 
@@ -522,24 +539,28 @@
                 // We reset the waveform cursor to the begining
                 this.vars.currentPos = this.player.getCurrentPos()
 
+                // Increment the current tracks play count
+                this.incrementPlayCount(this.vars.currentTrack)
+
                 // Store index of currentTrack
-                let oindex = getIndexFromKey(this.filteredPool, 'source', this.vars.currentTrack.source)
+                let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
                 let cindex = oindex + 1 // Defaults to next track
                 let onLoop = this.appAudioPrefs.loopAll || this.appAudioPrefs.loopSingle
                 let hasFloor = (oindex == this.filteredPool.length - 1) &&
                                           !this.appAudioPrefs.shuffle
 
+                // 'End of regular playback' 
+                let EORP = hasFloor ? !(cindex < this.filteredPool.length) : false
+
                 // 'End of shuffle playback' checks whether all shuffled tracks
                 // ... have been exhausted so we can pause the playback
                 // ... only used when not in a loop
-                let EOSP = this.player.randoms.length == 0 &&
-                           (!hasFloor) &&
-                           (!onLoop)
+                let EOSP = this.appAudioPrefs.shuffle ? this.player.randoms.length == 0 && (!hasFloor) && (!onLoop) : false
 
                 // If shuffle mode on, then we get the index to next track
                 // ... only if we haven't hit EOSP
                 if (this.appAudioPrefs.shuffle && (!EOSP)) {
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool)
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                 }
 
                 // Loop code
@@ -561,6 +582,9 @@
                         // ... can allow last track to be played then first, etc.
                         // ... Essentially, shuffle does not have a floor
                         if (hasFloor && this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
                             this.updateCurrentTrack(this.filteredPool[0])
                             this.player.playNew(this.vars.currentTrack.source)
 
@@ -570,8 +594,10 @@
                     }
                 } else {
                     // I.e. If no loops we go ahead and play the next track
-                    // When track is finished playing and all tracks in pool cleared?
-                    if (this.filteredPool.length == 0 || EOSP) {
+                    // When track is finished playing and all tracks in pool cleared
+                    // ... or
+                    // ... When regular playback finished
+                    if ((this.filteredPool.length == 0 || EOSP || EORP) && this.appAudioPlaybackBehaviour == 'clear') {
                         // Player cleared and current Track
                         this.player.clear()
                         this.updateCurrentTrack(null)
@@ -586,6 +612,8 @@
                 // ... i.e. last track, or loop on, then
                 // ... we proceed to play the next
                 if (shouldPlayNext) {
+                    this.vars.loadingTrack = true
+
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
@@ -595,10 +623,6 @@
             '$route' (cur, old) {
                 if (cur.path == '/') {
                     this.redrawWaveform()
-
-                    if (!this.vars.reporter.status.isEmpty) {
-                        this.clearStatusMessage()
-                    }
                 }
             },
 
@@ -619,29 +643,150 @@
             'appAudioPrefs.shuffle' (cur, prev) {
                 if (cur) {
                     // create random indexes array for shuffled tracks
-                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool)
+                    // Refills with exclusion if we are in the playing Target
+                    // ... we are assuming the user is triggering on/off
+                    // ... to make playback consistent we ensure history is repected
+                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
                 } else {
                     this.player.emptyRandoms()
                 }
             },
 
-            'vars.currentTrack' (cur, old) {
+            'vars.reset_current_track' (cur, old) {
                 if (cur) {
+                    this.updateCurrentTrack(null)
+                }
+            },
+
+            'vars.playingTarget' (cur, old) {
+                // Empty play histories
+                // To prepare for new history
+                this.clearHistory()
+            },
+
+            'vars.currentTrack' (cur, old) {
+                // Reset flag
+                if (this.reset_current_track) {
+                    this.reset_current_track = false
+                }
+
+                if (cur) {
+                    // Loading state init
+                    this.vars.loadingTrack = true
+
                     let ret = this.player.playNew(cur.source)
 
                     if (!ret) {
-                        // If track has been renamed or deleted on the machine
-                        // ... We delete it for now
-                        this.deleteTrack(cur)
-                        this.clearCurrentTrack()
+                        // Means it was from an external source (like a hard drive or something)
+                        // If track has been renamed or deleted on the machine or tracks are locked
+                        // ... We proceed to skip it
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                        let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
+
+                        // First, we remove it from `randoms` if in shuffle mode
+                        if (this.appAudioPrefs.shuffle) {
+                            // We only need to rid the playhistory of it
+                            // ... as it was not played
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (0)
+                            this.vars.skippedCurrentTrack = true
+                        }
+
+                        // If the initial path is on the host machine
+                        // ... we can delete the track
+                        if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
+                            // We assume the track was deleted off the fs or moved to another location
+                            this.deleteTrack(cur)
+
+                            // Lets clear the wave DOM that might be created as well
+                            // That's if it was the last track
+                            // TODO: in the future, if loopAll triggers playing from top again
+                            // ... we must ensure the behaviour below does not get in the way
+                            if (cindex == this.filteredPool.length - 1) {
+                                // reset index
+                                this.vars.index = -1
+                                // reset current
+                                this.vars.reset_current_track = true
+
+                                // Avoids trying to trigger playback
+                                return
+                            }
+                        } else {
+                            // Dim track if from external drive
+                            if (document.getElementsByTagName('tr').length > 0) {
+                                document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+                            }
+                        }
+
+                        // Then seek to next playable track, if its ahead of previously playing track
+                        if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
+                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (1)
+                            // This is also triggered automatically in shuffle
+                            // ... Remember the previous track is form the `playHistory` Array
+                            // ... and this Array does not store unplayable tracks
+                            // ... So we just keep moving on as the track essentially does not exist
+                            this.nextTrack()
+                        } else {
+                            this.prevTrack()
+                        }
+                    } else {
+                        // Not skipped
+                        this.vars.skippedCurrentTrack = false
+
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+
+                        // Undim track 
+                        if (document.getElementsByTagName('tr').length > 0) {
+                            document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
+                        }
                     }
                 }
             },
 
+            'vars.modals.playlist' (cur, prev) {
+                if (cur) {
+                    // Auto focus
+                    Id('playlist-input').focus()
+
+                    // Add focus class
+                    this.vars.playlistFocus = true
+
+                    // Lock space bar
+                    this.lockHotKey('input')
+                } else {
+                    this.vars.playlistFocus = false
+                }
+            },
+
+            focused (cur, prev) {
+                // We don't want the tracks to unexpectedly be loaded
+                // ... when a new playlist is created
+                if (cur) {
+                    this.lockHotKey('input')
+                } else {
+                    this.unlockHotKey('input')
+                }
+            },
+
+            allTracks (cur, prev) {
+                // Each time we detect a change in the 'state.music'
+                // ... we rehydrate the current render of tracks
+                this.filterPool()
+
+                // Clear player if all tracks gone
+                if (cur.length == 0) {
+                    // Clear player and reset track
+                    this.player.clear()
+                    this.updateCurrentTrack(null)
+                }
+            },
+
             filteredPool (cur, prev) {
-                if (this.vars.currentTrack) {
-                    // recalc randoms
-                    this.player.fillRandoms(this.vars.currentTrack, cur)
+                if (this.vars.currentTrack && this.appAudioPrefs.shuffle) {
+                    // Recalc randoms when current currentTarget updated
+                    // REM: current pool view is the queue
+                    // When we refill we need to ensure that the already played tracks are excluded
+                    // ... if the user is re-entered the playing target
+                    this.player.fillRandoms(this.vars.currentTrack, cur, this.currentTarget == this.vars.playingTarget)
                 }
             },
 
@@ -663,51 +808,82 @@
             },
 
             imports (cur, old) {
-                if (cur == 0 || cur < 0) {
+                if (cur == 0) {
                     // Removing App loading effect when all tracks imported
                     this.vars.appIsLoading = false
 
-                    // Log the number of imports that had issues
-                    let import_issues_count = this.failed_imports.length - this.error_imports.length - this.vars.reporter.failure.items.length
-
-                    // ... and obtain the number of actual imported items
-                    let successful_imports_count = import_issues_count > 0 ? this.imports_count - import_issues_count : this.imports_count + import_issues_count
-
                     // Only display a success message if at least 1 or more non duplicates were imported
                     // ... and there are at least 1 or more files without errors or warnings
-                    if (successful_imports_count > 0) {
+                    if (this.imports_count > 0) {
                         this.updateStatusMessage({
-                            heading: `Successfully imported ${successful_imports_count} sounds`,
+                            heading: `Successfully imported ${this.imports_count} sounds`,
                             isEmpty: false
                         })
                     }
 
-                    this.imports_count = 0
-
-                    // We want to show issues with folders first
-                    if (this.imported_folders.length > 0) {
-                        this.updateWarnMessage({heading: 'Encountered folder(s) during file(s) scan', message: 'Detected and scanned ' + this.imported_folders.length + ' Folder(s):', items: this.imported_folders})
-                    }
-
-                    if (this.failed_imports.length > 0) {
+                    // Overwrite success message with errors
+                    // [wip] wonky
+                    if (this.error_imports.length > 0) {
                         // Then issues with non sound files
-                        this.updateFailMessage({heading: 'Error during file(s) scan', message: 'Detected ' + this.failed_imports.length + ' non sound file(s):', items: this.failed_imports})
-                    }
-
-                    // In case duplicated files are droped
-                    if (this.failed_imports.length == 0 && this.vars.reporter.failure.items.length > 0) {
                         this.updateFailMessage({
-                            heading: 'Detected potential sound file(s) duplication',
-                            message: `Discovered ${this.vars.reporter.failure.items.length} duplicate track(s)`,
-                            items: this.vars.reporter.failure.items
+                            heading: 'Error during file(s) scan', 
+                            message: `Detected ${this.error_imports.length} non sound file(s):`, 
+                            items: this.error_imports
                         })
                     }
 
-
-                    if (this.error_imports.length > 0) {
-                        // And problematic sound files
-                        this.updateErrorMessage({heading: 'Error during sound scan', message: 'Could not retrieve media tag from (' + this.error_imports.length + ') sound file(s): ', items: this.error_imports})
+                    // In case duplicated files are droped
+                    // [wip] wonky
+                    if (this.failed_imports.length > 0) {
+                        this.updateFailMessage({
+                            heading: 'Detected potential sound file(s) duplication',
+                            message: `Discovered ${this.failed_imports.length} duplicate track(s)`,
+                            items: this.failed_imports
+                        })
                     }
+
+                    // Report warning
+                    // [wip] Works
+                    if (this.warn_imports.length > 0) {
+                        // Metas warning report
+                        this.updateWarnMessage({
+                            heading: 'Detected sound file(s) with weird media tags',
+                            message: `Unable to retrieve media tag from (${this.warn_imports.length}) sound file(s): `, 
+                            items: this.warn_imports
+                        })
+                    }
+
+                    // Reset imports count
+                    this.imports_count = 0
+
+                    // Final catch for autoplay
+                    // reset flag
+                    this.vars.autoplay = false
+
+                    // Add new tracks to randoms
+                    if (this.appAudioPrefs.shuffle) {
+                        this.player.fillRandoms(this.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
+                    }
+                }
+            },
+
+            imported_non_sound_folders (cur, old) {
+                if (cur) {
+                    this.vars.appIsLoading = false
+                }
+            },
+
+            imported_non_sound_files (cur, old) {
+                if (cur) {
+                    this.vars.appIsLoading = false
+                }
+            },
+
+            error_imports (cur, old) {
+                if (cur.length == 0) {
+                    // Stricly to reset whole non sound file drop
+                    this.imported_non_sound_folders = false
+                    this.imported_non_sound_files = false
                 }
             }
         },
@@ -716,6 +892,7 @@
                 'addTrack',
                 'editTrack',
                 'deleteTrack',
+                'incrementPlayCount',
                 'updateVolume',
                 'setVolume',
                 'restoreVolume',
@@ -725,10 +902,112 @@
                 'loadTheme',
                 'toggleNightMode',
                 'setNightMode',
-                'setJobsFn',
                 'setLoop',
+                'cacheMainRoute',
+                'cacheChildRoute',
                 'toggleAudioEQVisibility'
             ]),
+
+            displayNotification() {
+                new Notification(this.vars.currentTrack.title, {
+                    body: this.vars.currentTrack.artist,
+                    silent: true,
+                    // Display album art only if found
+                    icon: this.vars.foundArt ? 
+                            Id('album-art').src :
+                            path.join(__static, 'icons', 'unknown.png'),
+                    actions: [ /*Fill with prev & next*/ ]
+                    // renotify
+                })
+            },
+
+            updateSearchText(text) {
+                this.vars.searchText = text
+            },
+
+            scrobbleData() {
+                // Only add track meta when track doesn't have 'duration set'
+                if (!this.vars.currentTrack.duration) {
+                    this.editTrack({
+                        id: this.vars.currentTrack.id,
+                        meta: 'duration',
+                        value: this.player.getDuration()
+                    })
+                }
+
+                // We immediately play track
+                this.player.device.play()
+
+                // We update the tracks peeks here
+
+                // Displaying the notification is now optional
+                if (this.appNotifs) {
+                    this.displayNotification()
+                }
+            },
+
+            filterTracks() {
+            	// Returns tracks that match a criteria under some target
+            	// Eg: filterTrack('Genre', 'Rap', tracks) -> Returns all Rap tracks
+            	return this.allTracks.filter((track) => {
+            		return track[this.currentCriteria] == [this.currentTarget]
+            	})
+            },
+
+            filterPool () {
+                if (this.currentTarget == 'All Tracks') {
+                    this.updatePool(this.allTracks)
+                } else {
+                    if (['80s Music', '90s Music', '2000s Music'].includes(this.currentTarget)) {
+                        let year = this.currentTarget.slice(0, 2)
+
+                        this.updatePool(this.getOldTracks(year, year == "20"))
+                        return
+                    }
+
+                    if (this.currentTarget == 'Favourites') {
+                        this.updatePool(this.getFavs())
+                        return
+                    }
+
+                    if (this.currentTarget == 'Most Played') {
+                        // Grab average plays from state
+                        // compare and return
+                        return
+                    }
+
+                    if (this.currentCriteria == 'playlist') {
+                        this.updatePool(this.allTracks.filter((track) => {
+                            if (this.currentTarget) {
+                                return this.currentTarget.ids.length > 0 ? this.currentTarget.ids.includes(track.id) : false
+                            } else { return false }
+                        }))
+                        return
+                    }
+
+                    else {
+                        this.updatePool(this.filterTracks())
+                    }
+                }
+            },
+
+            getOldTracks(year, y_two_k=false) {
+                if (y_two_k) {
+                    return this.allTracks.filter((track) => {
+                        return String(track.year).slice(0, 1) == 2 && String(track.year).slice(2, 4) <= 10
+                    })
+                }
+
+                return this.allTracks.filter((track) => {
+                    return String(track.year).slice(2) == year
+                })
+            },
+
+            getFavs() {
+                return this.allTracks.filter((track) => {
+            		return track.favourite == true
+            	})
+            },
 
             updateCurrentTrack (track) {
                 this.vars.currentTrack = track
@@ -819,9 +1098,9 @@
 
             cacheRoute(obj) {
                 if (obj.type == 'main') {
-                    this.vars.cached.mainRoute = obj.name
+                    this.cacheMainRoute(obj.name)
                 } else {
-                    this.vars.cached.childRoute = obj.name
+                    this.cacheChildRoute(obj.name)
                 }
             },
 
@@ -831,11 +1110,32 @@
                 } else {
                     if (this.vars.index == -1) {
                         // Set current track to first track if newly launched
-                        this.updateCurrentTrack(this.filteredPool[0])
-                        this.player.playNew(this.vars.currentTrack.source)
+
+                        // If in shuffle, play the first index in `randoms`
+                        let index = 0
+
+                        if (this.appAudioPrefs.shuffle) {
+                            // In case the randoms haven't been filled
+                            // No need since in new App session it is triggered if shuffle enabled in the previous session
+                            // ... even if newly activated shuffle, this is handled as well
+
+                            // then reset index
+                            index = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                        }
+          
+                        // Only if there are indeed tracks to play
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
+                            // Loading state init
+                            this.vars.loadingTrack = true
+
+                            this.updateCurrentTrack(this.filteredPool[index])
+                            this.player.playNew(this.vars.currentTrack.source)
+                        } 
                     } else {
                         // We only attempt to play a new track if it does exist
-                        if (this.filteredPool.length > 0) {
+                        if (this.allTracks.length > 0 || this.filteredPool.length > 0) {
+                            this.vars.loadingTrack = true
+
                             // If not we play the track currently active (indexed)
                             this.updateCurrentTrack(this.filteredPool[this.vars.index])
                             this.player.playNew(this.vars.currentTrack.source)
@@ -847,7 +1147,7 @@
             triggerPlaypause(ev) {
                 // Find out if any input field are currently in use
                 // if not we go ahead and trigger play
-                if (!(this.vars.lock.enter && this.vars.lock.backspace)) {
+                if (!(this.vars.lock.input)) {
                     ev.preventDefault()
                     // Remember the 'enter/backspace' is locked when any input is currently focused
                     this.triggerPlay()
@@ -856,6 +1156,50 @@
 
             updateIndex(val) {
                 this.vars.index = val
+            },
+
+            prevTrack() {
+                let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+
+                if (cindex > 0) {
+                    if (this.appAudioPrefs.shuffle) {
+                        cindex = this.player.tmpPlayHistory.pop()
+                    } else { cindex = cindex - 1 }
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+                }
+            },
+
+            nextTrack() {
+                // Get index of current playing track
+                let cindex
+
+                // Only invoke `getNextRandom` if not in loop single
+                // ... we can't pop randoms unless it is actually going to be used
+                // ... since the loop single does not move on, no need
+                if (this.appAudioPrefs.shuffle) {
+                    // If shuffled, then grab next random index to play
+                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                } else {
+                    // Set to normal next track index from current track
+                    cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
+                }
+
+                // Loop check first since its just to repeat the track
+                // ... it blocks the next track trigger since its checked first
+                if (this.appAudioPrefs.loopSingle && !this.vars.skippedCurrentTrack) {
+                    this.player.playNew(this.vars.currentTrack.source)
+                } else {
+                    // Check if a next track exists
+                    if (cindex <= this.filteredPool.length-1) {
+                        this.vars.loadingTrack = true
+
+                        // If true, we just play it!
+                        this.updateCurrentTrack(this.filteredPool[cindex])
+                        this.player.playNew(this.vars.currentTrack.source)
+                    }
+                }
             },
 
             handleTBScroll(ev) {
@@ -927,14 +1271,17 @@
                 var thead = QuerySelectorAll('thead')[0]
                 var tbody = QuerySelectorAll('tbody')[0]
 
-                if (tbody.scrollHeight > tbody.clientHeight) {
-                    // We use the static width of the window not the table
-                    // ... To avoid mutating both thead and tbody
-                    thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
-                } else {
-                    // If no scollbars are detected the width is automatically
-                    // ... the window's minus the sidpane's width
-                    thead.style.width = String(window.innerWidth - 250) + "px"
+                // Tired of seeing the error
+                if (tbody) {
+                    if (tbody.scrollHeight > tbody.clientHeight) {
+                        // We use the static width of the window not the table
+                        // ... To avoid mutating both thead and tbody
+                        thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
+                    } else {
+                        // If no scollbars are detected the width is automatically
+                        // ... the window's minus the sidpane's width
+                        thead.style.width = String(window.innerWidth - 250) + "px"
+                    }
                 }
             },
 
@@ -960,8 +1307,13 @@
                 if (this.player) this.player.device.drawBuffer()
             },
 
+            setPlaylistFocus (val) {
+                this.vars.playlistFocus = val
+            },
+
             setPlaylistModal(val) {
-                this.vars.modals.playlist = !this.vars.modals.playlist
+                // Defaults to toggle if not val passed
+                this.vars.modals.playlist = val ? val : !this.vars.modals.playlist
             },
 
             closeModals(ev) {
@@ -984,7 +1336,7 @@
             },
 
             clearAllWarnMessage() {
-                this.imported_folders = []
+                this.warn_imports = []
 
                 this.clearWarnMessage()
             },
@@ -993,6 +1345,16 @@
                 this.failed_imports = []
 
                 this.clearFailMessage()
+            },
+
+            clearJobsFn() {
+                this.vars.jobs.start.cancel()
+                this.vars.jobs.end.cancel()
+            },
+
+            setJobsFn (arg) {
+                this.vars.jobs.start = arg.start
+                this.vars.jobs.end   = arg.end
             },
 
             crawl(dir) {
@@ -1012,7 +1374,7 @@
 
                 new FS(dir).forEachFile((file) => {
                     // file extension starts after last '.'
-                    let format = file.slice(file.lastIndexOf('.') + 1)
+                    let format = path.extname(file).slice(1)
 
                     // All supported formats
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
@@ -1024,6 +1386,10 @@
             },
 
             handle_new_track(obj) {
+                // The track has the following properties:
+                // Not a folder
+                // Is a supported sound file
+                // Might have metas; we can't tell until we try to load it
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
@@ -1041,7 +1407,7 @@
                 }
 
                 // Fill in the track template
-                let raw_name = meta.source.slice(meta.source.lastIndexOf('/')+1, meta.source.length)
+                let raw_name = meta.source.slice(meta.source.lastIndexOf('/') + 1, meta.source.length)
 
                 meta.title = this.isEmpty(tags.title) ? raw_name.slice(0, raw_name.lastIndexOf('.')) : tags.title
 
@@ -1055,19 +1421,44 @@
 
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
-                // Finally we add the track to our store
-                let ret = this.addTrack(meta)
+                // Only add the track if its not a duplicate
+                let result = add(this.allTracks, meta, false, 'source')
 
-                if (!ret) {
+                // Lets check length instead
+                if (result.length > this.allTracks.length) {
+                    // Finally we add the track to our store
+                    this.addTrack(meta)
+
+                    // This is the ultimate decider of a successful import 
+                    this.imports_count += 1
+                } else {
                     // Lets override the 'failure' message from here
                     // ... we log the duplicated files to be reported later
-                    this.vars.reporter.failure.items = add(this.vars.reporter.failure.items, meta.source, true)
+                    // But only log the error to display if not autoplayed
+                    // ... the user does not need the error message since the track probably already exists
+                    if (!this.vars.autoplay) {
+                        this.failed_imports = add(this.failed_imports, meta.source)
+                    }
+                }
+
+                // We handle the autoplay in the imports hook
+                // If new track and autoplay triggered
+                // We automatically play it
+                if (this.vars.autoplay) {
+                    let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
+
+                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.player.playNew(this.vars.currentTrack.source)
+
+                    // Done with catch
+                    this.vars.autoplay = false
                 }
             },
 
-            handle_new_track_error(track_path) {
-                this.error_imports.push(track_path)
-                this.imports -= 1
+            handle_new_track_warn(track_path) {
+                // Log it in the warning
+                // we still accept metaless tracks
+                this.warn_imports = add(this.warn_imports, track_path)
             },
 
             deref(track) {
@@ -1091,10 +1482,31 @@
                     // Here we simply obtain the JS Object containing the scanned tags and filepath
                     this.handle_new_track(obj)
                 }).catch(track_path => {
+                    // freeze data
+                    // To be used to disallow reporting duplicate & bad meta messages
+                    let autoplay = this.vars.autoplay
+
                     // And we handle error reporting using the JS Object
                     // ... containing the details of the scan error
                     // ... aswell as the sound filepath
-                    this.handle_new_track_error(track_path)
+                    // continue processing with dummy meta
+                    this.handle_new_track({
+                        tags: {
+                            title: null,
+                            artist: null,
+                            album: null,
+                            genre: null,
+                            year: null
+                        },
+                        track_name: track_path
+                    })
+
+                    // Do not log error if autoplayed
+                    // We don't need to bother the user with unecessary messages
+                    if (!autoplay) {
+                        // We just warn the user, but still go ahead and import it
+                        this.handle_new_track_warn(track_path)
+                    }
                 })
             },
 
@@ -1107,11 +1519,21 @@
                 }
             },
 
+            resolveObjPath (obj) {
+                // The dropped items might be from DnD (File objects)
+                // or from open with ... or CLI args (list of paths)
+                if (typeof obj == 'string') {
+                    return obj
+                } else {
+                    return obj.path
+                }
+            },
+
             isObjectFolder(obj) {
                 if (typeof obj == 'object') {
                     return obj.type == ''
                 } else {
-                    return !fs.statSync(obj).isFile()
+                    return !isFile(obj)
                 }
             },
 
@@ -1139,6 +1561,9 @@
                 // Check if Dir or audio dropped or processing arg
                 let objs = this.resolveObjectFiles(obj)
 
+                // Log track counts at once instead of logging singles
+                this.imports += Array.from(objs).filter((obj) => { return isFile(this.resolveObjPath(obj)) }).length
+
                 for (var i = 0;i < objs.length;i++) {
                     // Determine whether the current item is a folder
                     let is_obj_folder = this.isObjectFolder(objs[i])
@@ -1148,19 +1573,25 @@
                         this.vars.appIsLoading = true
 
                         // Get folder path
-                        let folder_path = this.resolveObjectPath(objs[i]) // typeof objs[i] != 'object' ? objs[i] : objs[i].path
-
-                        // We have (a potential) directory dropped
-                        this.imported_folders.push(folder_path)
+                        let folder_path = this.resolveObjectPath(objs[i])
 
                         let tracks = this.crawl(folder_path)
 
+                        // Count to import
                         this.imports += tracks.length
-                        this.imports_count += tracks.length
 
-                        for (var j = 0;j < tracks.length;j++) {
-                            this.deref(tracks[j])
+                        // Only go ahead if the folder or some deeply nested one has tracks
+                        if (tracks.length > 0) {
+                            for (var j = 0;j < tracks.length;j++) {
+                                this.deref(tracks[j])
+                            }
+                        } else {
+                            // If this cond is reached then the parent folder has problems
+                            // Non sound files folder edge case we let it slip
+                            // then reset app loading var
+                            this.imported_non_sound_folders = true
                         }
+                        
                     } else {
                         // Find out whether it is a sound file
                         let is_sound_file = this.isObjectAudioFile(objs[i])
@@ -1173,22 +1604,20 @@
                             let filepath = this.resolveObjectPath(objs[i])
 
                             // Scan and add Track
-                            this.imports += 1
-                            this.imports_count += 1
                             this.deref(filepath)
                         } else {
-                            // Retrieve sound filepath
-                            let filepath = this.resolveObjectPath(objs[i])
-
-                            this.imports -= 1
-                            this.failed_imports.push(filepath)
+                            // if non sound files edge case we let it slip
+                            // then reset app loading var
+                            this.imported_non_sound_files = true
                         }
                     }
                 }
-            },
+            }
         },
         computed: {
             ...mapGetters([
+                'allTracks',
+                'currentTarget',
                 'currentCriteria',
                 'currentDirec',
                 'sortBy',
@@ -1198,25 +1627,37 @@
                 'appAutoNightMode',
                 'appAutoNightModeTime',
                 'appAudioEQ',
-                'appAudioPrefs'
+                'appAudioPrefs',
+                'appAudioPlaybackBehaviour',
+                'appRoutes',
+                'appNotifs'
             ]),
 
             filteredPool () {
                 var tmp = this.pool.slice(0)
 
-                return tmp.sort((a, b) => {
-                    var comp = 0
-                    var tmp_a = a[this.sortBy].toUpperCase()
-                    var tmp_b = b[this.sortBy].toUpperCase()
+                // Filter and sort
+                return tmp.filter((track) => {
+                    return track.title.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.artist.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.album.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
+                        track.genre.toLowerCase().includes(this.vars.searchText.toLowerCase())
+                }).sort((a, b) => {
+                    // We want sorting to be 'sortBy' first then sorted by 'title'
+                    // Found this concatenation hack on stack overflow
+                    // here: https://stackoverflow.com/questions/11379361/how-to-sort-an-array-of-objects-with-multiple-field-values-in-javascript
+                    let tmp_a = this.sortBy == 'title' ? a[this.sortBy].toLowerCase() : 
+                                                        a[this.sortBy].toLowerCase() + a['title'].toLowerCase()
+
+                    let tmp_b = this.sortBy == 'title' ? b[this.sortBy].toLowerCase() : 
+                                                        b[this.sortBy].toLowerCase() + b['title'].toLowerCase()
 
                     if (tmp_a > tmp_b) {
-                        comp = 1
+                        return this.currentDirec == 'a-z' ? 1 : -1
                     } else {
-                        comp = -1
+                        return this.currentDirec == 'z-a' ? 1 : -1
                     }
-
-                    return this.currentDirec == 'a-z' ? comp : (comp * -1)
-                })
+                }).slice(0)
             }
         },
     }

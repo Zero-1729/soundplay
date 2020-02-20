@@ -1,7 +1,7 @@
 <template>
-    <div class="virtical-div">
-        <div class="virtical-div-holder">
-            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget) && playingCriteria == currentCriteria}">
+    <div class="vertical-div">
+        <div class="vertical-div-holder">
+            <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget)}">
                 <p
                 @contextmenu.prevent @mousedown.right.capture="showItemOptions(typeof item.name == 'object' ? item.name : item)"
                 @dblclick="cachePlaylistName"
@@ -26,6 +26,7 @@
     const { remote }          = require('electron')
 
     const { ClassNameSingle } = require('./../../utils/htmlQuery')
+
     const { buildMap }        = require('./../../utils/object')
 
     export default {
@@ -59,9 +60,7 @@
             currentCriteria (cur, prev) {
                 // We scroll the playing track into view if its in the view
                 if (ClassNameSingle('playingTrack')) {
-                    ClassNameSingle('playingTrack').scrollIntoView({
-                        behavior: 'smooth'
-                    })
+                    ClassNameSingle('playingTrack').scrollIntoViewIfNeeded({ behaviour: 'smooth' })
                 }
 
                 // We now auto select playing target if current criteria
@@ -72,8 +71,17 @@
                     // highlight first item in items (target) listing
                     if (this.currentOptions.length > 0 && cur != 'Music') {
                         this.changeTarget(this.currentOptions[0])
+                    } else {
+                        // Set to null
+                        this.changeTarget(null)
                     }
                 }
+
+                // Bring currently playing target into view
+                // ... only if available
+                if (ClassNameSingle('activeTarget')) {
+                    ClassNameSingle('activeTarget').scrollIntoView()
+                } 
             }
         },
         methods: {
@@ -140,7 +148,8 @@
                     document.execCommand('selectAll', false, null)
 
                     // Fake a Mutex type global lock on backspace
-                    this.$emit('lockHotKey', 'backspace')
+                    // ... and space 
+                    this.$emit('lockHotKey', 'input')
                 }
             },
 
@@ -164,10 +173,9 @@
                 event.target.contentEditable = false
 
                 // Fake a Mutex type global unlock on backspace
-                this.$emit('unlockHotKey', 'backspace')
-
                 // Unlock the enter hotkey to avoid reseting the 'currentTrack'
-                this.$emit('unlockHotKey', 'enter')
+                // Re-enable play/pause
+                this.$emit('unlockHotKey', 'input')
             },
 
             clearEditable() {
@@ -198,7 +206,7 @@
                                 vm.cachePlaylistName(forcedEvent)
 
                                 // lock (enter) HotKey
-                                vm.$emit('lockHotKey', 'enter')
+                                vm.$emit('lockHotKey', 'input')
                             }
                         },
                         {
@@ -305,7 +313,7 @@
 </script>
 
 <style lang="stylus" scoped>
-    .virtical-div
+    .vertical-div
         position absolute
         top 0
         left 0
@@ -318,7 +326,6 @@
             p
                 margin 18px
                 cursor pointer
-                font-weight bold
                 user-select none
                 text-overflow ellipsis
                 overflow hidden
@@ -330,13 +337,22 @@
             padding-left 18px
             user-select none
 
-    .virtical-div-holder
+    .vertical-div-holder
         position absolute
-        top 105px
+        top 112px
         width 180px
-        height 45%
+        height 256px
         overflow-y auto
+        transition height 0.3s ease
+        transition-delay 0.3s
+        div:first-child p
+            margin-top 4px
+        div:last-child p
+            margin-bottom 4px
 
-    .virtical-div-holder::-webkit-scrollbar
+    .vertical-div .vertical-div-holder.stretched-div
+        height 400px
+
+    .vertical-div-holder::-webkit-scrollbar
         width 2px
 </style>

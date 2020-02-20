@@ -13,8 +13,8 @@
             <input type="checkbox" class="enable-checkbox" @click="handler_toggleAudioEQ" :checked="appAudioEQ.enabled">
 
             <div class="preset-input">
-                <select @change="setEQ()" :disabled="appAudioEQ.enabled == false">
-                    <option v-for="preset in presets">
+                <select class="preset-select" @change="setEQ()" :disabled="appAudioEQ.enabled == false">
+                    <option v-for="preset in presets" :selected="appAudioEQ.preset == preset">
                         {{ preset }}
                     </option>
                 </select>
@@ -80,12 +80,15 @@
     import { mapActions,
             mapGetters }        from 'vuex'
 
-    import { TagNameSingle,
-            ClassNameSingle }   from './../utils/htmlQuery'
+    const { TagNameSingle,
+            ClassNameSingle }   = require('./../utils/htmlQuery')
 
     const presetEQs  = require('./../data/preset_eqs.json')
 
     export default {
+        props: [
+            'player'
+        ],
         data() {
             return {
                 presets: [
@@ -111,6 +114,15 @@
                 channelMutex: true
             }
         },
+
+        watch: {
+            'appAudioEQ.enabled' (cur, prev) {
+                if (cur) {
+                    this.player.initEQ(this.appAudioEQ.channels)
+                } else { this.player.resetEQ() }
+            }
+        },
+
         methods: {
             ...mapActions([
                 'toggleAudioEQ',
@@ -128,12 +140,18 @@
                 this.setEQ(TagNameSingle('select').value)
             },
 
-            setEQLevel(range, level, value) {
+            setEQLevel(range, channel, value) {
+                let val = this.translateValue(value)
+                // We need to sanitize the value for the player
+                let freq = range == 'KHz' ? channel + '000' : channel
+
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    channel: level != null ? range + '_' + level : range,
-                    value: this.translateValue(value)
+                    channel: channel != null ? range + '_' + channel : range,
+                    value: val
                 })
+
+                this.player.updateEQChannel(freq, val)
 
                 // Unlock mutex
                 this.channelMutex = false
@@ -143,7 +161,10 @@
                 // Setting preset for EQ
                 let preset = !value ? event.target.value : value
 
-                this.setAllAudioEQChannels(presetEQs[preset])
+                this.setAllAudioEQChannels({preset: preset, channels: presetEQs[preset]})
+
+                // Also sync setting with player
+                this.player.initEQ(presetEQs[preset])
             },
 
             flipValue(val) {
@@ -308,11 +329,15 @@
 
             .preset-input
                 position absolute
-                margin-top -2px
+                margin-top -4px
                 right 32px
                 z-index 99
-                select
+                select.preset-select
+                    height 22px
+                    width 124px
                     border-radius 2.5px
+                    border none
+                    cursor pointer
                     padding 2px
         .eq-inner-container
             height 72%

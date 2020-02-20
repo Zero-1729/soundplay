@@ -35,19 +35,21 @@ const state = {
             musicFolder: null
         },
         ui: {
+            displayNotif: true, // Whether to display next track notification
             theme: 'light', // or dark or night
             nightTheme: 'night',
             nightMode: false,
             autoNightMode: {
                 isOn: false,
                 am: 6,
-                pm: 6,
-                start_job: null, // Global store for schedule fn
-                end_job: null
+                pm: 6
             }
         },
         audio: {
+            playback_behaviour: 'reset', // Defaults to reset
+
             eq: {
+                preset: 'Flat',
                 channels: {
                     // Flat preset is the default
                     preamp: 12,
@@ -72,6 +74,11 @@ const state = {
         },
         isOpen: false,
         currentSetting: 'general'
+    },
+    // For restoring routes each new session
+    cached: {
+        mainRoute: '/',
+        childRoute: '/'
     }
 }
 
@@ -91,28 +98,20 @@ const mutations = {
             year: meta.year
         }
 
-        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown', true) : state.artists = add(state.artists, track.artist, true)
-        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown', true) : state.albums = add(state.albums, track.album, true)
-        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown', true) : state.genres = add(state.genres, track.genre, true)
+        track.artist == 'Unknown' ? state.artists = add(state.artists, 'Unknown') : state.artists = add(state.artists, track.artist)
+        track.album == 'Unknown' ? state.albums = add(state.albums, 'Unknown') : state.albums = add(state.albums, track.album)
+        track.genre == 'Unknown' ? state.genres = add(state.genres, 'Unknown') : state.genres = add(state.genres, track.genre)
 
-        // Only add the track if its not a duplicate
-        let result = add(state.music, track)
-
-        if (result != state.music) {
-            state.music = result
-
-            if (meta.activePlaylist) {
-                let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
-                // If we are in a playlist and add a track we also include it in the playlist
-                state.playlists[pindex].tracks.push(track)
-            }
-
-            // More like status flag
-            return true
-        } else {
-            // to be used for import failure flag
-            return false
+        if (meta.activePlaylist) {
+            let pindex = getIndexFromKey(state.playlists, 'name', meta.activePlaylist.name)
+            // If we are in a playlist and add a track we also include it in the playlist
+            state.playlists[pindex].ids.push(track.id)
         }
+
+        // Add the track
+        // We already its unique if it reaches here
+        // ... so we just append it
+        state.music.push(track)
     },
 
     EDIT_TRACK (state, obj) {
@@ -122,7 +121,7 @@ const mutations = {
 
     DELETE_TRACK (state, track) {
         // Delete the track from the store
-        state.music = removeObject(state.music, 'source', track.source)
+        state.music = removeObject(state.music, 'id', track.id)
 
         // Remove all traces of the 'album', 'artist', 'genre' if all related tracks are already deleted
         // ... i.e this is the last of its `kind`
@@ -141,7 +140,7 @@ const mutations = {
 
         // Purge playlists of the track
         for (var i = 0;i < state.playlists.length;i++) {
-            state.playlists[i].tracks = removeObject(state.playlists[i].tracks, 'source', track.source)
+            state.playlists[i].ids = removeObject(state.playlists[i].ids, 'id', track.id)
         }
     },
 
@@ -259,7 +258,7 @@ const mutations = {
         } else {
             // Empty playlist
             for (var i = 0;i < state.playlists.length;i++) {
-                state.playlists[i].tracks = []
+                state.playlists[i].ids = []
             }
         }
     },
@@ -284,26 +283,24 @@ const mutations = {
         }
     },
 
+    INCREMENT_PLAY_COUNT (state, track) {
+        let index = getIndexFromKey(state.music, 'id', track.id)
+
+        state.music[index].plays += 1
+    },
+
     CREATE_PLAYLIST (state, name) {
         state.playlists.push({
             name: name,
-            tracks: []
+            ids: []
         })
     },
 
     RENAME_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.old)
-        let tracks = state.playlists[index].tracks
 
         // Rename it from the core
         state.playlists[index].name = obj.current
-
-        // Update each related tracks playlist name
-        for (var i = 0;i < state.music;i++) {
-            if (state.music[i].playlists.includes(obj.old)) {
-                state.music[i].playlists = replaceItem(state.music[i].playlists, obj.old, obj.current)
-            }
-        }
     },
 
     REMOVE_PLAYLIST (state, name) {
@@ -312,18 +309,29 @@ const mutations = {
 
     ADD_TRACK_TO_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = add(state.playlists[index].tracks, obj.track)
+
+        // Our playlist just store track ids not the whole track object
+        state.playlists[index].ids = add(state.playlists[index].ids, obj.id)
     },
 
     REMOVE_FROM_PLAYLIST (state, obj) {
         let index = getIndexFromKey(state.playlists, 'name', obj.playlist)
-        state.playlists[index].tracks = removeObject(state.playlists[index].tracks, 'source', obj.track.source)
+        state.playlists[index].ids = remove(state.playlists[index].ids, obj.id)
     },
 
     DELETE_PLAYLIST_TRACKS (state, name) {
         let index = getIndexFromKey(state.playlists, name)
 
-        state.playlists[index].tracks = []
+        state.playlists[index].ids = []
+    },
+
+    // App Routes
+    CACHE_MAIN_ROUTE (state, arg) {
+        state.cached.mainRoute = arg
+    },
+
+    CACHE_CHILD_ROUTE (state, arg) {
+        state.cached.childRoute = arg
     },
 
     // Settings mutations
@@ -396,29 +404,29 @@ const mutations = {
         }
     },
 
-    SET_JOBS_FN (state, jobs) {
-        state.settings.ui.autoNightMode.start_job = jobs.start
-        state.settings.ui.autoNightMode.end_job = jobs.end
-    },
-
-    CLEAR_JOBS_FN (state) {
-        state.settings.ui.autoNightMode.start_job.cancel()
-        state.settings.ui.autoNightMode.end_job.cancel()
+    DISPLAY_NOTIF (state, arg) {
+        state.settings.ui.displayNotif = arg
     },
 
     // Audio
-    SET_ALL_AUDIO_EQ_CHANNELS (state, channels) {
-        state.settings.audio.eq.channels.preamp = channels.preamp
-        state.settings.audio.eq.channels.Hz_60  = channels.Hz_60
-        state.settings.audio.eq.channels.Hz_170 = channels.Hz_170
-        state.settings.audio.eq.channels.Hz_310 = channels.Hz_310
-        state.settings.audio.eq.channels.Hz_600 = channels.Hz_600
-        state.settings.audio.eq.channels.KHz_1  = channels.KHz_1
-        state.settings.audio.eq.channels.KHz_3  = channels.KHz_3
-        state.settings.audio.eq.channels.KHz_6  = channels.KHz_6
-        state.settings.audio.eq.channels.KHz_12 = channels.KHz_12
-        state.settings.audio.eq.channels.KHz_14 = channels.KHz_14
-        state.settings.audio.eq.channels.KHz_16 = channels.KHz_16
+    SET_AUDIO_PLAYBACK_BEHAVIOUR (state, arg) {
+        state.settings.audio.playback_behaviour = arg
+    },
+
+    SET_ALL_AUDIO_EQ_CHANNELS (state, arg) {
+        state.settings.audio.eq.preset = arg.preset
+
+        state.settings.audio.eq.channels.preamp = arg.channels.preamp
+        state.settings.audio.eq.channels.Hz_60  = arg.channels.Hz_60
+        state.settings.audio.eq.channels.Hz_170 = arg.channels.Hz_170
+        state.settings.audio.eq.channels.Hz_310 = arg.channels.Hz_310
+        state.settings.audio.eq.channels.Hz_600 = arg.channels.Hz_600
+        state.settings.audio.eq.channels.KHz_1  = arg.channels.KHz_1
+        state.settings.audio.eq.channels.KHz_3  = arg.channels.KHz_3
+        state.settings.audio.eq.channels.KHz_6  = arg.channels.KHz_6
+        state.settings.audio.eq.channels.KHz_12 = arg.channels.KHz_12
+        state.settings.audio.eq.channels.KHz_14 = arg.channels.KHz_14
+        state.settings.audio.eq.channels.KHz_16 = arg.channels.KHz_16
     },
 
     SET_AUDIO_EQ_LEVEL (state, arg) {
@@ -471,8 +479,8 @@ const mutations = {
 }
 
 const actions = {
-    addTrack: ({ commit }, info) => {
-        commit('ADD_TRACK', info)
+    addTrack: ({ commit }, meta) => {
+        commit('ADD_TRACK', meta)
     },
 
     editTrack: ({ commit }, obj) => {
@@ -511,6 +519,10 @@ const actions = {
         commit('UNFAVOURITE_TRACK', track)
     },
 
+    incrementPlayCount: ({ commit }, track) => {
+        commit('INCREMENT_PLAY_COUNT', track)
+    },
+
     createPlaylist: ({ commit }, name) => {
         commit('CREATE_PLAYLIST', name)
     },
@@ -533,6 +545,15 @@ const actions = {
 
     removeFromPlaylist: ({ commit }, obj) => {
         commit('REMOVE_FROM_PLAYLIST', obj)
+    },
+
+    // App Routes
+    cacheMainRoute: ({ commit }, arg) => {
+        commit("CACHE_MAIN_ROUTE", arg)
+    },
+
+    cacheChildRoute: ({ commit }, arg) => {
+        commit("CACHE_CHILD_ROUTE", arg)
     },
 
     // Settings Actions
@@ -581,15 +602,15 @@ const actions = {
         commit('SET_AUTO_NIGHT_MODE_PM', value)
     },
 
-    setJobsFn: ({ commit }, jobs) => {
-        commit('SET_JOBS_FN', jobs)
-    },
-
-    clearJobsFn: ({ commit }) => {
-        commit('CLEAR_JOBS_FN')
+    displayNotif: ({ commit }, arg) => {
+        commit('DISPLAY_NOTIF', arg)
     },
 
     // Audio
+    setAudioPlaybackBehaviour: ({ commit }, arg) => {
+        commit("SET_AUDIO_PLAYBACK_BEHAVIOUR", arg)
+    },
+
     updateExcludedFolder: ({ commit }, name) => {
         commit('UPDATE_EXCLUDED_FOLDER', name)
     },
@@ -602,8 +623,8 @@ const actions = {
         commit('CLEAR_EXCLUDED_FOLDER')
     },
 
-    setAllAudioEQChannels: ({ commit }, channels) => {
-        commit('SET_ALL_AUDIO_EQ_CHANNELS', channels)
+    setAllAudioEQChannels: ({ commit }, arg) => {
+        commit('SET_ALL_AUDIO_EQ_CHANNELS', arg)
     },
 
     setAudioEQLevel: ({ commit }, arg) => {
@@ -649,6 +670,11 @@ const getters = {
         return state.playlists
     },
 
+    // App Routes
+    appRoutes (state) {
+        return state.cached
+    },
+
     // Settings getters
     currentSetting (state) {
         return state.settings.currentSetting
@@ -687,11 +713,8 @@ const getters = {
         }
     },
 
-    appScheduleJobs (state) {
-        return {
-            start: state.settings.ui.autoNightMode.start_job,
-            end: state.settings.ui.autoNightMode.end_job
-        }
+    appNotifs (state) {
+        return state.settings.ui.displayNotif
     },
 
     settingsOpen (state) {
@@ -699,6 +722,10 @@ const getters = {
     },
 
     // Audio
+    appAudioPlaybackBehaviour (state) {
+        return state.settings.audio.playback_behaviour
+    },
+
     appAudioEQ (state) {
         return state.settings.audio.eq
     },

@@ -1,7 +1,8 @@
 const ws = require('wavesurfer.js')
 const fs = require('fs')
 
-import { getIndexFromKey, removeObject }  from './object'
+const { getIndexFromKey, removeObject }  = require('./object')
+const { remove }                         = require('./list')
 
 
 export default class Player {
@@ -10,8 +11,21 @@ export default class Player {
         this.shuffle = props.shuffle // Only used to assert shuffle on when App newly launched
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
-        this.playHistory = [] // For storing previously played tracks in shuffle mode
+        this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
+        this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
+        this.bands = {
+            60: "Hz_60",
+            170: "Hz_170",
+            310: "Hz_310",
+            600: "Hz_600",
+            1000: "KHz_1",
+            3000: "KHz_3",
+            6000: "KHz_6",
+            12000: "KHz_12",
+            14000: "KHz_14",
+            16000: "KHz_16"
+        }
 
         this.device = new ws.create({
             container: "#waveform",
@@ -28,7 +42,8 @@ export default class Player {
             hideScrollbar : true,
             audioRate     : 1,
             normalize     : false,
-            interact      : true
+            interact      : true,
+            audioRate  : props.playbackRate 
         })
 
         this.device.setVolume(props.volume)
@@ -37,10 +52,13 @@ export default class Player {
 
     activate(currentTrack, pool) {
         this.activated = true
-
-        if (this.shuffle) {
-            this.fillRandoms(currentTrack, pool)
-        }
+        // Previously we triggered the randoms refill fn here
+        // ... but that caused it to be re-reshuffled
+        // ... because when the App is newly launched the 'fillRandoms' fn
+        // ... is triggered if the 'shuffle' is on
+        // ... If not, even if the user toggles the shuffle mode,
+        // ... the 'fillRandoms' fn is called in 'App.vue'
+        // ... Meaning, we essentially don't need the call aswell
     }
 
     setProgressColor(color) {
@@ -53,6 +71,10 @@ export default class Player {
 
     setWaveColor(color) {
         this.device.setWaveColor(color)
+    }
+
+    setPlaybackRate(val) {
+        this.device.setPlaybackRate(val)
     }
 
     reset() {
@@ -130,17 +152,25 @@ export default class Player {
         if (!this.cleared) this.device.playPause()
     }
 
-    getNextRandom(currentTrack, pool) {
-        let editedPool = pool
-        let index = getIndexFromKey(pool, 'id', currentTrack.id)
+    getNextRandom(currentTrack, pool, exclude=false) {
+        let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
-        if (this.playHistory.length < 10) {
-            this.playHistory.push(index)
-        } else {
-            this.playHistory = [index]
+        if (!exclude && (index != -1)) {
+            if (this.tmpPlayHistory.length <= 10) {
+                this.tmpPlayHistory.push(index)
+            } else {
+                this.tmpPlayHistory = [index]
+            }
+
+            // All indexes are pushed until the floor is reached
+            if (this.playHistory.length == this.pool) {
+                this.playHistory - [index]
+            } else {
+                this.playHistory.push(index)
+            }
         }
 
         // Check if randoms empty, so we can refill
@@ -154,10 +184,10 @@ export default class Player {
         return this.randoms.pop()
     }
 
-    fillRandoms(currentTrack, pool) {
+    fillRandoms(currentTrack, pool, excludePlayed=false) {
         // Create a properly shuffled pool
         // Exclude playing track, to avoid any collisions
-        let tmpPool = removeObject(pool, 'id', currentTrack.id)
+        let tmpPool = currentTrack ? removeObject(pool, 'id', currentTrack.id) : pool.slice(0)
 
         // Durstenfeld Algo
         for (var i = tmpPool.length - 1;i > 0;i--) {
@@ -171,8 +201,166 @@ export default class Player {
 
         // Fill randoms with newly created (in place) shuffled indexes
         this.randoms = tmpPool.map((item) => { return pool.indexOf(item) })
+
+        // Remove alreaady played tracks
+        // Only triggered if playing target resumed to avoid collisions
+        // ... since the randoms is refilled each time its updated
+        if (excludePlayed) {
+            for (var x = 0;x < this.playHistory.length;x++) {
+                this.randoms = remove(this.randoms, this.playHistory[x])
+            }
+        }
     }
 
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
+
+    freeRandTrack (index) {
+        // Fn should be invoked oonly when a track has been deleted or added
+        // ... as randoms is popped, so this has no effect
+        // Removes a track from the set of `this.randoms` to avoid potential double play
+        this.randoms = remove(this.randoms, index)
+    }
+
+    clearHistory () {
+        this.playHistory = []
+        this.tmpPlayHistory = []
+    }
+
+    initEQ(temp) {
+        this.connectEQ([{
+            f: 60,
+            type: 'lowshelf',
+            value: temp[this.bands[60]]
+        },
+        {
+            f: 170,
+            type: 'peaking',
+            value: temp[this.bands[170]]
+        },
+        {
+            f: 310,
+            type: 'peaking',
+            value: temp[this.bands[310]]
+        },
+        {
+            f: 600,
+            type: 'peaking',
+            value: temp[this.bands[600]]
+        },
+        {
+            f: 1000,
+            type: 'peaking',
+            value: temp[this.bands[1000]]
+        },
+        {
+            f: 3000,
+            type: 'peaking',
+            value: temp[this.bands[3000]]
+        },
+        {
+            f: 6000,
+            type: 'peaking',
+            value: temp[this.bands[6000]]
+        },
+        {
+            f: 12000,
+            type: 'peaking',
+            value: temp[this.bands[12000]]
+        },
+        {
+            f: 14000,
+            type: 'peaking',
+            value: temp[this.bands[14000]]
+        },
+        {
+            f: 16000,
+            type: 'highshelf',
+            value: temp[this.bands[16000]]
+        }], true)
+    }
+
+    updateEQChannel(channel, val) {
+        // update specific band channel
+        let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+
+        // Update the channel value
+        this.device.backend.filters[index].gain.value = val
+    }
+
+    resetEQ() {
+        this.connectEQ([{
+            f: 60,
+            type: 'lowshelf',
+            value: 0
+        },
+        {
+            f: 170,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 310,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 600,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 1000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 3000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 6000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 12000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 14000,
+            type: 'peaking',
+            value: 0
+        },
+        {
+            f: 16000,
+            type: 'highshelf',
+            value: 0
+        }], true)
+    }
+
+    connectEQ(eq, val) {
+        if (val) {
+            // Create filters
+            let filters = []
+
+            for (var i = 0;i < eq.length;i++) {
+                // Set each band with appropriate value
+                let filter = this.device.backend.ac.createBiquadFilter()
+    
+                filter.type = eq[i].type
+                filter.gain.value = eq[i].value
+                filter.Q.value = 1
+                filter.frequency.value = eq[i].f
+
+                filters.push(filter)
+            }
+            
+
+            // Connect filters to wavesurfer
+            this.device.backend.setFilters(filters)
+        }
+    }
 }

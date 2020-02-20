@@ -6,10 +6,10 @@
 */
 
 // Fn for Adding unique items to arrays
-const add = (list, item, basic=false) => {
+const add = (list, item, basic=true, prop='id') => {
     for (var i = 0;i < list.length;i++) {
     	if (!basic) {
-            if (list[i].source == item.source) {
+            if (list[i][prop] == item[prop]) {
                 return list
             }
         } else {
@@ -32,6 +32,16 @@ const remove = (list, item) => {
     })
 }
 
+// Removes an item that matches a certain patter from an array
+const removePattern = (list, pattern) => {
+    // Assumes the list items are strings!
+    return list.filter((entry) => {
+        if (!String(entry).match(pattern)) {
+            return true
+        }
+    })
+}
+
 // Replaces an item in an Array with another item
 //
 // i.e let arr = ['foo', 'bar']
@@ -44,4 +54,4 @@ const replaceItem = (arr, old, current) => {
     return index == 0 ? arr.slice(1) : arr.slice(0, index).concat(current).concat(arr.slice(index+1))
 }
 
-module.exports = { add, remove, replaceItem }
+module.exports = { add, remove, removePattern, replaceItem }

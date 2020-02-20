@@ -1,8 +1,8 @@
 {
     "light": {
         "cursorColor": "dodgerblue",
-        "progressColor": "#e8e8e8",
-        "waveColor": "#f9f9f9"
+        "progressColor": "#e0e0e0",
+        "waveColor": "#f0f0f0"
     },
     "night": {
         "cursorColor": "dodgerblue",

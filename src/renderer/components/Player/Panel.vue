@@ -1,7 +1,7 @@
 <template>
     <div class="player-container">
         <div class="panel-holder">
-            <div class="image-holder">
+            <div class="image-holder" :class="{darken: loading}">
                 <img id="album-art" :class="{show: showArt}">
                 <svg class="default-album-art" :class="{show: !showArt, hide: showArt}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="56 56 400 400" width="82.5pt" height="82.5pt">
                     <path d=" M 56 256 C 56 145.617 145.617 56 256 56 C 366.383 56 456 145.617 456 256 C 456 366.383 366.383 456 256 456 C 145.617 456 56 366.383 56 256 Z  M 206 256 C 206 228.404 228.404 206 256 206 C 283.596 206 306 228.404 306 256 C 306 283.596 283.596 306 256 306 C 228.404 306 206 283.596 206 256 Z " fill-rule="evenodd" fill="none"/>
@@ -29,7 +29,6 @@
                                     <path class="filled" d=" M 11.75 3.85 L 7.05 3.85 L 7.05 3.85 C 4.263 3.85 2 5.754 2 8.1 L 2 8.1 C 2 10.446 4.263 12.35 7.05 12.35 L 18.95 12.35 C 21.737 12.35 24 10.446 24 8.1 L 24 8.1 C 24 5.754 21.737 3.85 18.95 3.85 L 16 3.85 L 16 2.85 L 11.75 2.85 L 11.75 3.85 Z  M 6.862 2.85 L 19.138 2.85 C 22.373 2.85 25 5.202 25 8.1 L 25 8.1 C 25 10.998 22.373 13.35 19.138 13.35 L 6.862 13.35 C 3.627 13.35 1 10.998 1 8.1 L 1 8.1 C 1 5.202 3.627 2.85 6.862 2.85 L 6.862 2.85 Z " fill-rule="evenodd" />
                                     <path class="filled" d=" M 11 5.104 L 11 3.341 L 11 1.578 C 11 1.374 11.143 1.292 11.319 1.394 L 12.844 2.275 L 14.368 3.156 C 14.544 3.258 14.544 3.424 14.368 3.526 L 12.844 4.407 L 11.319 5.288 C 11.143 5.39 11 5.307 11 5.104 Z " />
                                 </svg>
-                            </svg>
                             <svg class="loop-icon alt" @click="setLoop('all')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 1 26 12" width="20pt" height="14pt" :class="{show: !appAudioPrefs.loopSingle && appAudioPrefs.loopAll, hide: appAudioPrefs.loopSingle || !appAudioPrefs.loopAll, on: appAudioPrefs.loopAll}">
                                 <path class="filled" d=" M 7.75 12.75 L 6.862 12.75 C 3.627 12.75 1 10.398 1 7.5 L 1 7.5 C 1 4.602 3.627 2.25 6.862 2.25 L 6.862 2.25 L 13.75 2.25 L 13.75 3.25 L 7.05 3.25 L 7.05 3.25 C 4.263 3.25 2 5.154 2 7.5 L 2 7.5 C 2 9.846 4.263 11.75 7.05 11.75 L 18.95 11.75 C 21.737 11.75 24 9.846 24 7.5 L 24 7.5 C 24 5.154 21.737 3.25 18.95 3.25 L 18 3.25 L 18 2.25 L 19.138 2.25 C 22.373 2.25 25 4.602 25 7.5 L 25 7.5 C 25 10.398 22.373 12.75 19.138 12.75 L 12 12.75 L 12 11.75 L 7.75 11.75 L 7.75 12.75 Z " fill-rule="evenodd" />
                                 <path class="filled" d=" M 12 4.504 L 12 2.741 L 12 0.978 C 12 0.774 12.143 0.692 12.319 0.794 L 13.844 1.675 L 15.368 2.556 C 15.544 2.658 15.544 2.824 15.368 2.926 L 13.844 3.807 L 12.319 4.688 C 12.143 4.79 12 4.707 12 4.504 Z " />
@@ -53,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            <div class="lower">
+            <div class="lower" :class="{darken: loading}">
                 <div class="waveform" id="waveform" :class="{hide: track == null}"></div>
             </div>
         </div>
@@ -65,7 +64,7 @@
     import { mapActions,
             mapGetters } from 'vuex'
 
-    import { Id }        from './../../utils/htmlQuery'
+    const { Id }         = require('./../../utils/htmlQuery')
 
     export default {
         props: [
@@ -75,30 +74,18 @@
             'loading',
             'foundArt'
         ],
-        data() {
-            return {
-                showArt: false
-            }
-        },
         mounted() {
             window.$vue = this
         },
         watch: {
-            'player.cleared' (cur, prev) {
-                if (cur) {
-                    // We should clear the art when the player hasn been cleared
-                    this.showArt = false
-                }
+            'appAudioPrefs.playbackRate' (cur, prev) {
+                this.player.setPlaybackRate(cur)
             },
 
-            loading (cur, prev) {
-                if (this.foundArt) {
-                    this.showArt = true
-
+            foundArt (cur, prev) {
+                if (cur) {
                     // Redraw waveform here
                     if (this.player) this.player.device.drawBuffer()
-                } else {
-                    this.showArt = false
                 }
             }
         },
@@ -106,7 +93,8 @@
             ...mapActions([
                 'setLoop',
                 'toggleMute',
-                'toggleShuffle'
+                'toggleShuffle',
+                'updateVolume'
             ]),
 
             handleMute(ev) {
@@ -132,12 +120,15 @@
             ]),
 
             currentTrack() {
-                return this.track ? this.track : {
+                return this.track && !this.loading? this.track : {
                     title: '-',
                     artist: '-',
                     img: null,
                     duraction: '-'
                 }
+            },
+            showArt() {
+                return this.foundArt && this.player ? (!this.player.cleared) : false
             },
             volume: {
                 set(val) {
@@ -152,6 +143,9 @@
 </script>
 
 <style lang="stylus">
+    .darken
+        opacity 0.2
+
     .player-container
         width calc(100% - 250px)
         height 110px
@@ -194,6 +188,7 @@
                     h4
                         text-align center
                         margin-right 120px
+                        font-weight 100
                     h4.t-title
                         margin-top 20px
                         margin-bottom 10px

@@ -84,23 +84,23 @@ input[type="range"].slider {
 
 
 /* SidePane Component colors */
-#app .virtical-div {
+#app .vertical-div {
     background: #0c2535;
 }
 
-#app .virtical-div .entity p {
+#app .vertical-div .entity p {
     color: #cecece;
 }
 
-#app .virtical-div .entity.greyedText p {
+#app .vertical-div .entity.greyedText p {
     color: #7c7c7c;
 }
 
-#app .virtical-div .empty-listing h4 {
+#app .vertical-div .empty-listing h4 {
     color: #346588;
 }
 
-#app .virtical-div::-webkit-scrollbar, #app .virtical-div-holder::-webkit-scrollbar {
+#app .vertical-div::-webkit-scrollbar, #app .vertical-div-holder::-webkit-scrollbar {
     background: #163f5d;
 }
 
@@ -141,6 +141,10 @@ td, th {
 
 th {
     background: #113754;
+}
+
+tr.dim-track {
+    opacity: 0.2;
 }
 
 tr:nth-child(odd) {
@@ -220,7 +224,7 @@ tbody tr:hover td, tbody tr:hover div {
     background: #dedede;
 }
 
-.flex select {
+.flex select, select.preset-select {
     background: #1e4058;
     color: white;
 }
@@ -244,4 +248,13 @@ input#settings-input {
 
 .flex .dialog-button-alt:hover {
     background: #d24136;
+}
+
+/* Audio */
+.option-item p {
+    color: #bbbbbb;
+}
+
+.option-item button.arrow:hover {
+    background: dodgerblue;
 }
