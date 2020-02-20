@@ -1634,18 +1634,21 @@
                         track.album.toLowerCase().includes(this.vars.searchText.toLowerCase()) || 
                         track.genre.toLowerCase().includes(this.vars.searchText.toLowerCase())
                 }).sort((a, b) => {
-                    var comp = 0
-                    var tmp_a = a[this.sortBy].toUpperCase()
-                    var tmp_b = b[this.sortBy].toUpperCase()
+                    // We want sorting to be 'sortBy' first then sorted by 'title'
+                    // Found this concatenation hack on stack overflow
+                    // here: https://stackoverflow.com/questions/11379361/how-to-sort-an-array-of-objects-with-multiple-field-values-in-javascript
+                    let tmp_a = this.sortBy == 'title' ? a[this.sortBy].toLowerCase() : 
+                                                        a[this.sortBy].toLowerCase() + a['title'].toLowerCase()
+
+                    let tmp_b = this.sortBy == 'title' ? b[this.sortBy].toLowerCase() : 
+                                                        b[this.sortBy].toLowerCase() + b['title'].toLowerCase()
 
                     if (tmp_a > tmp_b) {
-                        comp = 1
+                        return this.currentDirec == 'a-z' ? 1 : -1
                     } else {
-                        comp = -1
+                        return this.currentDirec == 'z-a' ? 1 : -1
                     }
-
-                    return this.currentDirec == 'a-z' ? comp : (comp * -1)
-                })
+                }).slice(0)
             }
         },
     }
