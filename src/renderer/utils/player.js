@@ -222,6 +222,11 @@ export default class Player {
         this.randoms = remove(this.randoms, index)
     }
 
+    clearHistory () {
+        this.playHistory = []
+        this.tmpPlayHistory = []
+    }
+
     initEQ(temp) {
         this.connectEQ([{
             f: 60,

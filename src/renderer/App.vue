@@ -254,6 +254,9 @@
         created() {
             // Print Welcome message
             console.log("Welcome to Soundplay v0.2.0 (Alpha)")
+            console.log("\nAs an Alpha/Beta tester, you are the first to see this App.")
+            console.log("If you have suggestions or find bugs Open up an issue here:")
+            console.log("https://gihtub.com/soundplay/issues.")
 
             // Hide App Audio EQ if it was opened in a previous session
             if (this.appAudioEQ.visible) {
@@ -653,6 +656,12 @@
                 if (cur) {
                     this.updateCurrentTrack(null)
                 }
+            },
+
+            'vars.playingTarget' (cur, old) {
+                // Empty play histories
+                // To prepare for new history
+                this.clearHistory()
             },
 
             'vars.currentTrack' (cur, old) {

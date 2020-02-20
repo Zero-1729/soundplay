@@ -132,6 +132,10 @@ In shuffle mode, whenever the user triggers the next track the player fetches a 
 
 The `tmpPlayHistory` is a temporary array that stores the indexes of the last 10 played tracks in shuffle mode, however, the `playHistory` is an array that keeps track of all played tracks in shuffle mode, and gets emptied once all tracks have been played, before then getting refilled again.
 
+### Note on histories
+
+Our play history is dependent on the current playing target, if it is changed then the history needs to go.
+
 ### TODO
 
 ```
