@@ -287,11 +287,15 @@
 
             // Or use 'fullscreen' from window event listener
             ipcRenderer.on('enter-full-screen', () => {
-                ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
+                if (ClassNameSingle('vertical-div-holder').length > 0) {
+                    ClassNameSingle('vertical-div-holder').classList.add('stretched-div')
+                }
             })
 
             ipcRenderer.on('leave-full-screen', () => {
-                ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
+                if (ClassNameSingle('vertical-div-holder').length > 0) {
+                    ClassNameSingle('vertical-div-holder').classList.remove('stretched-div')
+                }
             })
 
             // Request startup args from Main
@@ -699,7 +703,7 @@
                             }
                         } else {
                             // Dim track if from external drive
-                            if (document.getElementsByTagName('tr')) {
+                            if (document.getElementsByTagName('tr').length > 0) {
                                 document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
                             }
                         }
@@ -722,7 +726,7 @@
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
 
                         // Undim track 
-                        if (document.getElementsByTagName('tr')) {
+                        if (document.getElementsByTagName('tr').length > 0) {
                             document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
                         }
                     }
