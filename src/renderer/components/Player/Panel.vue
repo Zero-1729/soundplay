@@ -128,7 +128,7 @@
                 }
             },
             showArt() {
-                return this.player.cleared ? false : this.foundArt
+                return this.foundArt && this.player ? (!this.player.cleared) : false
             },
             volume: {
                 set(val) {
