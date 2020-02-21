@@ -62,7 +62,7 @@
 
                     <div class="flexed-div-holder">
                         <div class="flexed-div" v-for="folder in appExcludedFolders">
-                            <button @click="removeExcludedFolder(folder)">
+                            <button class="folder" @click="removeExcludedFolder(folder)">
                                 <p>{{ folder }}</p>
                                 <svg @hover="handle_hovered_folder(folder)"  :class="{showClose: hoveredFolder == folder}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 20 20" width="10" height="10">
                                     <path d="M 0.397 0.397 L 0.397 0.397 C 0.927 -0.132 1.788 -0.132 2.318 0.397 L 19.603 17.682 C 20.132 18.212 20.132 19.073 19.603 19.603 L 19.603 19.603 C 19.073 20.132 18.212 20.132 17.682 19.603 L 0.397 2.318 C -0.132 1.788 -0.132 0.927 0.397 0.397 Z" style="stroke:none;stroke-miterlimit:10;"/>
@@ -207,12 +207,18 @@
 
     .flexed-div-holder
         height 30px
-        width 40vw
+        width 460px
         display flex
         overflow-x auto
         overflow-y hidden
         margin-top 1.1px
         margin-left 20px
+        .flexed-div
+            button.folder
+                width 112px
+                margin-left 5px
+                margin-right 5px
+                margin-top 0
 
     .flexed-div-holder .flexed-div:first-child
         margin 0
