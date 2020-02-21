@@ -2,7 +2,7 @@
 
 The insufficient variety of visually aesthetic audio players on Linux led to my discovery of [museeks](https://museeks.io), a very well designed audio player with a very decent UI.
 
-The App's inclusion of features such as gapless playback and [Play Gain]() were extremely appreciated, however, there were also a few issues that came with using the audio player: inter alia, the inability to easily sync audio from local music folder, and other personal preferences.
+The App's inclusion of features such as gapless playback and [Play Gain](http://www.bobulous.org.uk/misc/Replay-Gain.html) were extremely appreciated, however, there were also a few issues that came with using the audio player: inter alia, the inability to easily sync audio from local music folder, and other personal preferences.
 
 As a developer, the natural option was to build my own alternative that would satisfy all my needs - included quirky ones like having two seperate night/dark themes. Thus, Soundplay was born.
 
