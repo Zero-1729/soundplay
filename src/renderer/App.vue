@@ -662,7 +662,7 @@
             'vars.playingTarget' (cur, old) {
                 // Empty play histories
                 // To prepare for new history
-                this.clearHistory()
+                this.player.clearHistory()
             },
 
             'vars.currentTrack' (cur, old) {
