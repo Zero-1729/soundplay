@@ -31,7 +31,8 @@ npm install
 npm run dev
 
 # build Soundplay Electron App
-npm run build
+# replace 'platform' with 'mac', 'win' or 'linux'
+npm run build:platform
 ```
 
 ---
