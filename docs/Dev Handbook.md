@@ -146,6 +146,14 @@ A) For now it just prevents them from going any further until new tracks are pla
 
 ---
 
+## Audio EQ
+
+While the EQ currently lets the user select some presets, it is also possible to manually set the values. However, the preamp is currenlt not connected to the player, meaning changes its value has no effect on the audio.
+
+> Note: The preamp would be connected to the player in the comming Beta release.
+
+---
+
 ## Import
 
 > **Note:** In shuffle mode, newly imported tracks are added the `randoms` array.
@@ -309,7 +317,6 @@ Make any synchronous code blocks: i.e. `for (var i = 0) ...`
 
 > Future: Make import flow faster.
 
----
 
 # Soundcloud Integration
 
