@@ -152,6 +152,10 @@ tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     border-bottom: 2px solid dodgerblue;
 }
 
+.flex button.dialog-button:hover {
+    background: rgba(110, 133, 167, 0.87);
+}
+
 .flex .switch.checked {
     background: dodgerblue;
 }
@@ -188,7 +192,7 @@ input#settings-input:focus {
     fill: white;
 }
 
-.dialog-button-alt.greyed-button:hover {
+button.dialog-button.dialog-button-alt.further.greyed-button:hover, button.dialog-button-alt.furthest.greyed-button:hover {
     background: dodgerblue;
 }
 

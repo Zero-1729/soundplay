@@ -222,10 +222,6 @@ tbody tr:nth-child(odd) {
     color: white;
 }
 
-.flex button.dialog-button:hover {
-    background: rgba(110, 133, 167, 0.87);
-}
-
 .flex button:hover, .flex button.dialog-button-alt.further.widthless:hover {
     background: #ff7a70;
 }
