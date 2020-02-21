@@ -10,7 +10,8 @@
                 @mutateStatusMessage="mutateStatusMessage"
                 @clearJobsFn="handle_clearJobs"
                 @setJobsFn="handle_setJobs"
-                @appLoading="push_loading_state">
+                @appLoading="push_loading_state"
+                @syncFiles="handle_sync_files">
             </router-view>
         </transition>
     </div>
@@ -40,6 +41,10 @@
         methods: {
             push_loading_state (arg) {
                 this.$emit('appLoading', arg)
+            },
+
+            handle_sync_files () {
+                this.$emit('syncFiles')
             },
 
             handle_clearJobs () {

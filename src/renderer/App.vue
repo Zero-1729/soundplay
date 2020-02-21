@@ -57,6 +57,7 @@
                     @clearFailMessage="clearFailMessage"
                     @clearJobsFn="clearJobsFn"
                     @setJobsFn="setJobsFn"
+                    @syncFiles="syncFiles"
                     
                     :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
@@ -1357,7 +1358,7 @@
                 this.vars.jobs.end   = arg.end
             },
 
-            crawl(dir) {
+            crawl(dir, excludedFolders=false) {
                 // suppose the following path structure
                 // .
                 // | - someArtist/
@@ -1380,7 +1381,7 @@
                     if (['mp3', 'ogg', 'wav', 'm4a'].includes(format)) {
                         tracks.push(file)
                     }
-                }, this.appExcludedFolders)
+                }, excludedFolders ? this.appExcludedFolders : [])
 
                 return tracks
             },
@@ -1551,7 +1552,12 @@
                 }
             },
 
-            addFiles(obj) {
+            syncFiles() {
+                // Trigger import with excluded folders
+                this.addFiles([this.appMusicFolder], true)
+            },
+
+            addFiles(obj, excludedFolders=false) {
                 // Clear all (modal) message
                 this.clearStatusMessage()
                 this.clearAllWarnMessage()
@@ -1575,7 +1581,7 @@
                         // Get folder path
                         let folder_path = this.resolveObjectPath(objs[i])
 
-                        let tracks = this.crawl(folder_path)
+                        let tracks = this.crawl(folder_path, excludedFolders)
 
                         // Count to import
                         this.imports += tracks.length
@@ -1621,6 +1627,7 @@
                 'currentCriteria',
                 'currentDirec',
                 'sortBy',
+                'appMusicFolder',
                 'appExcludedFolders',
                 'appTheme',
                 'appNightMode',

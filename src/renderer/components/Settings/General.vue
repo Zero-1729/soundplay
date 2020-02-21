@@ -179,16 +179,8 @@
                     this.$emit('appLoading', true)
                     this.syncing = true
 
-                    // Load tracks from 'musicFolder'
-                    new FS(this.appMusicFolder).forEachFile((file) => {
-                        let format = file.split('.')
-                        format = format[format.length-1]
-
-                        // All supported formats
-                        if (['mp3', 'ogg', 'wav'].includes(format)) {
-                            this.$parent.$parent.deref(file)
-                        }
-                    }, this.appExcludedFolders)
+                    // `addFiles` works way better than our little hack
+                    this.$emit('syncFiles')
                 }
             }
         },
