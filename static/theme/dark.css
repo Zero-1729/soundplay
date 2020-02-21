@@ -109,6 +109,10 @@ input[type="range"].slider {
     background: #808080;
 }
 
+#app .vertical-div .entity p:hover {
+    color: #2b96ffad;
+}
+
 
 /* Toolset Component colors */
 .main-toolset-container, .main-toolset-container-alt {

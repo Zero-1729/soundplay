@@ -99,10 +99,6 @@ input[type="range"].slider::-webkit-slider-thumb {
     color: dodgerblue;
 }
 
-#app .vertical-div .entity p:hover {
-    color: rgba(30, 144, 255, 0.51);
-}
-
 #app .vertical-div .entity p#hovered-text {
     color: rgba(30, 144, 255, 0.51);
 }
