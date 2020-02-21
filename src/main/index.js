@@ -248,6 +248,42 @@ const template = [
         ]
     },
     {
+        label: 'Edit',
+        submenu: [{
+            label: 'Undo',
+            accelerator: 'CmdOrCtrl+Z',
+            selector: 'undo:'
+        },
+        {
+            label: 'Redo',
+            accelerator: 'Shift+CmdOrCtrl+Z',
+            selector: 'redo:'
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Cut',
+            accelerator: 'CmdOrCtrl+X',
+            selector: 'cut:'
+        },
+        {
+            label: 'Copy',
+            accelerator: 'CmdOrCtrl+C',
+            selector: 'copy:'
+        },
+        {
+            label: 'Paste',
+            accelerator: 'CmdOrCtrl+V',
+            selector: 'paste:'
+        },
+        {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            selector: 'selectAll:'
+        }]
+    },
+    {
         label: 'Playback',
         submenu: [
             {
@@ -468,7 +504,7 @@ if (process.platform == 'darwin') {
     )
 
     // Window
-    template[5].submenu.push(
+    template[6].submenu.push(
         {
             type: 'separator'
         },
@@ -488,46 +524,6 @@ if (process.platform == 'darwin') {
 
 // Clear redundant entries
 template[1].submenu = template[1].submenu.slice(0, 4)
-
-// Add 'Edit' menu item to allow 'Copy/Paste'
-template.splice(2, 0,
-    {
-        label: 'Edit',
-        submenu: [{
-            label: 'Undo',
-            accelerator: 'CmdOrCtrl+Z',
-            selector: 'undo:'
-        },
-        {
-            label: 'Redo',
-            accelerator: 'Shift+CmdOrCtrl+Z',
-            selector: 'redo:'
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Cut',
-            accelerator: 'CmdOrCtrl+X',
-            selector: 'cut:'
-        },
-        {
-            label: 'Copy',
-            accelerator: 'CmdOrCtrl+C',
-            selector: 'copy:'
-        },
-        {
-            label: 'Paste',
-            accelerator: 'CmdOrCtrl+V',
-            selector: 'paste:'
-        },
-        {
-            label: 'Select All',
-            accelerator: 'CmdOrCtrl+A',
-            selector: 'selectAll:'
-        }]
-    }
-)
 
 // Edit the last menu entry 'Help'
 template[template.length - 1].submenu = [
