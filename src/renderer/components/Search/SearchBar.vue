@@ -62,6 +62,7 @@
     input
         height 20px
         width 160px
+        font-size 10px
         padding 6px
         padding-left 16px
         border-radius 5px
