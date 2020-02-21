@@ -18,7 +18,7 @@ const path = require('path')
 
 // App version
 // Note: Should match 'package.json'
-const APP_VERSION = 'v0.2.0 (Alpha)'
+const APP_VERSION = 'v0.2.1 (Alpha)'
 
 /**
  * Set `__static` path to static files in production
