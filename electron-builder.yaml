@@ -47,6 +47,12 @@ linux:
     target:
         - deb
         - AppImage
+    mimeTypes:
+        - audio/flac
+        - audio/mp4
+        - audio/mpeg
+        - audio/ogg
+        - audio/wav
     executableName: Soundplay
 
 electronVersion: 4.2.2
