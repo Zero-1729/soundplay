@@ -4,11 +4,11 @@
 
 This document is intended to guide you through the process.
 
-> **Tip**: An excellent place to start is to check out the project [Code of Conduct (`COC`)](https://github.com/Zero-1729/soundplay/docs/coc.md), if you haven't already, before contributing.
+> **Tip**: An excellent place to start is to check out the project [Code of Conduct (`COC`)](https://github.com/Zero-1729/soundplay/docs/CODE_OF_CONDUCT.md), if you haven't already, before contributing.
 >
-> **Note**: If you need any further clarification post your question(s) on [Reddit](http://www.reddit.com/r/soundplay).
+> **Note**: If you need any further clarification post your question(s) on [Reddit](https://www.reddit.com/r/soundplayApp/) or on our IRC channel (#soundplay).
 
-At this point it should be noted that discussions about code base improvements happen in GitHub issues or in pull requests (i.e. when [bikeshedding]()).
+At this point it should be noted that discussions about code base improvements happen in GitHub issues or in pull requests (i.e. when [bikeshedding](https://en.wiktionary.org/wiki/bikeshedding)).
 
 ### Coding Style
 
@@ -133,7 +133,7 @@ If your pull is in response to a particular issue, ensure you reference it in th
 
 Commit messages should be kept short (50 chars max), with a blank line to separate any additional explanations as separate paragraph(s), this should be done only if the title alone is not self-explanatory (E.g. "Updated `App.vue`"). A good rule of thumb is to ensure commit messages are clear, so people reading it in the future would find it easy to comprehend the change(s).
 
-Also, please avoid pushing [super commits]() - commits with numerous changes - instead they should be atomic: only changing a very specific aspect of the App.
+Also, please avoid pushing *super commits* - commits with numerous changes - instead they should be [atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention): only changing a very specific aspect of the App.
 
 #### Squashing Commits
 
@@ -158,9 +158,13 @@ git push -f # (force push to GitHub)
 
 As a new contributor, the process might seem daunting, so to make it easier you can enable "*Allow edits from maintainers*" on the sidebar located on the left and ask for help in the PR.
 
-New contributors should also avoid opening numerous pull requests with the same change, instead you can include any additional changes in the existing pull request. This is intended to make discussions, and reviews of the PR easier for both you and maintainers/contributors.
+New contributors should also avoid opening numerous pull requests with the same change, instead you can include any additional changes in the existing pull request. This is intended to make discussions and reviews of the PR easier for both you and maintainers/contributors.
 
-Lastly, as a new contributor, you should note that sometimes responses from maintainers/contributors may not be prompt. In such cases ensure you exercise patience, as they may be busy or away from their machines - remember, devs have lives also.
+Lastly, as a new contributor you should note that sometimes responses from maintainers/contributors may not be prompt. In such cases ensure you exercise patience, as they may be busy or away from their machines - remember, devs have lives also.
+
+### Peer Review
+
+> TODO: Add peer review process adn related info.
 
 ### Forks
 
@@ -168,10 +172,12 @@ Feel free to fork the repo and create your own version of the App, assuming the 
 
 ### Branches
 
-New features could sometimes require their own separate branch, to properly test it before merging into `master`. Additionally, each new target release starts off with its own branch. So assuming the target release is `v0.5.0`, a new branch with the title `v0.5.0` would be created, then later merged into `master` and tagged `v0.5.0`.
+New features could sometimes require their own separate branch to properly test it before merging into `master`. Additionally, each new target release starts off with its own branch. 
+
+So assuming the target release is `v0.5.0`, a new branch with the title `v0.5.0` would be created, then later merged into `master` and tagged `v0.5.0`.
 
 ### Testing
 
-[**Issue tracker**] : https://github.com/Zero-1729/soundplay/issues
-[**IRC**] : http://freenode.net/?channels=soundplay
-[**Project maintainers**]: https://github.com/Zero-1729/soundplay/wiki/Project-Organization
+[**Issue tracker**] : [🕵️](https://github.com/Zero-1729/soundplay/issues)<br>
+[**IRC**] : [📡](http://freenode.net/?channels=soundplay)<br>
+[**Project maintainer**]: [:neckbeard:](mailto:zero1729@protonmail.com)

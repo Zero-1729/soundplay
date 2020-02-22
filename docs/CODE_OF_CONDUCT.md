@@ -27,7 +27,7 @@ In order to form a welcoming and inviting community there is a need for some fou
 - Explicit insulting/derogatory comments and personal attacks.
 - Explicit public or private harassment.
 - Publishing others' private information such as medical records or physical/electronic address without explicit permission.
-- Keep politics out: its just a sound player.
+- Keep politics out; its just a sound player.
 - Use of "*politically right*" narratives as a means for infringing on individual freedom of thought/expression.
 - Just don't be a butt.
 
@@ -45,7 +45,7 @@ Representation of a project may be further defined and clarified by project main
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the [project maintainer](zero1729@protonmail.com) (Zero-1729) via email. All complaints will be reviewed and investigated, and will result in a response that is deemed necessary and appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident; we won't dox you.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the [project maintainer](mailto:zero1729@protonmail.com) (Zero-1729) via email. All complaints will be reviewed and investigated, and will result in a response that is deemed necessary and appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident; we won't dox you.
 
 Further details of specific enforcement policies may be posted separately.
 
