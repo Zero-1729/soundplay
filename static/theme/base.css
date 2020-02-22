@@ -195,7 +195,7 @@ button.dialog-button.dialog-button-alt.further.greyed-button:hover, button.dialo
 
 /* Trackspane Component colors */
 tr#track-item:hover td, tbody tr:hover div {
-    background: rgba(30, 144, 255, 0.51);
+    background: #0693f9ab;
 }
 
 tr#track-item.activeTrack:nth-child(even) td {
