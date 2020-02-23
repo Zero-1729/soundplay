@@ -105,6 +105,9 @@
         transition all .3s ease-out
         border-bottom solid transparent 3px
 
+    .flex select
+        border-radius 2.5px
+
     select:hover, button:hover, .flex .switch:hover
         cursor pointer
 

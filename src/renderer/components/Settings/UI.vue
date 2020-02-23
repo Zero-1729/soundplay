@@ -312,7 +312,6 @@
         margin-top auto
         margin-bottom 4px
         width 70px
-        border-radius 2.5px
         border none
 
     .flex .furthest
