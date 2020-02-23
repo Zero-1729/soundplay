@@ -101,7 +101,7 @@ function createWindow () {
         y: windowState.windowBounds.y,
         backgroundColor: windowState.backgroundColor,
         titleBarStyle: 'hiddenInset',
-        icon: process.platform == 'win' ? Icons['ico'] : Icons['256'],
+        icon: process.platform == 'win32' ? Icons['ico'] : Icons['256'],
         webPreferences: {
             nodeIntegration: true
         }
