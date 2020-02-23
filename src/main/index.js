@@ -536,40 +536,40 @@ if (process.platform == 'darwin') {
             role: 'close'
         }
     )
+
+    // Clear redundant entries
+    template[1].submenu = template[1].submenu.slice(1, 5)
+
+    // Edit the last menu entry 'Help'
+    template[template.length - 1].submenu = [
+        {
+            label: 'Documentation',
+            click() {
+                shell.openExternal('https://github.com/Zero-1729/soundplay/blob/master/docs/Dev%20Handbook.md')
+            }
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Report Bug',
+            click() {
+                shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
+            }
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'Toggle Developer Tools',
+            accelerator: 'Alt+CmdOrCtrl+I',
+            click() {
+                mainWindow.webContents.openDevTools({ mode: 'detach' })
+            }
+        }
+    ]
 }
-
-// Clear redundant entries
-template[1].submenu = template[1].submenu.slice(0, 4)
-
-// Edit the last menu entry 'Help'
-template[template.length - 1].submenu = [
-    {
-        label: 'Documentation',
-        click() {
-            shell.openExternal('https://github.com/Zero-1729/soundplay')
-        }
-    },
-    {
-        type: 'separator'
-    },
-    {
-        label: 'Report Bug',
-        click() {
-            shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
-        }
-    },
-    {
-        type: 'separator'
-    },
-    {
-        label: 'Toggle Developer Tools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click() {
-            mainWindow.webContents.openDevTools({ mode: 'detach' })
-        }
-    }
-]
-
+    
 const menu = Menu.buildFromTemplate(template)
 Menu.setApplicationMenu(menu)
 
