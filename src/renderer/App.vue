@@ -254,10 +254,9 @@
         },
         created() {
             // Print Welcome message
-            console.log("Welcome to Soundplay v0.2.0 (Alpha)")
-            console.log("\nAs an Alpha/Beta tester, you are the first to see this App.")
-            console.log("If you have suggestions or find bugs Open up an issue here:")
-            console.log("https://gihtub.com/soundplay/issues.")
+            console.log(`Welcome to ${remote.app.getName()} ${remote.app.getVersion()}`)
+            console.log("\nIf you have suggestions or find bugs open up an issue here:")
+            console.log("https://gihtub.com/soundplay/issues.\n\n")
 
             // Hide App Audio EQ if it was opened in a previous session
             if (this.appAudioEQ.visible) {

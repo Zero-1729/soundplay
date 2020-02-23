@@ -16,9 +16,10 @@ import '../renderer/store'
 
 const path = require('path')
 
-// App version
+// Set App name and version
 // Note: Should match 'package.json'
-const APP_VERSION = 'v0.2.1 (Alpha)'
+app.setName('Soundplay')
+app.setVersion('v0.2.1 (Alpha)')
 
 /**
  * Set `__static` path to static files in production
@@ -205,6 +206,10 @@ const template = [
     {
         label: 'File',
         submenu: [
+            {
+                label: `Version ${app.getVersion()} (64-bit)`,
+                enabled: false
+            },
             {
                 label: 'Create Playlist',
                 click() {
@@ -433,8 +438,19 @@ const template = [
                 }
             },
             {
-                label: `Version ${APP_VERSION} (64-bit)`,
-                enabled: false
+                label: 'Documentation',
+                click() {
+                    shell.openExternal('https://github.com/Zero-1729/soundplay/blob/master/docs/Dev%20Handbook.md')
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Report Bug',
+                click() {
+                    shell.openExternal('https://github.com/Zero-1729/soundplay/issues')
+                }
             },
             {
                 type: 'separator'
@@ -462,7 +478,7 @@ if (process.platform == 'darwin') {
                     }
                 },
                 {
-                    label: `Version ${APP_VERSION} (64-bit)`,
+                    label: `Version ${app.getVersion()} (64-bit)`,
                     enabled: false
                 },
                 {
