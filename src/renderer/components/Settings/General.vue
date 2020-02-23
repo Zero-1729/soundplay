@@ -255,7 +255,6 @@
             height 100%
             margin-right 4px
             margin-left 0
-            margin-top 1px
             margin-bottom 0
         svg.hidden
             opacity 0
