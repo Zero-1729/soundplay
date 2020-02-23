@@ -930,9 +930,9 @@
                     link = CreateElm('link')
                     link.rel = 'stylesheet'
                     link.href = path.join('static', 'theme', this.appTheme + '.css')
-                }    
-                
-                head.appendChild(link)
+
+                    head.appendChild(link)
+                }
             },
 
             loadLinuxSheet() {
