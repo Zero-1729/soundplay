@@ -714,8 +714,8 @@
                             }
                         } else {
                             // Dim track if from external drive
-                            if (document.getElementsByTagName('tr').length > 0) {
-                                document.getElementsByTagName('tr')[cindex + 1].classList.add('dim-track')
+                            if (TagName('tr').length > 0) {
+                                TagName('tr')[cindex + 1].classList.add('dim-track')
                             }
                         }
 
@@ -738,7 +738,7 @@
 
                         // Undim track 
                         if (TagName('tr').length > 0) {
-                            document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
+                            TagName('tr')[cindex + 1].classList.remove('dim-track')
                         }
                     }
                 }
@@ -910,12 +910,12 @@
             ]),
 
             loadTheme() {
-                let head = TagName('head')[0]
+                let head = TagNameSingle('head')
                 let linkExists = TagName('link').length > 0
                 let link
 
                 if (linkExists) {
-                    link = TagName('link')[1]
+                    link = TagNameSingle('link', 1)
                     link.href = path.join('static', 'theme', this.appTheme + '.css')
                 } else {
                     link = CreateElm('link')
