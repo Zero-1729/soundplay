@@ -1,4 +1,3 @@
-const path                     = require('path')
 const cuid                     = require('cuid')
 
 const {
@@ -13,8 +12,7 @@ const {
         remove }               = require('./../../utils/list')
 
 const { TagName,
-        TagNameSingle,
-        CreateElm }            = require('./../../utils/htmlQuery')
+        TagNameSingle }        = require('./../../utils/htmlQuery')
 
 // Helper for quickly getting the appropriate checker fn for relic tracks
 const relicFnCehcks = {
@@ -344,23 +342,6 @@ const mutations = {
         state.settings.ui.theme = name
     },
 
-    LOAD_THEME (state) {
-        let head = document.getElementsByTagName('head')[0]
-        let linkExists = TagName('link').length > 0
-        let link
-
-        if (linkExists) {
-            link = TagNameSingle('link')
-            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
-        } else {
-            link = CreateElm('link')
-            link.rel = 'stylesheet'
-            link.href = path.join('static', 'theme', state.settings.ui.theme + '.css')
-
-            head.appendChild(link)
-        }
-    },
-
     SET_NIGHT_THEME (state, name) {
         // We are assuming that `name` is one of two options:-
         // - Dark
@@ -572,10 +553,6 @@ const actions = {
     // UI
     changeTheme: ({ commit }, name) => {
         commit('CHANGE_THEME', name)
-    },
-
-    loadTheme: ({ commit }) => {
-        commit('LOAD_THEME')
     },
 
     setNightTheme: ({ commit }, name) => {

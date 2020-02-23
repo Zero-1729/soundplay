@@ -239,7 +239,7 @@ input#settings-input {
     border-bottom-color: grey;
 }
 
-.flex .dialog-button-alt:hover {
+.flex button.dialog-button-alt:hover {
     background: #d24136;
 }
 

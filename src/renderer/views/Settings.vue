@@ -4,6 +4,7 @@
         <transition :name="transition" mode="out-in">
             <router-view
                 :appLoading="appIsLoading"
+                @loadTheme="trigger_load_theme"
                 @mutatePlayingCriteria="mutatePlayingCriteria"
                 @lockHotKey="lockHotKey"
                 @unlockHotKey="unlockHotKey"
@@ -39,6 +40,10 @@
             }
         },
         methods: {
+            trigger_load_theme () {
+                this.$emit('loadTheme')
+            },
+
             push_loading_state (arg) {
                 this.$emit('appLoading', arg)
             },

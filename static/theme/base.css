@@ -180,7 +180,7 @@ input#settings-input:focus {
     background: dodgerblue;
 }
 
-.dialog-button p {
+.dialog-button p.button-p {
     color: white;
 }
 

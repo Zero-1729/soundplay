@@ -198,7 +198,7 @@ tbody tr:nth-child(odd) {
 /* General */
 .option-item input  {
     border-bottom: 2px solid #dcdbdc;
-    color: #cacaca;
+    color: #9e9e9e;
 }
 
 .option-item input::placeholder {
@@ -238,7 +238,7 @@ input#settings-input {
     background: #8bc34a;
 }
 
-.flex .dialog-button-alt:hover {
+.flex button.dialog-button-alt:hover {
     background: #ff7a70;
 }
 

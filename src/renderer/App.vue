@@ -39,6 +39,7 @@
                     :playingCriteria="vars.playingCriteria"
                     :currentTrack="vars.currentTrack"
                     :appIsLoading="vars.appIsLoading"
+                    @loadTheme="loadTheme"
                     @appLoading="setAppLoading"
                     @mutateIndex="updateIndex"
                     @setPlaylistFocus="setPlaylistFocus"
@@ -154,9 +155,12 @@
     const { add }               = require('./utils/list')
 
     const { Id,
+            TagName,
+            TagNameSingle,
             ClassName,
             ClassNameSingle,
-            QuerySelectorAll }  = require('./utils/htmlQuery')
+            QuerySelectorAll,
+            CreateElm        }  = require('./utils/htmlQuery')
 
     const { isNightTime,
             getCurrentTime,
@@ -263,7 +267,8 @@
                 this.toggleAudioEQVisibility()
             }
 
-            // - End of session clearing -
+            // Load App theme
+            this.loadTheme()
 
             // Inject tracks
             this.pool = this.allTracks
@@ -357,9 +362,6 @@
             ipcRenderer.on('toggle-eq', (event, arg) => {
                 this.toggleAudioEQVisibility()
             })
-
-            // Load style files
-            this.loadTheme()
 
             // Resume last route
             if (this.appRoutes.mainRoute == '/settings') {
@@ -735,7 +737,7 @@
                         let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
 
                         // Undim track 
-                        if (document.getElementsByTagName('tr').length > 0) {
+                        if (TagName('tr').length > 0) {
                             document.getElementsByTagName('tr')[cindex + 1].classList.remove('dim-track')
                         }
                     }
@@ -899,7 +901,6 @@
                 'toggleMute',
                 'toggleShuffle',
                 'toggleSettings',
-                'loadTheme',
                 'toggleNightMode',
                 'setNightMode',
                 'setLoop',
@@ -908,6 +909,22 @@
                 'toggleAudioEQVisibility'
             ]),
 
+            loadTheme() {
+                let head = TagName('head')[0]
+                let linkExists = TagName('link').length > 0
+                let link
+
+                if (linkExists) {
+                    link = TagName('link')[1]
+                    link.href = path.join('static', 'theme', this.appTheme + '.css')
+                } else {
+                    link = CreateElm('link')
+                    link.rel = 'stylesheet'
+                    link.href = path.join('static', 'theme', this.appTheme + '.css')
+                }    
+                
+                head.appendChild(link)
+            },
             displayNotification() {
                 new Notification(this.vars.currentTrack.title, {
                     body: this.vars.currentTrack.artist,

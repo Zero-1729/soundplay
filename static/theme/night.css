@@ -250,7 +250,7 @@ input#settings-input {
     background: #3ca735;
 }
 
-.flex .dialog-button-alt:hover {
+.flex button.dialog-button-alt:hover {
     background: #d24136;
 }
 

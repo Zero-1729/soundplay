@@ -118,7 +118,7 @@
         watch: {
             appNightModeTheme() {
                 if (this.appNightMode) {
-                    this.loadTheme()
+                    this.$emit('loadTheme')
                 }
             },
             appAutoNightModeTime(cur, old) {
@@ -140,7 +140,6 @@
         },
         methods: {
             ...mapActions([
-                'loadTheme',
                 'changeTheme',
                 'toggleNightMode',
                 'toggleAutoNightMode',
