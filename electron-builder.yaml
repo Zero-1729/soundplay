@@ -39,7 +39,6 @@ win:
     icon: static/icons/icon_256x256.ico
     target:
         - nsis
-        - exe
 
 linux:
     icon: static/icons/icon_256x256.png
@@ -53,6 +52,10 @@ linux:
         - audio/mpeg
         - audio/ogg
         - audio/wav
+    depends:
+        - gconf2
+        - gconf-service
+        - libappindicator1
     executableName: Soundplay
 
 electronVersion: 4.2.2
