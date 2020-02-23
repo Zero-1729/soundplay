@@ -1,0 +1,25 @@
+h4.t-title, h4.t-artist, div.entity p, td {
+    font-weight: 600 !important;
+}
+
+input#search-input::placeholder {
+    padding: 1px;
+}
+
+.dialog-button svg {
+    height: 45% !important;
+    margin-left: 2px !important;
+    margin-top: 1px !important;
+}
+
+.dialog-button p {
+    font-size: 10px !important;
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+    margin-right: 4px !important;
+    margin-bottom: 0 !important;
+}
+
+button {
+    font-size: 11px !important;
+}

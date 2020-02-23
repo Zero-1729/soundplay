@@ -179,11 +179,15 @@
 
     const fs              = require('fs')
     const path            = require('path')
+    const os              = require('os')
 
     const waveColors      = require('./data/wavecolors.json')
 
     // Host home directory
-    const hostHomeDir     = require('os').homedir()
+    const hostHomeDir     = os.homedir()
+
+    // Platform
+    const platform        = os.platform()
 
     export default {
         components: {
@@ -269,6 +273,11 @@
 
             // Load App theme
             this.loadTheme()
+
+            // Load platform specific stylesheet
+            if (platform == 'linux') {
+                this.loadLinuxSheet()
+            }
 
             // Inject tracks
             this.pool = this.allTracks
@@ -925,6 +934,17 @@
                 
                 head.appendChild(link)
             },
+
+            loadLinuxSheet() {
+                let link
+
+                link = CreateElm('link')
+                link.rel = 'stylesheet'
+                link.href = path.join('static', 'theme', 'linux.css')
+
+                TagNameSingle('head').append(link)
+            },
+
             displayNotification() {
                 new Notification(this.vars.currentTrack.title, {
                     body: this.vars.currentTrack.artist,
