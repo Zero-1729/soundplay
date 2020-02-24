@@ -432,12 +432,6 @@ const template = [
         role: 'help',
         submenu: [
             {
-                label: 'About ' + app.getName(),
-                click() {
-                    shell.openExternal('https://github.com/Zero-1729/soundplay')
-                }
-            },
-            {
                 label: 'Documentation',
                 click() {
                     shell.openExternal('https://github.com/Zero-1729/soundplay/blob/master/docs/Dev%20Handbook.md')
