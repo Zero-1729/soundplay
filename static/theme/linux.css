@@ -6,6 +6,14 @@ input#search-input::placeholder {
     padding: 1px;
 }
 
+input#search-input, input#search-input::placeholder, .vertical-div .entity p {
+    font-size: 11px !important;
+}
+
+.flex select {
+    padding-left: 4px !important;
+}
+
 .dialog-button svg {
     height: 45% !important;
     margin-left: 2px !important;
@@ -14,9 +22,9 @@ input#search-input::placeholder {
 
 .dialog-button p {
     font-size: 10px !important;
-    margin-left: 0 !important;
-    margin-top: 3px !important;
-    margin-right: 4px !important;
+    margin-left: 2px !important;
+    margin-top: 2px !important;
+    margin-right: 3px !important;
     margin-bottom: 0 !important;
 }
 
