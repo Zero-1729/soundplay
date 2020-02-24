@@ -16,11 +16,6 @@ import '../renderer/store'
 
 const path = require('path')
 
-// Set App name and version
-// Note: Should match 'package.json'
-app.setName('Soundplay')
-app.setVersion('v0.2.1 (Alpha)')
-
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -149,15 +144,15 @@ function createWindow () {
     })
 
     // Register Media key shortcuts
-    const mpp = globalShortcut.register('mediaplaypause', () => {
+    const mpp = globalShortcut.register('MediaPlayPause', () => {
         mainWindow.webContents.send('media-playpause', null)
     })
 
-    const mp = globalShortcut.register('mediaprevioustrack', () => {
+    const mp = globalShortcut.register('MediaPreviousTrack', () => {
         mainWindow.webContents.send('media-prev', null)
     })
 
-    const mn = globalShortcut.register('medianexttrack', () => {
+    const mn = globalShortcut.register('MediaNextTrack', () => {
         mainWindow.webContents.send('media-next', null)
     })
 
@@ -463,7 +458,7 @@ const template = [
 if (process.platform == 'darwin') {
     template.unshift(
         {
-            label: app.getName(),
+            label: app.name,
             submenu: [
                 {
                     label: 'About ' + app.getName(),
@@ -576,7 +571,6 @@ Menu.setApplicationMenu(menu)
  */
 
 /*
-import { autoUpdater } from 'electron-updater'
 
 autoUpdater.on('update-downloaded', () => {
     autoUpdater.quitAndInstall()

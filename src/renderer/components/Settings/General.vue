@@ -156,9 +156,13 @@
                 let vm = this
 
                 remote.dialog.showOpenDialog({
-                    properties: ['openDirectory']
-                }, (items) => {
-                    vm.setMusicFolder(items[0])
+                    properties: ['openDirectory', 'showHiddenFiles']
+                }).then(obj => {
+                    if (!obj.canceled) {
+                        vm.setMusicFolder(obj.filePaths[0])
+                    }
+                }).catch(err => {
+                    // Log error later
                 })
             },
 

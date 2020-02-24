@@ -262,7 +262,7 @@
         },
         created() {
             // Print Welcome message
-            console.log(`Welcome to ${remote.app.getName()} ${remote.app.getVersion()}`)
+            console.log(`Welcome to ${remote.app.name} ${remote.app.getVersion()}`)
             console.log("\nIf you have suggestions or find bugs open up an issue here:")
             console.log("https://gihtub.com/soundplay/issues.\n\n")
 
@@ -332,31 +332,38 @@
             })
 
             // Handle events thrown from main renderer (App Menu)
+            // Single sound files import
             ipcRenderer.on('import-tracks', (event, arg) => {
-                let vm = this
                 remote.dialog.showOpenDialog({
-                    properties: ['openFile', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        if (items.length > 0) {
-                            this.addFiles(items)
-                        }
+                    buttonLabel: 'Import',
+                    properties: ['openFile', 'multiSelections', 'showHiddenFiles'],
+                    filters: { name: 'Sounds', extensions: ['mp3', 'ogg', 'wav', 'm4a'] },
+                }).then(obj => {
+                    if (!obj.canceled) {
+                        vm.addFiles(obj.filePaths)
                     }
+                }).catch(err => {
+                    // Log error
+                    // Maybe add seprate import fialed error
+                    // Or maybe not
                 })
             })
 
-            // Check fn for infinte loops
+            // Folder import handler
             ipcRenderer.on('import-folder', (event, arg) => {
                 let vm = this
 
                 remote.dialog.showOpenDialog({
-                    properties: ['openDirectory', 'multiSelections']
-                }, (items) => {
-                    if (items) {
-                        if (items.length > 0) {
-                            this.addFiles(items)
-                        }
+                    buttonLabel: 'Import',
+                    properties: ['openDirectory', 'multiSelections', 'showHiddenFiles'],
+                }).then(obj => {
+                    if (!obj.canceled) {
+                        vm.addFiles(obj.filePaths)
                     }
+                }).catch(err => {
+                    // Log error
+                    // Maybe add seprate import fialed error
+                    // Or maybe not
                 })
             })
 
