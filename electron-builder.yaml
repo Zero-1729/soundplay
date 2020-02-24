@@ -52,10 +52,13 @@ linux:
         - audio/mpeg
         - audio/ogg
         - audio/wav
-    depends:
-        - gconf2
-        - gconf-service
-        - libappindicator1
+    desktop:
+        - name: Soundplay
+        - exec: soundplay
+        - icon: static/icons/icon_256x256.png
+        - type: Application
+        - categories: Music
+        - comment: The Next Gen Minimalist Cross-Platform Sound Player
     executableName: Soundplay
 
 electronVersion: 4.2.2
