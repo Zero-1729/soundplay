@@ -1,4 +1,4 @@
-# SoundPlay <img src="./static/icons/icon_1024x1024.png" height="52"></img>
+# Soundplay <img src="./static/icons/icon_1024x1024.png" height="52"></img>
 
 The Next Gen Minimalist Cross-Platform Sound Player
 
