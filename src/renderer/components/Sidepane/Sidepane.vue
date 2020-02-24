@@ -331,6 +331,7 @@
                 overflow hidden
                 white-space nowrap
                 width 135px
+                font-size 11px
 
         .empty-listing
             padding-top 100px

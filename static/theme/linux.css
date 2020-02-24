@@ -6,7 +6,7 @@ input#search-input::placeholder {
     padding: 1px;
 }
 
-input#search-input, input#search-input::placeholder, .vertical-div .entity p {
+input#search-input, input#search-input::placeholder {
     font-size: 11px !important;
 }
 
