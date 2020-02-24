@@ -5,7 +5,8 @@ import {
         globalShortcut,
         Menu,
         shell,
-        ipcMain
+        ipcMain,
+        autoUpdater
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
@@ -159,6 +160,18 @@ function createWindow () {
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
 }
 
+// About panel info
+app.setAboutPanelOptions({
+    applicationName: "Soundplay",
+    applicationVersion: app.getVersion(),
+    copyright: "Copyright © 2020 Zero-1729",
+    version: app.getVersion(),
+    credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
+    authors: ['Zero-1729'],
+    website: "https://github.com/Zero-1729/soundplay",
+    iconPath: process.platform == 'linux' ? Icons['64'] : Icons['256']
+})
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
@@ -202,8 +215,23 @@ const template = [
         label: 'File',
         submenu: [
             {
+                label: 'About ' + app.name,
+                click() {
+                    app.showAboutPanel()
+                }
+            },
+            {
                 label: `Version ${app.getVersion()} (64-bit)`,
                 enabled: false
+            },
+            {
+                label: 'Check for Updates...',
+                click() {
+                    // autoUpdater.checkForUpdates()
+                }
+            },
+            {
+                type: 'separator'
             },
             {
                 label: 'Create Playlist',
@@ -460,19 +488,10 @@ if (process.platform == 'darwin') {
         {
             label: app.name,
             submenu: [
-                {
-                    label: 'About ' + app.getName(),
-                    click() {
-                        shell.openExternal('https://github.com/Zero-1729/soundplay')
-                    }
-                },
-                {
-                    label: `Version ${app.getVersion()} (64-bit)`,
-                    enabled: false
-                },
-                {
-                    type: 'separator'
-                },
+                template[0].submenu[0],
+                template[0].submenu[1],
+                template[0].submenu[2],
+                template[0].submenu[3],
                 {
                     label: 'Preferences',
                     click() {
@@ -527,7 +546,7 @@ if (process.platform == 'darwin') {
     )
 
     // Clear redundant entries
-    template[1].submenu = template[1].submenu.slice(1, 5)
+    template[1].submenu = template[1].submenu.slice(4, 8)
 
     // Edit the last menu entry 'Help'
     template[template.length - 1].submenu = [
