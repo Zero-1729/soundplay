@@ -1058,7 +1058,7 @@
 
                 // If in shuffle, we need to remove it from the `randoms` set
                 // ... we don't want it to later be played
-                if (this.appAudioPrefs.shuffle) {
+                if (this.appAudioPrefs.shuffle && track) {
                     let cindex = getIndexFromKey(this.filteredPool, 'id', track.id)
 
                     this.player.freeRandTrack(cindex)
