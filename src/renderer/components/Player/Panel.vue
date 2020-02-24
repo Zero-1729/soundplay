@@ -74,9 +74,6 @@
             'loading',
             'foundArt'
         ],
-        mounted() {
-            window.$vue = this
-        },
         watch: {
             'appAudioPrefs.playbackRate' (cur, prev) {
                 this.player.setPlaybackRate(cur)
