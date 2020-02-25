@@ -95,7 +95,7 @@ input[type="range"].slider::-webkit-slider-thumb {
     color: #cecece;
 }
 
-#app .vertical-div .entity.activeTarget p {
+#app .vertical-div .vertical-div-holder .entity.activeTarget p {
     color: dodgerblue;
 }
 
