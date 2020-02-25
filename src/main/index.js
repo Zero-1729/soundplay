@@ -160,19 +160,21 @@ function createWindow () {
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
 }
 
-// About panel info
-app.setAboutPanelOptions({
-    applicationName: "Soundplay",
-    applicationVersion: app.getVersion(),
-    copyright: "Copyright © 2020 Zero-1729",
-    version: app.getVersion(),
-    credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
-    authors: ['Zero-1729'],
-    website: "https://github.com/Zero-1729/soundplay",
-    iconPath: process.platform == 'linux' ? Icons['64'] : Icons['256']
-})
-
 app.on('ready', createWindow)
+
+// About panel info
+if (process.platform != 'linux') {
+    app.setAboutPanelOptions({
+        applicationName: "Soundplay",
+        applicationVersion: app.getVersion(),
+        copyright: "Copyright © 2020 Zero-1729",
+        version: "Alpha",
+        credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
+        authors: 'Zero-1729',
+        website: "https://github.com/Zero-1729/soundplay",
+        iconPath: process.platform == 'linux' ? Icons['64'] : Icons['256']
+    })
+}
 
 app.on('window-all-closed', () => {
     // This ensures the state is always saved after each window is closed
