@@ -61,4 +61,4 @@ linux:
         - comment: The Next Gen Minimalist Cross-Platform Sound Player
     executableName: Soundplay
 
-electronVersion: 4.2.2
+electronVersion: 8.0.1
