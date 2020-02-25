@@ -1,5 +1,6 @@
 {
-    "name": "Soundplay",
+    "name": "soundplay",
+    "productName": "Sounplay",
     "version": "0.2.1-a",
     "author": "Zero-1729 <zero1729@protonmail.com>",
     "description": "The Next Gen Minimalist Cross-Platform Sound Player",
