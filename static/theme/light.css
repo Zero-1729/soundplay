@@ -219,6 +219,7 @@ tbody tr:nth-child(odd) {
 
 .flex select, select.preset-select {
     color: grey;
+    background: #f9f9f9;
 }
 
 .flex button {
