@@ -40,7 +40,7 @@
                     <h3>
                         Night mode
                     </h3>
-                    <label class="switch" :class="{checked: currentNightMode}">
+                    <label class="switch shorter" :class="{checked: currentNightMode}">
                         <input type="checkbox" v-model="currentNightMode"/>
                         <span class="slider" :class="{checked: currentNightMode}"></span>
                     </label>
@@ -315,13 +315,13 @@
         border none
 
     .flex .furthest
-        margin-left 213px
+        margin-left 308px
 
     .flex .further
-        margin-left 135px
+        margin-left 236px
 
     label.switch.further
-        margin-left 145px
+        margin-left 272px
 
     .flex .switch
         position relative
@@ -330,8 +330,10 @@
         height 20px
         border-radius 34px
         margin-top 12px
-        margin-left 180px
-        margin-right 110px
+        margin-left 298px
+
+    .flex .switch.shorter
+        margin-left 304px
 
     .flex .switch input
         opacity 0

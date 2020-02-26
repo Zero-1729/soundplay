@@ -6,7 +6,7 @@
                     <h3>
                         Clear Sounds
                     </h3>
-                    <button @click="handle_delete_all_tracks">
+                    <button class="shorter" @click="handle_delete_all_tracks">
                         Delete
                     </button>
                 </div>
@@ -202,12 +202,15 @@
     .flex button
         height 25px
         margin-top 14px
-        margin-left 110px
+        margin-left 206px
         border-radius 2px
         border-width inherit
         width 58px
         transition all 0.2s linear
         cursor pointer
+
+    .flex button.shorter
+        margin-left 204px
 
     .flexed-div-holder
         height 30px

@@ -93,7 +93,7 @@
 
 <style lang='stylus' scoped>
     select.further
-        margin-left 270px
+        margin-left 282px
         width 62px
         margin-top 14px
         height 24px
@@ -102,7 +102,7 @@
         margin-left 300px
 
     p.pushed
-        margin-left 280px
+        margin-left 292px
         margin-bottom 10px
         align-self flex-end
 
