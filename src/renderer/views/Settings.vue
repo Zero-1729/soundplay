@@ -140,7 +140,7 @@
         h3
             margin-bottom 4px
         p
-            margin-top 0
+            margin-top 1px
         .dialog-button-alt
             margin-left 18px
             width unset

@@ -268,7 +268,7 @@
         svg
             height 75%
             margin-left 2px
-            margin-top -1px
+            margin-top 0px
 
     .dialog-button
         transition width 0.3s ease-in
