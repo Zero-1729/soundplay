@@ -162,18 +162,16 @@ function createWindow () {
 app.on('ready', createWindow)
 
 // About panel info
-if (process.platform != 'linux') {
-    app.setAboutPanelOptions({
-        applicationName: "Soundplay",
-        applicationVersion: app.getVersion(),
-        copyright: "Copyright © 2020 Zero-1729",
-        version: "Alpha",
-        credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
-        authors: 'Zero-1729',
-        website: "https://github.com/Zero-1729/soundplay",
-        iconPath: process.platform == 'linux' ? Icons['64'] : Icons['256']
-    })
-}
+app.setAboutPanelOptions({
+    applicationName: "Soundplay",
+    applicationVersion: app.getVersion(),
+    copyright: "Copyright © 2020 Zero-1729",
+    version: "Alpha",
+    credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
+    authors: 'Zero-1729',
+    website: "https://github.com/Zero-1729/soundplay",
+    iconPath: path.join(logosPath, 'icon_256x256.png')
+})
 
 app.on('window-all-closed', () => {
     // This ensures the state is always saved after each window is closed
