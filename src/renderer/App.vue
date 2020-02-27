@@ -275,8 +275,8 @@
             this.loadTheme()
 
             // Load platform specific stylesheet
-            if (platform == 'linux') {
-                this.loadLinuxSheet()
+            if (platform != 'darwin') {
+                this.loadExtraSheet()
             }
 
             // Inject tracks
@@ -942,12 +942,12 @@
                 }
             },
 
-            loadLinuxSheet() {
+            loadExtraSheet() {
                 let link
 
                 link = CreateElm('link')
                 link.rel = 'stylesheet'
-                link.href = path.join('static', 'theme', 'linux.css')
+                link.href = path.join('static', 'theme', `${os.platform}.css`)
 
                 TagNameSingle('head').append(link)
             },

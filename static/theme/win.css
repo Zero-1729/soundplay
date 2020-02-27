@@ -1,0 +1,20 @@
+.flex button {
+    font-size: 11px !important;
+}
+
+.dialog-button p {
+    margin-left: 0px !important;
+    margin-top: -1px !important;
+    margin-bottom: 0px !important;
+    margin-right: 4px !important;
+}
+
+.dialog-button svg {
+    height: 40% !important;
+    margin-left: 2px !important;
+    margin-top: 1px !important;
+}
+
+input#settings-input::placeholder {
+    font-size: 10px !important;
+}

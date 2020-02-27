@@ -3,7 +3,12 @@ h4.t-title, h4.t-artist, div.entity p, td {
 }
 
 input#search-input::placeholder {
-    padding: 1px;
+    padding: 1px !important;
+    font-size: 11px !important;
+}
+
+p.info {
+    margin-top: 4px !important;
 }
 
 input#search-input, input#search-input::placeholder {
