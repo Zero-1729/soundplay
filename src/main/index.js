@@ -406,15 +406,6 @@ const template = [
         label: 'View',
         submenu: [
             {
-                role: 'reload'
-            },
-            {
-                role: 'forcereload'
-            },
-            {
-                type: 'separator'
-            },
-            {
                 label: 'Search',
                 accelerator: 'CmdOrCtrl+F',
                 click() {
@@ -446,6 +437,15 @@ const template = [
     {
         label: 'Window',
         submenu: [
+            {
+                role: 'reload'
+            },
+            {
+                role: 'forcereload'
+            },
+            {
+                type: 'separator'
+            },
             {
                 role: 'togglefullscreen'
             },
