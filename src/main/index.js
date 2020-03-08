@@ -136,7 +136,7 @@ function createWindow () {
 
     // For syncing window bckground color
     ipcMain.on('sync-background-color', (event, arg) => {
-        // Keep track of the windows background color so we can save it after the seesion
+        // Keep track of the windows background color so we can save it after the session
         windowBackgroundColor = arg
 
         // Reset the window background color to match theme

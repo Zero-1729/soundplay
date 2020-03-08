@@ -959,9 +959,7 @@
                     // Display album art only if found
                     icon: this.vars.foundArt ? 
                             Id('album-art').src :
-                            path.join(__static, 'icons', 'unknown.png'),
-                    actions: [ /*Fill with prev & next*/ ]
-                    // renotify
+                            path.join(__static, 'icons', 'unknown.png')
                 })
             },
 
