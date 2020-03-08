@@ -381,8 +381,8 @@
 
             // Display current playing track
             ipcRenderer.on('focus-playing-track', (event, arg) => {
-                if (ClassNameSingle('activeTrack')) {
-                    ClassNameSingle('activeTrack').scrollIntoView({ behaviour: 'smooth' })
+                if (ClassNameSingle('playingTrack')) {
+                    ClassNameSingle('playingTrack').scrollIntoView({ behaviour: 'smooth' })
                 }
             })
 
