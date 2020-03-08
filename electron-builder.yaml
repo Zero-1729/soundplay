@@ -21,6 +21,7 @@ mac:
     category: public.app-category.music
     target:
         - dmg
+    artifactName: ${name}.${ext}
 
 dmg:
     title: Install Soundplay
@@ -39,9 +40,9 @@ win:
     icon: static/icons/icon_256x256.ico
     target:
         - nsis
+    artifactName: ${name}-${arch}.${ext}
 
 linux:
-    icon: static/icons/icon_256x256.png
     category: Audio
     target:
         - deb
@@ -59,6 +60,7 @@ linux:
         - type: Application
         - categories: Music
         - comment: The Next Gen Minimalist Cross-Platform Sound Player
-    executableName: Soundplay
+    executableName: soundplay
+    artifactName: ${name}-${arch}.${ext}
 
 electronVersion: 8.0.1
