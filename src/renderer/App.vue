@@ -379,6 +379,13 @@
                 this.toggleAudioEQVisibility()
             })
 
+            // Display current playing track
+            ipcRenderer.on('focus-playing-track', (event, arg) => {
+                if (ClassNameSingle('activeTrack')) {
+                    ClassNameSingle('activeTrack').scrollIntoView({ behaviour: 'smooth' })
+                }
+            })
+
             // Resume last route
             if (this.appRoutes.mainRoute == '/settings') {
                 this.$router.push(this.appRoutes.childRoute)

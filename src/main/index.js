@@ -425,6 +425,13 @@ const template = [
                 type: 'separator'
             },
             {
+                label: 'Show Playing Track',
+                accelerator: 'Shift+CmdOrCtrl+P',
+                click() {
+                    mainWindow.webContents.send('focus-playing-track')
+                }
+            },
+            {
                 type: 'separator'
             },
             {
