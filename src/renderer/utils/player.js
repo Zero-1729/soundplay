@@ -8,7 +8,6 @@ const { remove }                         = require('./list')
 export default class Player {
     constructor(track, props) {
         this.currentTrack = track
-        this.shuffle = props.shuffle // Only used to assert shuffle on when App newly launched
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
@@ -164,13 +163,6 @@ export default class Player {
             } else {
                 this.tmpPlayHistory = [index]
             }
-
-            // All indexes are pushed until the floor is reached
-            if (this.playHistory.length == this.pool) {
-                this.playHistory - [index]
-            } else {
-                this.playHistory.push(index)
-            }
         }
 
         // Check if randoms empty, so we can refill
@@ -182,6 +174,15 @@ export default class Player {
 
         // Then we just pop the last index
         return this.randoms.pop()
+    }
+
+    fillHistory(pool, index) {
+        // All indexes are pushed until the floor is reached
+        if (!(pool.length == this.playHistory.length)) {
+            this.playHistory.push(index)
+        } else {
+            this.playHistory = [index]
+        }
     }
 
     fillRandoms(currentTrack, pool, excludePlayed=false) {

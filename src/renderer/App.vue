@@ -495,7 +495,6 @@
                 volume: this.appAudioPrefs.volume,
                 loop: this.appAudioPrefs.loop,
                 mute: this.appAudioPrefs.mute,
-                shuffle: this.appAudioPrefs.shuffle,
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor,
@@ -629,6 +628,16 @@
                     }
                 }
 
+                // Fill playhistory
+                // If persisted disabled then we can only refill in shuffle mode 
+                if (!this.appAudioPrefs.persistedHistory) {
+                    if (this.appAudioPrefs.shuffle) {
+                        player.fillHistory(this.filteredPool, oindex)
+                    }
+                } else {
+                    player.fillHistory(this.filteredPool, oindex)
+                }
+
                 let shouldPlayNext = (this.filteredPool.length > 0) &&
                                     (cindex < this.filteredPool.length)
                                     && (!onLoop) && (!EOSP)
@@ -712,7 +721,6 @@
                         if (this.appAudioPrefs.shuffle) {
                             // We only need to rid the playhistory of it
                             // ... as it was not played
-                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (0)
                             this.vars.skippedCurrentTrack = true
                         }
 
@@ -744,7 +752,6 @@
 
                         // Then seek to next playable track, if its ahead of previously playing track
                         if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
-                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (1)
                             // This is also triggered automatically in shuffle
                             // ... Remember the previous track is form the `playHistory` Array
                             // ... and this Array does not store unplayable tracks
@@ -847,7 +854,6 @@
                     }
 
                     // Overwrite success message with errors
-                    // [wip] wonky
                     if (this.error_imports.length > 0) {
                         // Then issues with non sound files
                         this.updateFailMessage({
@@ -858,7 +864,6 @@
                     }
 
                     // In case duplicated files are droped
-                    // [wip] wonky
                     if (this.failed_imports.length > 0) {
                         this.updateFailMessage({
                             heading: 'Detected potential sound file(s) duplication',
@@ -868,7 +873,6 @@
                     }
 
                     // Report warning
-                    // [wip] Works
                     if (this.warn_imports.length > 0) {
                         // Metas warning report
                         this.updateWarnMessage({

@@ -323,35 +323,8 @@
     label.switch.further
         margin-left 272px
 
-    .flex .switch
-        position relative
-        display inline-block
-        width 44px
-        height 20px
-        border-radius 34px
-        margin-top 12px
-        margin-left 298px
-
     .flex .switch.shorter
         margin-left 304px
-
-    .flex .switch input
-        opacity 0
-        width 0
-        height 0
-
-    .flex .slider
-        position absolute
-        width 20px
-        top 0
-        left 0
-        right 0
-        bottom 0
-        border-radius 34px
-        transition .4s
-
-    .flex .slider.checked
-        left 25px
 
     .info-input-field-nm
         width 20px
