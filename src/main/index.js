@@ -426,7 +426,7 @@ const template = [
             },
             {
                 label: 'Show Playing Track',
-                accelerator: 'Shift+CmdOrCtrl+P',
+                accelerator: 'Shift+CmdOrCtrl+S',
                 click() {
                     mainWindow.webContents.send('focus-playing-track')
                 }
