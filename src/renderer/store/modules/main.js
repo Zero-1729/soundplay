@@ -11,9 +11,6 @@ const {
         add,
         remove }               = require('./../../utils/list')
 
-const { TagName,
-        TagNameSingle }        = require('./../../utils/htmlQuery')
-
 // Helper for quickly getting the appropriate checker fn for relic tracks
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
