@@ -630,12 +630,12 @@
 
                 // Fill playhistory
                 // If persisted disabled then we can only refill in shuffle mode 
-                if (!this.appAudioPrefs.persistedHistory) {
+                if (this.appAudioPrefs.persistedHistory) {
+                    this.player.fillHistory(this.filteredPool, oindex)
+                } else {
                     if (this.appAudioPrefs.shuffle) {
                         this.player.fillHistory(this.filteredPool, oindex)
                     }
-                } else {
-                    this.player.fillHistory(this.filteredPool, oindex)
                 }
 
                 let shouldPlayNext = (this.filteredPool.length > 0) &&
