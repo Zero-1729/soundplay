@@ -11,4 +11,13 @@ const isFile = (path) => {
     }
 }
 
-module.exports = { isFile }
+const Exists = (path) => {
+    try {
+        fs.statSync(path)
+        return true
+    } catch (e) {
+        return false
+    }
+}
+
+module.exports = { isFile, Exists }
