@@ -5,8 +5,7 @@ import {
         globalShortcut,
         Menu,
         shell,
-        ipcMain,
-        autoUpdater
+        ipcMain
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
@@ -210,12 +209,6 @@ const template = [
             {
                 label: `Version ${app.getVersion()} (64-bit)`,
                 enabled: false
-            },
-            {
-                label: 'Check for Updates...',
-                click() {
-                    // autoUpdater.checkForUpdates()
-                }
             },
             {
                 type: 'separator'
@@ -485,7 +478,6 @@ if (process.platform == 'darwin') {
                 template[0].submenu[0],
                 template[0].submenu[1],
                 template[0].submenu[2],
-                template[0].submenu[3],
                 {
                     label: 'Preferences',
                     click() {
@@ -540,7 +532,7 @@ if (process.platform == 'darwin') {
     )
 
     // Clear redundant entries
-    template[1].submenu = template[1].submenu.slice(4, 8)
+    template[1].submenu = template[1].submenu.slice(3, 8)
 
     // Edit the last menu entry 'Help'
     template[template.length - 1].submenu = [
@@ -574,22 +566,3 @@ if (process.platform == 'darwin') {
     
 const menu = Menu.buildFromTemplate(template)
 Menu.setApplicationMenu(menu)
-
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-
-autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */
