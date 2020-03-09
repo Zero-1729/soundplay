@@ -245,8 +245,8 @@ tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     fill: white;
 }
 
-input#settings-input:focus {
-    border-bottom-color: dodgerblue;
+.option-item .flex input#settings-input:focus {
+    border-color: dodgerblue;
 }
 
 .flex .dialog-button-alt {

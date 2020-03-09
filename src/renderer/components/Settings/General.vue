@@ -218,7 +218,7 @@
         display flex
         overflow-x auto
         overflow-y hidden
-        margin-top 1.1px
+        margin-top 2px
         margin-left 20px
         .flexed-div
             button.folder
@@ -254,6 +254,18 @@
                 display none
             svg.showClose
                 display block
+
+    input#settings-input
+        margin-top 12px
+        margin-bottom 0
+        border none
+
+    input#settings-input:focus
+        border-bottom 2px solid
+        margin-top 4px
+
+    input#settings-input::placeholder
+        opacity 0.6
 
     .dialog-button
         display flex
