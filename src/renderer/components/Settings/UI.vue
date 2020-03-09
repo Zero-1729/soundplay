@@ -327,11 +327,10 @@
         margin-left 304px
 
     .info-input-field-nm
-        width 20px
+        width 12px
+        margin-top 6px
+        border none
         background transparent
-        border-top 0
-        border-left 0
-        border-right 0
         text-align center
 
     .info-input-field-nm:focus
