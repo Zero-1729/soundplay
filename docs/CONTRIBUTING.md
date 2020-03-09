@@ -112,9 +112,13 @@ Further, it is possible that a bug or bugs could be caused by one of the numerou
 To make contributing as smooth as possible, PRs and issues should be prefixed with one of the categories below in the title, to make sorting through and working on changes easy.
 
 - `gui` / `ui` : for anything related to the visual part of the App.
+- `app` / `main` : for app main and electron specific things
 - `utils`: Any change that affects the modules in the utilities folders: `src/renderer/utils` or `src/main/utils`.
 - `docs`: Any change that affects the App's Documentation. E.g. `README.md`, `docs/CONTRIBUTING.md`, etc.
 - `player`: Any code that affects the App's Player or EQ.
+- `minor` : for comments and other uncategorizable trivial changes
+- `webpack` / `wp` : Webpack related code
+- `electron-builder` / `eb` : electron builder related configs
 - `tests`: Any test related code.
 
 A PR should be titled accordingly;
