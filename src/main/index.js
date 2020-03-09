@@ -170,7 +170,7 @@ app.setAboutPanelOptions({
     credits: "Thanks to the users/devs that continue to contribute, test, and provide feedback",
     authors: 'Zero-1729',
     website: "https://github.com/Zero-1729/soundplay",
-    iconPath: path.join(logosPath, 'icon_256x256.png')
+    iconPath: Icons['64'] // path.join(logosPath, 'icon_256x256.png')
 })
 
 app.on('window-all-closed', () => {
