@@ -167,7 +167,7 @@ app.setAboutPanelOptions({
     applicationVersion: app.getVersion(),
     copyright: "Copyright © 2020 Zero-1729",
     version: "Beta",
-    credits: "Special thanks to all the users & devs that continue to contribute, test, and provide feedback",
+    credits: "Thanks to the users/devs that continue to contribute, test, and provide feedback",
     authors: 'Zero-1729',
     website: "https://github.com/Zero-1729/soundplay",
     iconPath: path.join(logosPath, 'icon_256x256.png')
