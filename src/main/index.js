@@ -10,6 +10,7 @@ import {
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
+const PowerManager   = require('./utils/powerMonitor').default
 
 const { add, removePattern } = require('./../renderer/utils/list')
 
@@ -157,6 +158,16 @@ function createWindow () {
     })
 
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
+
+    // Power monitor fns
+    // Save window info before shutdown
+    PowerManager.on('', () => {})
+
+    // Save Vue data before suspend
+    PowerManager.on('', () => {})
+
+    // Restore vue data after suspend (on wake)
+    PowerManager.on('', () => {})
 }
 
 app.on('ready', createWindow)
