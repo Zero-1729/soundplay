@@ -297,6 +297,12 @@
                 }
             })
 
+            // About panel button event 
+            Id('about-button').addEventListener('click', () => {
+                Id('about-panel').classList.remove('show-panel')
+                Id('about-content').classList.remove('show-content')
+            })
+
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
@@ -384,6 +390,14 @@
                 if (ClassNameSingle('playingTrack')) {
                     ClassNameSingle('playingTrack').scrollIntoView({ behaviour: 'smooth' })
                 }
+            })
+
+            // Show about panel
+            ipcRenderer.on('show-about-panel', () => {
+                // reveal and inject version info
+                Id('about-panel').classList.add('show-panel')
+                Id('version').textContent = 'v' + remote.app.getVersion() + ' (Beta)'
+                Id('about-content').classList.add('show-content')
             })
 
             // Resume last route

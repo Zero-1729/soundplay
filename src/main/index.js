@@ -161,18 +161,6 @@ function createWindow () {
 
 app.on('ready', createWindow)
 
-// About panel info
-app.setAboutPanelOptions({
-    applicationName: "Soundplay",
-    applicationVersion: app.getVersion(),
-    copyright: "Copyright © 2020 Zero-1729",
-    version: "Beta",
-    credits: "Thanks to the users/devs that continue to contribute, test, and provide feedback",
-    authors: 'Zero-1729',
-    website: "https://github.com/Zero-1729/soundplay",
-    iconPath: Icons['64'] // path.join(logosPath, 'icon_256x256.png')
-})
-
 app.on('window-all-closed', () => {
     // This ensures the state is always saved after each window is closed
     WindowManager.sync({
@@ -216,7 +204,7 @@ const template = [
             {
                 label: 'About ' + app.name,
                 click() {
-                    app.showAboutPanel()
+                    mainWindow.send('show-about-panel')
                 }
             },
             {

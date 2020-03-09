@@ -3,6 +3,12 @@ body {
     background: #2f2f2f;
 }
 
+/* About panel */
+#about-panel {
+    background: #262626;
+    box-shadow: -6px 5px 15px 0px #171717;
+}
+
 /* Player */
 .track-info h4, .track-info .middle .duration p {
     color: white;
