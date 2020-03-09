@@ -80,7 +80,7 @@ app.on('open-file', (event, arg) => {
     }
 })
 
-function createWindow () {
+const createWindow = () => {
     /**
     * Initial window options
     */
