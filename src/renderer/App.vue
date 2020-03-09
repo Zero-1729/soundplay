@@ -168,7 +168,7 @@
 
     const { getIndexFromKey }   = require('./utils/object')
 
-    const { isFile }            = require('./utils/file')
+    const { isFile, Exists }    = require('./utils/file')
 
     const { remote,
             dialog,
@@ -329,9 +329,15 @@
                 if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
                     // Catch in imports hook
                     // ... and when we check for duplicate tracks
-                    this.vars.autoplay = true
+                    let args_list = arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files
 
-                    this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
+                    // Check if the first item is an actual track before setting autoplay
+                    if (Exists(args_list[0])) {
+                        console.log('triggered autoplay')
+                        this.vars.autoplay = true
+                    }
+
+                    this.addFiles(args_list)
                 }
 
                 ipcRenderer.send('clear-open-files', null)
