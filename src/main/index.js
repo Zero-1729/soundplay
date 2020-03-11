@@ -53,6 +53,9 @@ var mainWindow = null
 // Power blocker id
 var psb_id = null
 
+// Vue App data state
+var vue_state = null
+
 // Instantiate window manager state
 const windowState = WindowManager.init(app.getPath('userData'))
 
@@ -163,15 +166,29 @@ function createWindow () {
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
 
     // Power monitor fns
-    // Save window info before shutdown
-    PowerManager.on('', () => {})
+    // Save window info before machine suspended to sleep
+    PowerManager.on('suspend', () => {
+        // Request vue state from renderer
+        mainWindow.send('send-vue-state')
+    })
 
-    // Save Vue data before suspend
-    PowerManager.on('', () => {})
+    // Restore Vue data
+    // When computer resumed
+    PowerManager.on('resume', () => {
+        mainWindow.send('inject-vue-state', vue_state)
+    })
 
-    // Restore vue data after suspend (on wake)
-    PowerManager.on('', () => {})
+    // Save Vue state
+    ipcMain.on('save-vue-data', (event, arg) => {
+        vue_state = arg
+    })
 
+    // Clear vue data
+    ipcMain.on('clear-vue-data', (event, arg) => {
+        vue_state = null
+    })
+
+    // Sleep blocker fns
     ipcMain.on('turn-on-sleep-blocker', (event, arg) => {
         psb_id = powerSaveBlocker.start('prevent-app-suspension')
     })
