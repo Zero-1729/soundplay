@@ -59,6 +59,7 @@
                     @clearJobsFn="clearJobsFn"
                     @setJobsFn="setJobsFn"
                     @syncFiles="syncFiles"
+                    @handle_sleep_blocker="handle_sleep_blocker"
                     
                     :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
@@ -209,9 +210,11 @@
                 imported_non_sound_files: false, // To handle overloaded non sound
                 player: null,
                 pool: [],
+                dataRehydrated: false,
                 vars: {
                     index: -1,
                     currentPos: '-',
+                    playedPercent: 0,
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
@@ -307,6 +310,13 @@
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
+
+            // Turn on sleep blocker if enabled
+            if (this.sleepBlocker) {
+                ipcRenderer.send('turn-on-sleep-blocker')
+            } else {
+                ipcRenderer.send('turn-off-sleep-blocker')
+            }
 
             // Or use 'fullscreen' from window event listener
             ipcRenderer.on('enter-full-screen', () => {
@@ -540,33 +550,38 @@
                 // We set the loading flag here
                 this.vars.loadingTrack = false
 
-                if (!this.player.activated) {
-                    this.player.activate(this.vars.currentTrack, this.filteredPool)
-                }
-
-                new jsm.Reader(this.vars.currentTrack.source).setTagsToRead(['picture']).read({
-                    onSuccess: (tag) => {
-                        if (tag.tags.picture) {
-                            Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
-
-                            this.vars.foundArt = true
-                        } else {
-                            this.vars.foundArt = false
-                        }
-
-                         // Pass to scrobbler
-                        this.scrobbleData()
-                    },
-                    onError: (err) => {
-                        // If the metas can't be read then we know it has no album art
-                        this.vars.foundArt = false
-
-                        // If the tag is problematic, we just continue
-                        if (err.type == "tagFormat") {
-                            this.scrobbleData()
-                        }
+                if (!this.dataRehydrated) {
+                    if (!this.player.activated) {
+                        this.player.activate(this.vars.currentTrack, this.filteredPool)
                     }
-                })
+
+                    new jsm.Reader(this.vars.currentTrack.source).setTagsToRead(['picture']).read({
+                        onSuccess: (tag) => {
+                            if (tag.tags.picture) {
+                                Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+
+                                this.vars.foundArt = true
+                            } else {
+                                this.vars.foundArt = false
+                            }
+
+                            // Pass to scrobbler
+                            this.scrobbleData()
+                        },
+                        onError: (err) => {
+                            // If the metas can't be read then we know it has no album art
+                            this.vars.foundArt = false
+
+                            // If the tag is problematic, we just continue
+                            if (err.type == "tagFormat") {
+                                this.scrobbleData()
+                            }
+                        }
+                    })
+                } else {
+                    this.player.device.seekAndCenter(this.vars.playedPercent)
+                    this.dataRehydrated = false
+                }
             })
 
             this.player.device.on('audioprocess', () => {
@@ -672,6 +687,58 @@
                     this.player.playNew(this.vars.currentTrack.source)
                 }
             })
+
+            // Send vue data
+            ipcRenderer.on('send-vue-state', (event, arg) => {
+                ipcRenderer.send('save-vue-data', {
+                    pool: this.$data.pool,
+                    imports: this.$data.imports,
+                    player: {
+                        activated: this.$data.player.activated,
+                        cleared: this.$data.player.cleared,
+                        currentTrack: this.$data.player.currentTrack,
+                        playHistory: this.$data.player.playHistory,
+                        tmpPlayHistory: this.$data.player.tmpPlayHistory,
+                        randoms: this.$data.player.randoms,
+                        device: {
+                            backend: {
+                                startPosition: this.$data.player.device.backend.startPosition,
+                                lastPlay: this.$data.player.device.backend.lastPlay
+                            }
+                        }
+                    },
+                    currentPos: this.player.getCurrentPos(),
+                    playedPercent: this.player.device.backend.getPlayedPercents(),
+                    vars: {
+                        index: this.vars.index,
+                        currentPos: this.vars.currentPos,
+                        currentTrack: this.vars.currentTrack,
+                        playingTarget: this.vars.playingTarget,
+                        playingCriteria: this.vars.playingCriteria,
+                        skippedCurrentTrack: this.vars.skippedCurrentTrack,
+                        reset_current_track: this.vars.reset_current_track,
+                        searchText: this.vars.searchText,
+                        loadingTrack: this.vars.loadingTrack,
+                        appIsLoading: this.vars.appIsLoading,
+                        autoplay: this.vars.autoplay,
+                        lock: this.vars.lock,
+                        playlistFocus: this.vars.playlistFocus,
+                        modals: this.vars.modals,
+                        jobs: this.vars.jobs,
+                        reporter: this.vars.reporter,
+                        foundArt: this.vars.foundArt
+                    },
+                    art: Id('album-art').src
+                })
+            })
+
+            // Restore vue data
+            ipcRenderer.on('inject-vue-state', (event, arg) => {
+                // replace current data
+                this.restoreVueState(arg)
+
+                ipcRenderer.send('clear-vue-data')
+            })
         },
         watch: {
             '$route' (cur, old) {
@@ -719,76 +786,78 @@
             },
 
             'vars.currentTrack' (cur, old) {
-                // Reset flag
-                if (this.reset_current_track) {
-                    this.reset_current_track = false
-                }
+                if (!this.dataRehydrated) {
+                    // Reset flag
+                    if (this.reset_current_track) {
+                        this.reset_current_track = false
+                    }
 
-                if (cur) {
-                    // Loading state init
-                    this.vars.loadingTrack = true
+                    if (cur) {
+                        // Loading state init
+                        this.vars.loadingTrack = true
 
-                    let ret = this.player.playNew(cur.source)
+                        let ret = this.player.playNew(cur.source)
 
-                    if (!ret) {
-                        // Means it was from an external source (like a hard drive or something)
-                        // If track has been renamed or deleted on the machine or tracks are locked
-                        // ... We proceed to skip it
-                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
-                        let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
+                        if (!ret) {
+                            // Means it was from an external source (like a hard drive or something)
+                            // If track has been renamed or deleted on the machine or tracks are locked
+                            // ... We proceed to skip it
+                            let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                            let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
 
-                        // First, we remove it from `randoms` if in shuffle mode
-                        if (this.appAudioPrefs.shuffle) {
-                            // We only need to rid the playhistory of it
-                            // ... as it was not played
-                            this.vars.skippedCurrentTrack = true
-                        }
+                            // First, we remove it from `randoms` if in shuffle mode
+                            if (this.appAudioPrefs.shuffle) {
+                                // We only need to rid the playhistory of it
+                                // ... as it was not played
+                                this.vars.skippedCurrentTrack = true
+                            }
 
-                        // If the initial path is on the host machine
-                        // ... we can delete the track
-                        if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
-                            // We assume the track was deleted off the fs or moved to another location
-                            this.deleteTrack(cur)
+                            // If the initial path is on the host machine
+                            // ... we can delete the track
+                            if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
+                                // We assume the track was deleted off the fs or moved to another location
+                                this.deleteTrack(cur)
 
-                            // Lets clear the wave DOM that might be created as well
-                            // That's if it was the last track
-                            // TODO: in the future, if loopAll triggers playing from top again
-                            // ... we must ensure the behaviour below does not get in the way
-                            if (cindex == this.filteredPool.length - 1) {
-                                // reset index
-                                this.vars.index = -1
-                                // reset current
-                                this.vars.reset_current_track = true
+                                // Lets clear the wave DOM that might be created as well
+                                // That's if it was the last track
+                                // TODO: in the future, if loopAll triggers playing from top again
+                                // ... we must ensure the behaviour below does not get in the way
+                                if (cindex == this.filteredPool.length - 1) {
+                                    // reset index
+                                    this.vars.index = -1
+                                    // reset current
+                                    this.vars.reset_current_track = true
 
-                                // Avoids trying to trigger playback
-                                return
+                                    // Avoids trying to trigger playback
+                                    return
+                                }
+                            } else {
+                                // Dim track if from external drive
+                                if (TagName('tr').length > 0) {
+                                    TagName('tr')[cindex + 1].classList.add('dim-track')
+                                }
+                            }
+
+                            // Then seek to next playable track, if its ahead of previously playing track
+                            if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
+                                // This is also triggered automatically in shuffle
+                                // ... Remember the previous track is form the `playHistory` Array
+                                // ... and this Array does not store unplayable tracks
+                                // ... So we just keep moving on as the track essentially does not exist
+                                this.nextTrack()
+                            } else {
+                                this.prevTrack()
                             }
                         } else {
-                            // Dim track if from external drive
+                            // Not skipped
+                            this.vars.skippedCurrentTrack = false
+
+                            let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+
+                            // Undim track 
                             if (TagName('tr').length > 0) {
-                                TagName('tr')[cindex + 1].classList.add('dim-track')
+                                TagName('tr')[cindex + 1].classList.remove('dim-track')
                             }
-                        }
-
-                        // Then seek to next playable track, if its ahead of previously playing track
-                        if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
-                            // This is also triggered automatically in shuffle
-                            // ... Remember the previous track is form the `playHistory` Array
-                            // ... and this Array does not store unplayable tracks
-                            // ... So we just keep moving on as the track essentially does not exist
-                            this.nextTrack()
-                        } else {
-                            this.prevTrack()
-                        }
-                    } else {
-                        // Not skipped
-                        this.vars.skippedCurrentTrack = false
-
-                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
-
-                        // Undim track 
-                        if (TagName('tr').length > 0) {
-                            TagName('tr')[cindex + 1].classList.remove('dim-track')
                         }
                     }
                 }
@@ -955,6 +1024,36 @@
                 'cacheChildRoute',
                 'toggleAudioEQVisibility'
             ]),
+
+            restoreVueState(data) {
+                this.dataRehydrated = true
+
+                this.pool = data.pool
+                this.vars = data.vars
+                this.imports = data.imports
+
+                // restore player state
+                this.player.activated = data.player.activated
+                this.player.bands = data.player.bands
+                this.player.cleared = data.player.cleared
+                this.player.currentTrack = data.player.currentTrack
+                this.player.playHistory = data.player.playHistory
+                this.player.randoms = data.player.randoms
+                this.player.tmpPlayHistory = data.player.tmpPlayHistory
+
+                if (data.vars.currentTrack) {
+                    this.player.playNew(data.vars.currentTrack.source)
+
+                    // Restore last player pos
+                    this.vars.playedPercent = data.playedPercent
+
+                    // Restore wave
+                    this.vars.currentPos = data.currentPos
+
+                    // Restore album art
+                    Id('album-art').src = data.art
+                }
+            },
 
             loadTheme() {
                 let head = TagNameSingle('head')
@@ -1328,6 +1427,14 @@
                     ClassNameSingle('activeTrack').scrollIntoView({
                         behavior: "smooth"
                     })
+                }
+            },
+
+            handle_sleep_blocker(val) {
+                if (val) {
+                    ipcRenderer.send('turn-on-sleep-blocker')
+                } else {
+                    ipcRenderer.send('turn-off-sleep-blocker')
                 }
             },
 
@@ -1717,7 +1824,8 @@
                 'appAudioPrefs',
                 'appAudioPlaybackBehaviour',
                 'appRoutes',
-                'appNotifs'
+                'appNotifs',
+                'sleepBlocker'
             ]),
 
             filteredPool () {

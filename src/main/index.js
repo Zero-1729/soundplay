@@ -5,10 +5,12 @@ import {
         globalShortcut,
         Menu,
         shell,
-        ipcMain
+        ipcMain,
+        powerSaveBlocker
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
+const PowerManager   = require('./utils/powerMonitor').default
 
 const { add, removePattern } = require('./../renderer/utils/list')
 
@@ -47,6 +49,12 @@ var startup_args = process.env.NODE_ENV != 'development' ?
                     removePattern(process.argv.slice(1), new RegExp(/-psn_.+/)) : []
 
 var mainWindow = null
+
+// Power blocker id
+var psb_id = null
+
+// Vue App data state
+var vue_state = null
 
 // Instantiate window manager state
 const windowState = WindowManager.init(app.getPath('userData'))
@@ -156,6 +164,39 @@ const createWindow = () => {
     })
 
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
+
+    // Power monitor fns
+    // Save window info before machine suspended to sleep
+    PowerManager.on('suspend', () => {
+        // Request vue state from renderer
+        mainWindow.send('send-vue-state')
+    })
+
+    // Restore Vue data
+    // When computer resumed
+    PowerManager.on('resume', () => {
+        mainWindow.send('inject-vue-state', vue_state)
+    })
+
+    // Save Vue state
+    ipcMain.on('save-vue-data', (event, arg) => {
+        vue_state = arg
+    })
+
+    // Clear vue data
+    ipcMain.on('clear-vue-data', (event, arg) => {
+        vue_state = null
+    })
+
+    // Sleep blocker fns
+    ipcMain.on('turn-on-sleep-blocker', (event, arg) => {
+        psb_id = powerSaveBlocker.start('prevent-app-suspension')
+    })
+
+    ipcMain.on('turn-off-sleep-blocker', (event, arg) => {
+        // The ids are initially launched with '0', then get incremented with each subsequent call
+	    powerSaveBlocker.stop(psb_id ? psb_id : 0)
+    })
 }
 
 app.on('ready', createWindow)

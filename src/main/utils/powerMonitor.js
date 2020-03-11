@@ -1,9 +1,9 @@
-const { powerManager } = require('electron')
+const { powerMonitor } = require('electron')
 
 
-const action = (state, callback) => {
-    powerManager.on(state, callback)
+const on = (state, cb) => {
+    powerMonitor.on(state, cb)
 }
 
 
-export default { action }
+export default { on }
