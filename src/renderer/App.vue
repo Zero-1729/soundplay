@@ -59,6 +59,7 @@
                     @clearJobsFn="clearJobsFn"
                     @setJobsFn="setJobsFn"
                     @syncFiles="syncFiles"
+                    @handle_sleep_blocker="handle_sleep_blocker"
                     
                     :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
@@ -301,6 +302,13 @@
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
+
+            // Turn on sleep blocker if enabled
+            if (this.sleepBlocker) {
+                ipcRenderer.send('turn-on-sleep-blocker')
+            } else {
+                ipcRenderer.send('turn-off-sleep-blocker')
+            }
 
             // Or use 'fullscreen' from window event listener
             ipcRenderer.on('enter-full-screen', () => {
@@ -1311,6 +1319,14 @@
                 }
             },
 
+            handle_sleep_blocker(val) {
+                if (val) {
+                    ipcRenderer.send('turn-on-sleep-blocker')
+                } else {
+                    ipcRenderer.send('turn-off-sleep-blocker')
+                }
+            },
+
             setAppLoading(val) {
                 this.vars.appIsLoading = val
             },
@@ -1697,7 +1713,8 @@
                 'appAudioPrefs',
                 'appAudioPlaybackBehaviour',
                 'appRoutes',
-                'appNotifs'
+                'appNotifs',
+                'sleepBlocker'
             ]),
 
             filteredPool () {

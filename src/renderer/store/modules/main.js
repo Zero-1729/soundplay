@@ -38,7 +38,8 @@ const state = {
                 isOn: false,
                 am: 6,
                 pm: 6
-            }
+            },
+            sleepBlocker: true
         },
         audio: {
             playback_behaviour: 'reset', // Defaults to reset
@@ -386,6 +387,10 @@ const mutations = {
         state.settings.ui.displayNotif = arg
     },
 
+    SET_SLEEP_BLOCKER (state, value) {
+        state.settings.ui.sleepBlocker = value
+    },
+
     // Audio
     SET_AUDIO_PLAYBACK_BEHAVIOUR (state, arg) {
         state.settings.audio.playback_behaviour = arg
@@ -580,6 +585,10 @@ const actions = {
         commit('DISPLAY_NOTIF', arg)
     },
 
+    setSleepBlocker: ({ commit }, arg) => {
+        commit('SET_SLEEP_BLOCKER', arg)
+    },
+
     // Audio
     setAudioPlaybackBehaviour: ({ commit }, arg) => {
         commit("SET_AUDIO_PLAYBACK_BEHAVIOUR", arg)
@@ -689,6 +698,10 @@ const getters = {
 
     appNotifs (state) {
         return state.settings.ui.displayNotif
+    },
+
+    sleepBlocker (state) {
+        return state.settings.ui.sleepBlocker
     },
 
     settingsOpen (state) {

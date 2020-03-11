@@ -6,7 +6,7 @@ import {
         Menu,
         shell,
         ipcMain,
-        autoUpdater
+        powerSaveBlocker
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
@@ -49,6 +49,9 @@ var startup_args = process.env.NODE_ENV != 'development' ?
                     removePattern(process.argv.slice(1), new RegExp(/-psn_.+/)) : []
 
 var mainWindow = null
+
+// Power blocker id
+var psb_id = null
 
 // Instantiate window manager state
 const windowState = WindowManager.init(app.getPath('userData'))
@@ -168,6 +171,15 @@ function createWindow () {
 
     // Restore vue data after suspend (on wake)
     PowerManager.on('', () => {})
+
+    ipcMain.on('turn-on-sleep-blocker', (event, arg) => {
+        psb_id = powerSaveBlocker.start('prevent-app-suspension')
+    })
+
+    ipcMain.on('turn-off-sleep-blocker', (event, arg) => {
+        // The ids are initially launched with '0', then get incremented with each subsequent call
+	    powerSaveBlocker.stop(psb_id ? psb_id : 0)
+    })
 }
 
 app.on('ready', createWindow)

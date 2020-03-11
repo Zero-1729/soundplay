@@ -51,7 +51,7 @@
             </div>
         </div>
         <div class="option">
-            <div class="option-item">
+            <div class="option-item anm-red">
                 <div class="flex">
                     <h3>
                         Auto Night mode
@@ -85,6 +85,22 @@
                 </div>
                 <p class="info">
                     Display App Notifications such as current playing track.
+                </p>
+            </div>
+        </div>
+        <div class="option">
+            <div class="option-item">
+                <div class="flex">
+                    <h3>
+                        Turn on sleep blocker
+                    </h3>
+                    <label class="switch tsb-red" :class="{checked: lowPowerBlocker}">
+                        <input type="checkbox" v-model="lowPowerBlocker"/>
+                        <span class="slider" :class="{checked: lowPowerBlocker}"></span>
+                    </label>
+                </div>
+                <p class="info">
+                    Prevent the computer from going into lower-power mode (i.e. sleep mode).
                 </p>
             </div>
         </div>
@@ -136,6 +152,10 @@
                         this.setNightMode(true)
                     }
                 }
+            },
+
+            lowPowerBlocker(cur, old) {
+                this.$emit('handle_sleep_blocker_update', cur)
             }
         },
         methods: {
@@ -147,7 +167,8 @@
                 'setAutoNightModeAm',
                 'setAutoNightModePm',
                 'setNightMode',
-                'displayNotif'
+                'displayNotif',
+                'setSleepBlocker'
             ]),
 
             reschedule() {
@@ -219,7 +240,8 @@
                 'appNightModeTheme',
                 'appAutoNightMode',
                 'appAutoNightModeTime',
-                'appNotifs'
+                'appNotifs',
+                'sleepBlocker'
             ]),
 
             currentTheme: {
@@ -302,6 +324,14 @@
                     this.displayNotif(value)
                 }
             },
+            lowPowerBlocker: {
+                get() {
+                    return this.sleepBlocker
+                },
+                set(value) {
+                    this.setSleepBlocker(value)
+                }
+            }
         }
     }
 </script>
@@ -325,6 +355,12 @@
 
     .flex .switch.shorter
         margin-left 304px
+
+    .option-item.anm-red
+        margin-bottom 6px
+
+    .switch.tsb-red
+        margin-left 246px
 
     .info-input-field-nm
         width 20px
