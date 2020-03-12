@@ -426,43 +426,8 @@
             // Create autoNightMode scheduler
             let vm = this
 
-            // Check whether in night mode time
-            if (this.appAutoNightMode) {
-                let {am, pm} = this.appAutoNightModeTime
-
-                let [hrs, min, sec] = getCurrentTime()
-
-                // Reschedule here
-                this.setJobsFn({
-                    start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
-                        if (vm.appAutoNightMode) {
-                            if (!vm.appNightMode) {
-                                vm.setNightMode(true)
-                            }
-                        }
-                    }),
-                    end: schedule.scheduleJob({hour: am, minute: 0}, function () {
-                        if (vm.appAutoNightMode) {
-                            if (vm.appNightMode) {
-                                vm.setNightMode(false)
-                            }
-                        }
-                    })
-                })
-
-                // Check if autoNightMode is set
-                if (isNightTime(hrs, formatTo24Hours(pm), am)) {
-                    // check whether we are in the night and adjust theme accordingly
-                    if (!this.appNightMode) {
-                        this.setNightMode(true)
-                    }
-                } else {
-                    if (this.appNightMode) {
-                        // Otherwise we turn it off
-                        this.setNightMode(false)
-                    }
-                }
-            }
+            // Check whether in night mode time and set if true
+            this.checkAndSetAutoNM()
 
             // Search
             ipcRenderer.on('focus-search', (event, arg) => {
@@ -1052,6 +1017,47 @@
 
                     // Restore album art
                     Id('album-art').src = data.art
+                }
+
+                this.checkAndSetAutoNM()
+            },
+
+            checkAndSetAutoNM() {
+                if (this.appAutoNightMode) {
+                    let {am, pm} = this.appAutoNightModeTime
+
+                    let [hrs, min, sec] = getCurrentTime()
+
+                    // Reschedule here
+                    this.setJobsFn({
+                        start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (!vm.appNightMode) {
+                                    vm.setNightMode(true)
+                                }
+                            }
+                        }),
+                        end: schedule.scheduleJob({hour: am, minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (vm.appNightMode) {
+                                    vm.setNightMode(false)
+                                }
+                            }
+                        })
+                    })
+
+                    // Check if autoNightMode is set
+                    if (isNightTime(hrs, formatTo24Hours(pm), am)) {
+                        // check whether we are in the night and adjust theme accordingly
+                        if (!this.appNightMode) {
+                            this.setNightMode(true)
+                        }
+                    } else {
+                        if (this.appNightMode) {
+                            // Otherwise we turn it off
+                            this.setNightMode(false)
+                        }
+                    }
                 }
             },
 
