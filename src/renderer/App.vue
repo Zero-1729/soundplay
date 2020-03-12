@@ -1089,7 +1089,7 @@
                     // Display album art only if found
                     icon: this.vars.foundArt ? 
                             Id('album-art').src :
-                            path.join(__static, 'icons', 'unknown.png')
+                            path.join(__static, 'icons', 'unkown-notif.png')
                 })
             },
 
