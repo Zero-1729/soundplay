@@ -213,11 +213,11 @@ tbody tr:nth-child(odd) {
 }
 
 .flex .switch {
-    background: #f5f5f5;
+    background: #e6e6e6;
 }
 
 .flex .slider {
-    background: #dadada;
+    background: #cacaca;
 }
 
 .flex .slider.checked {
