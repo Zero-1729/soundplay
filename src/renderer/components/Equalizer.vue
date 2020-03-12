@@ -91,26 +91,7 @@
         ],
         data() {
             return {
-                presets: [
-                    'Flat',
-                    'Headphones',
-                    'Bass Boost',
-                    'Treble Boost',
-                    'Bass + Treble Boost',
-                    'Pop',
-                    'Rock',
-                    'Soft Rock',
-                    'Dance',
-                    'Techno',
-                    'Reggae',
-                    'Ska',
-                    'Soft',
-                    'Classical',
-                    'Large Hall',
-                    'Live',
-                    'Party',
-                    'Club'
-                ],
+                presets: Object.keys(presetEQs),
                 channelMutex: true
             }
         },
