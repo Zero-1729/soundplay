@@ -190,7 +190,7 @@ const createWindow = () => {
 
     // Sleep blocker fns
     ipcMain.on('turn-on-sleep-blocker', (event, arg) => {
-        psb_id = powerSaveBlocker.start('prevent-app-suspension')
+        psb_id = powerSaveBlocker.start('prevent-display-sleep')
     })
 
     ipcMain.on('turn-off-sleep-blocker', (event, arg) => {
