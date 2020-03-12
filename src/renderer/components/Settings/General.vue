@@ -268,9 +268,6 @@
         border-bottom 2px solid
         margin-top 4px
 
-    input#settings-input::placeholder
-        opacity 0.6
-
     .dialog-button
         display flex
         p

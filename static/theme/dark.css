@@ -212,7 +212,8 @@ tr:nth-child(odd) {
 }
 
 .option-item input::placeholder {
-    color: grey;
+    color: white;
+    opacity: 0.4;
 }
 
 .flex .switch {

@@ -208,7 +208,8 @@ tbody tr:nth-child(odd) {
 }
 
 .option-item input::placeholder {
-    color: #bbbbbb;
+    color:#afafaf;
+    opacity: 0.8;
 }
 
 .flex .switch {
