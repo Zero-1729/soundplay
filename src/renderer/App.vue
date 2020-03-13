@@ -1651,6 +1651,13 @@
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
 
+                    // Take it out of the randoms array
+                    if (this.appAudioPrefs.shuffle) {
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', this.currentTrack.id)
+
+                        this.player.freeRandTrack(cindex)
+                    }
+
                     // Done with catch
                     this.vars.autoplay = false
                 }
