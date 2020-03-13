@@ -14,6 +14,7 @@ export default class Player {
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
         this.bands = {
+            'preamp': "preamp",
             60: "Hz_60",
             170: "Hz_170",
             310: "Hz_310",
@@ -230,6 +231,11 @@ export default class Player {
 
     initEQ(temp) {
         this.connectEQ([{
+            f: 20,
+            type: 'highpass',
+            value: temp[this.bands['preamp']]
+        },
+        {
             f: 60,
             type: 'lowshelf',
             value: temp[this.bands[60]]
@@ -291,6 +297,10 @@ export default class Player {
 
     resetEQ() {
         this.connectEQ([{
+            f: 12,
+            type: 'highpass',
+            value: 0
+        },{
             f: 60,
             type: 'lowshelf',
             value: 0
@@ -347,7 +357,18 @@ export default class Player {
             // Create filters
             let filters = []
 
-            for (var i = 0;i < eq.length;i++) {
+            // Create preamp filter
+            let preamp = this.device.backend.ac.createBiquadFilter()
+
+            preamp.type = 'highpass'
+            preamp.Q.value = 1
+            preamp.gain.value = eq[0].value
+            preamp.frequency.value = 12
+
+            // Add preamp
+            filters.push(preamp)
+
+            for (var i = 1;i < eq.length;i++) {
                 // Set each band with appropriate value
                 let filter = this.device.backend.ac.createBiquadFilter()
     

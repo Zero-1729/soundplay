@@ -23,7 +23,7 @@
         <div class="eq-inner-container" :class="{'disabled': appAudioEQ.enabled == false, 'enabled': appAudioEQ.enabled == true}">
             <div class="eq">
                 <div class="preamp-container">
-                    <input type="range" class="preamp" v-model="Preamp" :disabled="appAudioEQ.enabled == false">
+                    <input type="range" class="preamp" v-model="preamp" :disabled="appAudioEQ.enabled == false">
                     <div class="etches">
                         <!-- I know it's not the best solution -->
                         <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+20 dB</p>
@@ -128,7 +128,7 @@
 
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    channel: channel != null ? range + '_' + channel : range,
+                    channel: channel === 12 ? range + '_' + channel : 'preamp',
                     value: val
                 })
 
@@ -170,12 +170,12 @@
             ]),
 
             // EQ channels
-            Preamp: {
+            preamp: {
                 get() {
                     return this.reverseValue(this.appAudioEQ.channels.preamp)
                 },
                 set (value) {
-                    this.setEQLevel('preamp', null, value)
+                    this.setEQLevel('preamp', 12, value)
                 }
             },
 
