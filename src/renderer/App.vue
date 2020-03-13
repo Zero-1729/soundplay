@@ -1113,6 +1113,13 @@
                     })
                 }
 
+                // We update the playGain before we play the audio
+                // Still experimental!
+                // If it is stable enough it would ship with the first official release
+                if (this.enableReplayGain) {
+                    this.player.updatePlayGain()
+                }
+
                 // We immediately play track
                 this.player.device.play()
 
@@ -1831,7 +1838,8 @@
                 'appAudioPlaybackBehaviour',
                 'appRoutes',
                 'appNotifs',
-                'sleepBlocker'
+                'sleepBlocker',
+                'enableReplayGain'
             ]),
 
             filteredPool () {

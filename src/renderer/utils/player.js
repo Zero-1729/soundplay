@@ -364,4 +364,40 @@ export default class Player {
             this.device.backend.setFilters(filters)
         }
     }
+
+    updatePlayGain() {
+        // Wavesurfer gives us access to the gainNode and audioContext in the backend
+        // It looks like wavesurfer connects/disconnects the node from the source/destination
+        // ... so we won't need to implement that
+        this.device.backend.gainNode.gain.value = this.decodeGain(this.device.backend.buffer)
+    }
+
+    decodeGain(data) {
+        // Rough implementation of playGain
+        // Adapted from "https://github.com/est31/js-audio-normalizer"
+        let decodedBuffer = data.getChannelData(0)
+        let sliceLine = Math.floor(data.sampleRate * 0.5)
+        let avgs = []
+        let sum = 0.0
+            
+        for (var i = 0;i < decodedBuffer.length;i++) {
+            sum += decodedBuffer[i] ** 2
+
+            if (i % sliceLine === 0) {
+                sum = Math.sqrt(sum / sliceLine)
+                avgs.push(sum)
+                sum = 0
+            }
+        }
+
+        // Sort out the averages
+        avgs.sort((a,b) => {return a - b})
+
+        // Final calculated gain
+        let avgedVal = 1.0 / avgs[Math.floor(avgs.length * 0.95)]
+
+        // Return the normalized
+        // Note: gain is a val between 0 and 1 inclusive
+        return (avgedVal / 10 )
+    }
 }

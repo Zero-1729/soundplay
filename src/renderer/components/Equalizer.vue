@@ -25,7 +25,7 @@
                 <div class="preamp-container">
                     <input type="range" class="preamp" v-model="Preamp" :disabled="appAudioEQ.enabled == false">
                     <div class="etches">
-                        <!-- I know its not the best solution -->
+                        <!-- I know it's not the best solution -->
                         <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+20 dB</p>
                         <p>-</p>
                         <p>-</p>

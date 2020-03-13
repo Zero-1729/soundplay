@@ -44,6 +44,8 @@ const state = {
         audio: {
             playback_behaviour: 'reset', // Defaults to reset
 
+            replayGain: false, // This would be removed and become the default behaviour when it is more stable
+
             eq: {
                 preset: 'Flat',
                 channels: {
@@ -424,6 +426,10 @@ const mutations = {
         state.settings.audio.eq.visible = !state.settings.audio.eq.visible
     },
 
+    SET_REPLAY_GAIN (state, val) {
+        state.settings.audio.replayGain = val
+    },
+
     // General
     TOGGLE_SETTINGS (state) {
         state.settings.isOpen = !state.settings.isOpen
@@ -622,6 +628,10 @@ const actions = {
         commit("SET_AUDIO_EQ_VISIBILITY")
     },
 
+    setReplayGain: ({ commit }, value) => {
+        commit("SET_REPLAY_GAIN", value)
+    },
+
     // Settings Open var action
     toggleSettings: ({ commit }) => {
         commit('TOGGLE_SETTINGS')
@@ -716,6 +726,10 @@ const getters = {
     appAudioEQ (state) {
         return state.settings.audio.eq
     },
+
+    enableReplayGain (state) {
+        return state.settings.audio.replayGain
+    }
 }
 
 export default {
