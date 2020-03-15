@@ -339,30 +339,27 @@ export default class Player {
             f: 16000,
             type: 'highshelf',
             value: 0
-        }], true)
+        }])
     }
 
-    connectEQ(eq, val) {
-        if (val) {
-            // Create filters
-            let filters = []
+    connectEQ(eq) {
+        // Create filters
+        let filters = []
 
-            for (var i = 0;i < eq.length;i++) {
-                // Set each band with appropriate value
-                let filter = this.device.backend.ac.createBiquadFilter()
+        for (var i = 0;i < eq.length;i++) {
+            // Set each band with appropriate value
+            let filter = this.device.backend.ac.createBiquadFilter()
     
-                filter.type = eq[i].type
-                filter.gain.value = eq[i].value
-                filter.Q.value = 1
-                filter.frequency.value = eq[i].f
+            filter.type = eq[i].type
+            filter.gain.value = eq[i].value
+            filter.Q.value = 1
+            filter.frequency.value = eq[i].f
 
-                filters.push(filter)
-            }
-            
-
-            // Connect filters to wavesurfer
-            this.device.backend.setFilters(filters)
+            filters.push(filter)
         }
+
+        // Connect filters to wavesurfer
+        this.device.backend.setFilters(filters)
     }
 
     updatePlayGain() {
