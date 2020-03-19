@@ -13,6 +13,7 @@ export default class Player {
         this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
+        this.preampGain = 0, // We keep track of this to ensure the audio gain ratio is maintained
         this.bands = {
             'preamp': "preamp",
             60: "Hz_60",
@@ -230,12 +231,9 @@ export default class Player {
     }
 
     initEQ(temp) {
-        this.connectEQ([{
-            f: 20,
-            type: 'highpass',
-            value: temp[this.bands['preamp']]
-        },
-        {
+        console.log("initEQ: ", temp[this.bands['preamp']])
+        this.connectEQ(temp[this.bands['preamp']],
+        [{
             f: 60,
             type: 'lowshelf',
             value: temp[this.bands[60]]
@@ -288,19 +286,22 @@ export default class Player {
     }
 
     updateEQChannel(channel, val) {
-        // update specific band channel
-        let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+        if (channel == 'preamp') {
+            // Update preamp
+            this.preampGain = (val/40) * 0.5
 
-        // Update the channel value
-        this.device.backend.filters[index].gain.value = val
+            this.updatePlayGain()
+        } else {
+            // update specific band channel
+            let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+
+            // Update the channel value
+            this.device.backend.filters[index].gain.value = val
+        }
     }
 
     resetEQ() {
-        this.connectEQ([{
-            f: 12,
-            type: 'highpass',
-            value: 0
-        },{
+        this.connectEQ((12/40) * 0.5, [{
             f: 60,
             type: 'lowshelf',
             value: 0
@@ -349,48 +350,44 @@ export default class Player {
             f: 16000,
             type: 'highshelf',
             value: 0
-        }], true)
+        }])
     }
 
-    connectEQ(eq, val) {
-        if (val) {
-            // Create filters
-            let filters = []
+    connectEQ(preamp_value, eq) {
+        // Update preamp
+        this.preampGain = (preamp_value/40) * 0.5
 
-            // Create preamp filter
-            let preamp = this.device.backend.ac.createBiquadFilter()
+        // Create filters
+        let filters = []
 
-            preamp.type = 'highpass'
-            preamp.Q.value = 1
-            preamp.gain.value = eq[0].value
-            preamp.frequency.value = 12
-
-            // Add preamp
-            filters.push(preamp)
-
-            for (var i = 1;i < eq.length;i++) {
-                // Set each band with appropriate value
-                let filter = this.device.backend.ac.createBiquadFilter()
+        for (var i = 0;i < eq.length;i++) {
+            // Set each band with appropriate value
+            let filter = this.device.backend.ac.createBiquadFilter()
     
-                filter.type = eq[i].type
-                filter.gain.value = eq[i].value
-                filter.Q.value = 1
-                filter.frequency.value = eq[i].f
+            filter.type = eq[i].type
+            filter.gain.value = eq[i].value
+            filter.Q.value = 1
+            filter.frequency.value = eq[i].f
 
-                filters.push(filter)
-            }
+            filters.push(filter)
             
-
             // Connect filters to wavesurfer
             this.device.backend.setFilters(filters)
         }
+
+        // Add gains
+        this.updatePlayGain()
     }
 
     updatePlayGain() {
         // Wavesurfer gives us access to the gainNode and audioContext in the backend
         // It looks like wavesurfer connects/disconnects the node from the source/destination
         // ... so we won't need to implement that
-        this.device.backend.gainNode.gain.value = this.decodeGain(this.device.backend.buffer)
+        let replaygain = this.device.backend.buffer ? this.decodeGain(this.device.backend.buffer) * 0.5 : 0
+
+        // Our preamp contributes a max of 50% to the gain
+        // ... with the other 50% going to the ReplayGain
+        this.device.backend.gainNode.gain.value = replaygain + this.preampGain
     }
 
     decodeGain(data) {

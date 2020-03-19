@@ -121,17 +121,33 @@
                 this.setEQ(TagNameSingle('select').value)
             },
 
+            setPreampLevel(value) {
+                let val = this.translateValue(value)
+
+                this.setAudioEQLevel({
+                    channel: 'preamp',
+                    value: val
+                })
+
+                // Update state of playerd preamp
+                this.player.updateEQChannel('preamp', (val/40) * 0.5)
+
+                this.channelMutex = false
+            },
+
             setEQLevel(range, channel, value) {
                 let val = this.translateValue(value)
+
                 // We need to sanitize the value for the player
                 let freq = range == 'KHz' ? channel + '000' : channel
 
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    channel: channel === 12 ? range + '_' + channel : 'preamp',
+                    channel: range + '_' + channel,
                     value: val
                 })
 
+                // Update player EQ Channel
                 this.player.updateEQChannel(freq, val)
 
                 // Unlock mutex
@@ -146,6 +162,12 @@
 
                 // Also sync setting with player
                 this.player.initEQ(presetEQs[preset])
+            },
+
+            getPreamp(val) {
+                // Translates and normalizes the preamp value 
+                // ... to a percentage on a scale of 40 (|-20| + 20, i.e. |min| + max)
+                return (this.translateValue(val) + 20) / 40
             },
 
             flipValue(val) {
@@ -175,7 +197,7 @@
                     return this.reverseValue(this.appAudioEQ.channels.preamp)
                 },
                 set (value) {
-                    this.setEQLevel('preamp', 12, value)
+                    this.setPreampLevel(value)
                 }
             },
 
