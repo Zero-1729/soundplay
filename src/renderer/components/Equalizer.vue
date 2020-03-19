@@ -283,6 +283,8 @@
         height 250px
         font-size 11px
         border-radius 2.5px
+        input:hover
+            cursor pointer
         h4
             user-select none
         .preset-container
