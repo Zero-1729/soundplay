@@ -265,12 +265,12 @@ const mutations = {
     },
 
     UNFAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
         state.music[index].favourite = false
     },
 
     TOGGLE_FAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
 
         if (state.music[index].favourite) {
             state.music[index].favourite = false
