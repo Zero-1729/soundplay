@@ -130,7 +130,7 @@
                 })
 
                 // Update state of playerd preamp
-                this.player.updateEQChannel('preamp', (val/40) * 0.5)
+                this.player.updateEQChannel('preamp', val)
 
                 this.channelMutex = false
             },

@@ -500,6 +500,9 @@
                 this.player.initEQ(this.appAudioEQ.channels)
             }
 
+            // Init gain nodes
+            this.player.initGainNodes()
+
             // If launched we fill the view with the appropriately filtered
             // ... set of tracks
             this.filterPool()
