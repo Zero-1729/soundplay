@@ -198,7 +198,7 @@ tbody tr:hover span {
     background: transparent;
 }
 
-.playlist-input-focus {
+input.playlist-input:focus {
     border-color: dodgerblue;
 }
 

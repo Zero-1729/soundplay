@@ -49,21 +49,6 @@
                     Keep track of played track history outside shuffle mode.
                 </p>
             </div>
-
-            <div class="option-item">
-                <div class="flex">
-                    <h3>
-                        Enable ReplayGain [Experimental]
-                    </h3>
-                    <label class="switch further" :class="{checked: replayGain}" style="margin-left: 244px">
-                        <input type="checkbox" v-model="replayGain"/>
-                        <span class="slider" :class="{checked: replayGain}"></span>
-                    </label>
-                </div>
-                <p class="info">
-                    Make loudness the same for all sounds.
-                </p>
-            </div>
         </div>
     </div>
 </template>
@@ -85,8 +70,7 @@
             ...mapActions([
                 'setAudioPlayback',
                 'setAudioPlaybackBehaviour',
-                'setPersistedHistory',
-                'setReplayGain'
+                'setPersistedHistory'
             ]),
 
             handle_playbackrate(val) {
@@ -104,17 +88,11 @@
         computed: {
             ...mapGetters([
                 'appAudioPrefs',
-                'appAudioPlaybackBehaviour',
-                'enableReplayGain'
+                'appAudioPlaybackBehaviour'
             ]),
 
             playbackRate () {
                 return this.appAudioPrefs.playbackRate.toFixed(2)
-            },
-
-            replayGain: {
-                get() { return this.enableReplayGain },
-                set(value) { this.setReplayGain(value) }
             },
 
             persistedHistory: {

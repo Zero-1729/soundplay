@@ -44,8 +44,6 @@ const state = {
         audio: {
             playback_behaviour: 'reset', // Defaults to reset
 
-            replayGain: false, // This would be removed and become the default behaviour when it is more stable
-
             eq: {
                 preset: 'Flat',
                 channels: {
@@ -267,12 +265,12 @@ const mutations = {
     },
 
     UNFAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
         state.music[index].favourite = false
     },
 
     TOGGLE_FAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
 
         if (state.music[index].favourite) {
             state.music[index].favourite = false
@@ -424,10 +422,6 @@ const mutations = {
 
     SET_AUDIO_EQ_VISIBILITY (state) {
         state.settings.audio.eq.visible = !state.settings.audio.eq.visible
-    },
-
-    SET_REPLAY_GAIN (state, val) {
-        state.settings.audio.replayGain = val
     },
 
     // General
@@ -628,10 +622,6 @@ const actions = {
         commit("SET_AUDIO_EQ_VISIBILITY")
     },
 
-    setReplayGain: ({ commit }, value) => {
-        commit("SET_REPLAY_GAIN", value)
-    },
-
     // Settings Open var action
     toggleSettings: ({ commit }) => {
         commit('TOGGLE_SETTINGS')
@@ -725,10 +715,6 @@ const getters = {
 
     appAudioEQ (state) {
         return state.settings.audio.eq
-    },
-
-    enableReplayGain (state) {
-        return state.settings.audio.replayGain
     }
 }
 

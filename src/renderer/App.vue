@@ -343,7 +343,6 @@
 
                     // Check if the first item is an actual track before setting autoplay
                     if (Exists(args_list[0])) {
-                        console.log('triggered autoplay')
                         this.vars.autoplay = true
                     }
 
@@ -500,6 +499,9 @@
             if (this.appAudioEQ.enabled) {
                 this.player.initEQ(this.appAudioEQ.channels)
             }
+
+            // Init gain nodes
+            this.player.initGainNodes()
 
             // If launched we fill the view with the appropriately filtered
             // ... set of tracks
@@ -1116,9 +1118,7 @@
                 // We update the playGain before we play the audio
                 // Still experimental!
                 // If it is stable enough it would ship with the first official release
-                if (this.enableReplayGain) {
-                    this.player.updatePlayGain()
-                }
+                this.player.updatePlayGain()
 
                 // We immediately play track
                 this.player.device.play()
