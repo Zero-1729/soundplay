@@ -355,6 +355,8 @@
             // Handle events thrown from main renderer (App Menu)
             // Single sound files import
             ipcRenderer.on('import-tracks', (event, arg) => {
+                let vm = this
+
                 remote.dialog.showOpenDialog({
                     buttonLabel: 'Import',
                     properties: ['openFile', 'multiSelections', 'showHiddenFiles'],
@@ -421,9 +423,6 @@
             } else {
                 this.$router.push(this.appRoutes.mainRoute)
             }
-
-            // Create autoNightMode scheduler
-            let vm = this
 
             // Check whether in night mode time and set if true
             this.checkAndSetAutoNM()
@@ -1029,6 +1028,9 @@
                     let {am, pm} = this.appAutoNightModeTime
 
                     let [hrs, min, sec] = getCurrentTime()
+
+                    // Define vm
+                    let vm = this
 
                     // Reschedule here
                     this.setJobsFn({
