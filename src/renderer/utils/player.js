@@ -11,6 +11,7 @@ export default class Player {
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
+        this.playedIDs   = [] // For storing IDs of played tracks in shuffle mode
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
         this.preampGain = 0 // We keep track of the preamp's current value
@@ -184,8 +185,12 @@ export default class Player {
         // All indexes are pushed until the floor is reached
         if (!(pool.length == this.playHistory.length)) {
             this.playHistory.push(index)
+
+            // Store ID
+            this.playedIDs.push(pool[index].id)
         } else {
             this.playHistory = [index]
+            this.playedIDs   = [pool[index].id]
         }
     }
 
@@ -213,6 +218,9 @@ export default class Player {
         if (excludePlayed) {
             for (var x = 0;x < this.playHistory.length;x++) {
                 this.randoms = remove(this.randoms, this.playHistory[x])
+
+                // Also removed played tracks using IDs
+                this.randoms = remove(this.randoms, getIndexFromKey(pool, 'id', this.playedIDs[x]))
             }
         }
     }
