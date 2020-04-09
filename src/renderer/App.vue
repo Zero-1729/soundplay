@@ -1596,11 +1596,11 @@
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
-                var tags = obj.tags
-                var fp = obj.track_name
+                let tags = obj.tags
+                let fp = obj.track_name
 
                 // We build our track template here
-                var meta = {
+                let meta = {
                     title: null,
                     artist: null,
                     album: null,
