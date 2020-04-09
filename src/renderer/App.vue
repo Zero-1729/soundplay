@@ -824,6 +824,9 @@
                             if (TagName('tr').length > 0) {
                                 TagName('tr')[cindex + 1].classList.remove('dim-track')
                             }
+
+                            // Clear album art
+                            this.vars.foundArt = false
                         }
                     }
                 }
