@@ -491,7 +491,8 @@
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor,
-                playbackRate: this.appAudioPrefs.playbackRate
+                playbackRate: this.appAudioPrefs.playbackRate,
+                normalize: true
             })
 
             // If EQ was enabled in last session, continue with it
