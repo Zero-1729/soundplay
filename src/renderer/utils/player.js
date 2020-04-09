@@ -412,15 +412,15 @@ export default class Player {
         // Rough implementation of playGain
         // Adapted from "https://github.com/est31/js-audio-normalizer"
         let decodedBuffer = data.getChannelData(0)
-        let sliceLine = Math.floor(data.sampleRate * 0.5)
+        let sliceLen = Math.floor(data.sampleRate * 0.05)
         let avgs = []
         let sum = 0.0
             
         for (var i = 0;i < decodedBuffer.length;i++) {
             sum += decodedBuffer[i] ** 2
 
-            if (i % sliceLine === 0) {
-                sum = Math.sqrt(sum / sliceLine)
+            if (i % sliceLen === 0) {
+                sum = Math.sqrt(sum / sliceLen)
                 avgs.push(sum)
                 sum = 0
             }
