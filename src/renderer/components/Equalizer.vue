@@ -91,8 +91,7 @@
         ],
         data() {
             return {
-                presets: Object.keys(presetEQs),
-                channelMutex: true
+                presets: Object.keys(presetEQs)
             }
         },
 
@@ -108,7 +107,8 @@
             ...mapActions([
                 'toggleAudioEQ',
                 'setAudioEQLevel',
-                'setAllAudioEQChannels'
+                'setAllAudioEQChannels',
+                'setChanMutex'
             ]),
 
             handler_toggleAudioEQ() {
@@ -116,7 +116,8 @@
             },
 
             resetChannels() {
-                this.channelMutex = true
+                this.setChanMutex(true)
+                // this.channelMutex = true
 
                 this.setEQ(TagNameSingle('select').value)
             },
@@ -132,7 +133,8 @@
                 // Update state of playerd preamp
                 this.player.updateEQChannel('preamp', val)
 
-                this.channelMutex = false
+                this.setChanMutex(false)
+                // this.channelMutex = false
             },
 
             setEQLevel(range, channel, value) {
@@ -151,7 +153,8 @@
                 this.player.updateEQChannel(freq, val)
 
                 // Unlock mutex
-                this.channelMutex = false
+                this.setChanMutex(false)
+                // this.channelMutex = false
             },
 
             setEQ(value) {
@@ -188,7 +191,8 @@
         },
         computed: {
             ...mapGetters([
-                'appAudioEQ'
+                'appAudioEQ',
+                'channelMutex'
             ]),
 
             // EQ channels
