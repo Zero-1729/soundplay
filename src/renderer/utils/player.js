@@ -379,10 +379,10 @@ export default class Player {
             filter.frequency.value = eq[i].f
 
             filters.push(filter)
-            
-            // Connect filters to wavesurfer
-            this.device.backend.setFilters(filters)
         }
+
+        // Connect filters to wavesurfer
+        this.device.backend.setFilters(filters)
 
         // Add gains
         if (this.device.backend.buffer) {
