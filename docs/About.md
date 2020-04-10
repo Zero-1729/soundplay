@@ -59,6 +59,7 @@ The few features mentioned below were designed to meet this goal.
 - Playlists
 - Auto track categorization
 - Intuitive UI
+- ReplayGain [Experimental]
 - Player Looping (Single and All) and [(True) Shuffle](./docs/Dev%20Handbook#shuffle)
 - Persisted play history (aids True shuffle)
 - Album art support
