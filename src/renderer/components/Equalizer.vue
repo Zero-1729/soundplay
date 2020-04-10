@@ -166,8 +166,8 @@
 
             getPreamp(val) {
                 // Translates and normalizes the preamp value 
-                // ... to a percentage on a scale of 40 (|-20| + 20, i.e. |min| + max)
-                return (this.translateValue(val) + 20) / 40
+                // ... to a percentage on a scale of 80 (|-40| + 40, i.e. |min| + max)
+                return (this.translateValue(val) + 20) / 80
             },
 
             flipValue(val) {
