@@ -806,15 +806,11 @@
                             }
 
                             // Then seek to next playable track, if its ahead of previously playing track
-                            if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
-                                // This is also triggered automatically in shuffle
-                                // ... Remember the previous track is form the `playHistory` Array
-                                // ... and this Array does not store unplayable tracks
-                                // ... So we just keep moving on as the track essentially does not exist
-                                this.nextTrack()
-                            } else {
-                                this.prevTrack()
-                            }
+                            // This is also triggered automatically in shuffle
+                            // ... Remember the previous track is form the `playHistory` Array
+                            // ... and this Array does not store unplayable tracks
+                            // ... So we just keep moving on as the track essentially does not exist
+                            this.nextTrack()
                         } else {
                             // Not skipped
                             this.vars.skippedCurrentTrack = false
