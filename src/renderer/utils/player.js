@@ -15,8 +15,8 @@ export default class Player {
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
         this.preampGain = 0 // We keep track of the preamp's current value
-        this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-2 <= x <= 2)
-        this.replayGainNode = null // the gain value is updated each time we recalc the replayGain (-2 <= x <= 2)
+        this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
+        this.replayGainNode = null // the gain value is updated each time we recalc the replayGain (-1 <= x <= 1)
         this.bands = {
             'preamp': "preamp",
             60: "Hz_60",
@@ -297,7 +297,7 @@ export default class Player {
     updateEQChannel(channel, val) {
         if (channel == 'preamp') {
             // Update preamp
-            this.preampGain = val / 20
+            this.preampGain = val / 40
 
             this.updatePlayGain()
         } else {
@@ -310,7 +310,7 @@ export default class Player {
     }
 
     resetEQ() {
-        this.connectEQ(12 / 20, [{
+        this.connectEQ(12 / 40, [{
             f: 60,
             type: 'lowshelf',
             value: 0
@@ -364,7 +364,7 @@ export default class Player {
 
     connectEQ(preamp_value, eq) {
         // Update preamp
-        this.preampGain = preamp_value / 20
+        this.preampGain = preamp_value / 40
 
         // Create filters
         let filters = []
@@ -399,7 +399,7 @@ export default class Player {
         this.replayGainNode = this.device.backend.ac.createGain()
 
         this.device.backend.gainNode.gain.value = 0.5 // Set it low cause we amp it up with the gains below
-        this.preampNode.gain.value = this.preampGain * 2 // limit it to -2 <-> 2
+        this.preampNode.gain.value = this.preampGain // limit it to -1 <-> 1
         this.replayGainNode.gain.value = replaygain
 
         // Serial connect gains
@@ -412,7 +412,7 @@ export default class Player {
         // Wavesurfer gives us access to the gainNode and audioContext in the backend
         // It looks like wavesurfer connects/disconnects the node from the source/destination
         // ... so we won't need to implement that'
-        this.preampNode.gain.value = this.preampGain * 2
+        this.preampNode.gain.value = this.preampGain
         this.replayGainNode.gain.value = updateReplayGain ? this.decodeGain(this.device.backend.buffer) : this.replayGainNode.gain.value 
     }
 
