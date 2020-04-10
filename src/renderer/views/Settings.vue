@@ -12,7 +12,8 @@
                 @clearJobsFn="handle_clearJobs"
                 @setJobsFn="handle_setJobs"
                 @appLoading="push_loading_state"
-                @syncFiles="handle_sync_files">
+                @syncFiles="handle_sync_files"
+                @handle_sleep_blocker_update="push_sleep_blocker_update">
             </router-view>
         </transition>
     </div>
@@ -58,6 +59,10 @@
 
             handle_setJobs (arg) {
                 this.$emit('setJobsFn', arg)
+            },
+
+            push_sleep_blocker_update(arg) {
+                this.$emit('handle_sleep_blocker', arg)
             },
 
             mutatePlayingCriteria (arg) {
@@ -118,7 +123,7 @@
         transition all .3s ease-out
 
     .option-item
-        margin-bottom 18px
+        margin-bottom 16px
         width 68vw
 
     .option-item .info
@@ -144,6 +149,33 @@
         .dialog-button-alt
             margin-left 18px
             width unset
+
+    .flex .switch
+        position relative
+        display inline-block
+        width 44px
+        height 20px
+        border-radius 34px
+        margin-top 12px
+        margin-left 298px
+
+    .flex .slider
+        position absolute
+        width 20px
+        top 0
+        left 0
+        right 0
+        bottom 0
+        border-radius 34px
+        transition .4s
+
+    .flex .slider.checked
+        left 25px
+
+    .flex .switch input
+        opacity 0
+        width 0
+        height 0
 
     input#settings-input
         height 22px

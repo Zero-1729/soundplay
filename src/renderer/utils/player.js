@@ -8,13 +8,17 @@ const { remove }                         = require('./list')
 export default class Player {
     constructor(track, props) {
         this.currentTrack = track
-        this.shuffle = props.shuffle // Only used to assert shuffle on when App newly launched
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
         this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
+        this.playedIDs   = [] // For storing IDs of played tracks in shuffle mode
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
+        this.preampGain = 0 // We keep track of the preamp's current value
+        this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
+        this.replayGainNode = null // the gain value is updated each time we recalc the replayGain (-1 <= x <= 1)
         this.bands = {
+            'preamp': "preamp",
             60: "Hz_60",
             170: "Hz_170",
             310: "Hz_310",
@@ -164,13 +168,6 @@ export default class Player {
             } else {
                 this.tmpPlayHistory = [index]
             }
-
-            // All indexes are pushed until the floor is reached
-            if (this.playHistory.length == this.pool) {
-                this.playHistory - [index]
-            } else {
-                this.playHistory.push(index)
-            }
         }
 
         // Check if randoms empty, so we can refill
@@ -182,6 +179,19 @@ export default class Player {
 
         // Then we just pop the last index
         return this.randoms.pop()
+    }
+
+    fillHistory(pool, index) {
+        // All indexes are pushed until the floor is reached
+        if (!(pool.length == this.playHistory.length)) {
+            this.playHistory.push(index)
+
+            // Store ID
+            this.playedIDs.push(pool[index].id)
+        } else {
+            this.playHistory = [index]
+            this.playedIDs   = [pool[index].id]
+        }
     }
 
     fillRandoms(currentTrack, pool, excludePlayed=false) {
@@ -208,6 +218,9 @@ export default class Player {
         if (excludePlayed) {
             for (var x = 0;x < this.playHistory.length;x++) {
                 this.randoms = remove(this.randoms, this.playHistory[x])
+
+                // Also removed played tracks using IDs
+                this.randoms = remove(this.randoms, getIndexFromKey(pool, 'id', this.playedIDs[x]))
             }
         }
     }
@@ -228,7 +241,8 @@ export default class Player {
     }
 
     initEQ(temp) {
-        this.connectEQ([{
+        this.connectEQ(temp[this.bands['preamp']],
+        [{
             f: 60,
             type: 'lowshelf',
             value: temp[this.bands[60]]
@@ -281,15 +295,22 @@ export default class Player {
     }
 
     updateEQChannel(channel, val) {
-        // update specific band channel
-        let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+        if (channel == 'preamp') {
+            // Update preamp
+            this.preampGain = val / 40
 
-        // Update the channel value
-        this.device.backend.filters[index].gain.value = val
+            this.updatePlayGain()
+        } else {
+            // update specific band channel
+            let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
+
+            // Update the channel value
+            this.device.backend.filters[index].gain.value = val
+        }
     }
 
     resetEQ() {
-        this.connectEQ([{
+        this.connectEQ(12 / 40, [{
             f: 60,
             type: 'lowshelf',
             value: 0
@@ -338,29 +359,89 @@ export default class Player {
             f: 16000,
             type: 'highshelf',
             value: 0
-        }], true)
+        }])
     }
 
-    connectEQ(eq, val) {
-        if (val) {
-            // Create filters
-            let filters = []
+    connectEQ(preamp_value, eq) {
+        // Update preamp
+        this.preampGain = preamp_value / 40
 
-            for (var i = 0;i < eq.length;i++) {
-                // Set each band with appropriate value
-                let filter = this.device.backend.ac.createBiquadFilter()
+        // Create filters
+        let filters = []
+
+        for (var i = 0;i < eq.length;i++) {
+            // Set each band with appropriate value
+            let filter = this.device.backend.ac.createBiquadFilter()
     
-                filter.type = eq[i].type
-                filter.gain.value = eq[i].value
-                filter.Q.value = 1
-                filter.frequency.value = eq[i].f
+            filter.type = eq[i].type
+            filter.gain.value = eq[i].value
+            filter.Q.value = 1
+            filter.frequency.value = eq[i].f
 
-                filters.push(filter)
-            }
-            
-
-            // Connect filters to wavesurfer
-            this.device.backend.setFilters(filters)
+            filters.push(filter)
         }
+
+        // Connect filters to wavesurfer
+        this.device.backend.setFilters(filters)
+
+        // Add gains
+        if (this.device.backend.buffer) {
+            // Only update the gain if a track has been loaded
+            this.updatePlayGain(false)
+        }
+    }
+
+    initGainNodes() {
+        let replaygain = this.device.backend.buffer ? this.decodeGain(this.device.backend.buffer) : 1
+
+        // Create new preamp gainNode
+        this.preampNode     = this.device.backend.ac.createGain()
+        this.replayGainNode = this.device.backend.ac.createGain()
+
+        this.device.backend.gainNode.gain.value = 0.5 // Set it low cause we amp it up with the gains below
+        this.preampNode.gain.value = this.preampGain // limit it to -1 <-> 1
+        this.replayGainNode.gain.value = replaygain
+
+        // Serial connect gains
+        this.device.backend.gainNode.connect(this.preampNode)
+                                    .connect(this.replayGainNode)
+                                    .connect(this.device.backend.ac.destination)
+    }
+
+    updatePlayGain(updateReplayGain=true) {
+        // Wavesurfer gives us access to the gainNode and audioContext in the backend
+        // It looks like wavesurfer connects/disconnects the node from the source/destination
+        // ... so we won't need to implement that'
+        this.preampNode.gain.value = this.preampGain
+        this.replayGainNode.gain.value = updateReplayGain ? this.decodeGain(this.device.backend.buffer) : this.replayGainNode.gain.value 
+    }
+
+    decodeGain(data) {
+        // Rough implementation of playGain
+        // Adapted from "https://github.com/est31/js-audio-normalizer"
+        let decodedBuffer = data.getChannelData(0)
+        let sliceLen = Math.floor(data.sampleRate * 0.05)
+        let avgs = []
+        let sum = 0.0
+            
+        for (var i = 0;i < decodedBuffer.length;i++) {
+            sum += decodedBuffer[i] ** 2
+
+            if (i % sliceLen === 0) {
+                sum = Math.sqrt(sum / sliceLen)
+                avgs.push(sum)
+                sum = 0
+            }
+        }
+
+        // Sort out the averages
+        avgs.sort((a,b) => {return a - b})
+
+        // Final calculated gain
+        let avgedVal = 1.0 / avgs[Math.floor(avgs.length * 0.95)]
+
+        // Return the normalized
+        // Note: gain is a val between 0 and 1 inclusive
+        return (avgedVal / 10)
     }
 }

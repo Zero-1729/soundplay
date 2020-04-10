@@ -34,6 +34,21 @@
                     Set whether player should be cleared or player cursor reset when playback finished.
                 </p>
             </div>
+
+            <div class="option-item">
+                <div class="flex">
+                    <h3>
+                        Persisted Play History
+                    </h3>
+                    <label class="switch further" :class="{checked: persistedHistory}">
+                        <input type="checkbox" v-model="persistedHistory"/>
+                        <span class="slider" :class="{checked: persistedHistory}"></span>
+                    </label>
+                </div>
+                <p class="info">
+                    Keep track of played track history outside shuffle mode.
+                </p>
+            </div>
         </div>
     </div>
 </template>
@@ -54,7 +69,8 @@
         methods: {
             ...mapActions([
                 'setAudioPlayback',
-                'setAudioPlaybackBehaviour'
+                'setAudioPlaybackBehaviour',
+                'setPersistedHistory'
             ]),
 
             handle_playbackrate(val) {
@@ -79,6 +95,15 @@
                 return this.appAudioPrefs.playbackRate.toFixed(2)
             },
 
+            persistedHistory: {
+                get() {
+                    return this.appAudioPrefs.persistedHistory
+                },
+                set(value) {
+                    this.setPersistedHistory(value)
+                }
+            },
+
             currentBehaviour: {
                 get() {
                     return this.appAudioPlaybackBehaviour
@@ -100,6 +125,11 @@
 
     input#settings-input
         margin-left 300px
+
+    .flex .switch.further
+        margin-left 318px
+        .slider
+            transition left .4s
 
     p.pushed
         margin-left 292px

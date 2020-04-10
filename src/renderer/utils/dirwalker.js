@@ -1,6 +1,8 @@
 const path = require('path')
 const fs   = require('fs')
 
+const { Exists } = require('./file')
+
 
 export default class FS {
     constructor(dir) {
@@ -14,27 +16,30 @@ export default class FS {
 
     walkTree(dir, callback, excludes) {
         // get all entires in the directory
-        let files = fs.readdirSync(dir)
+        // Only parse if the directory exists
+        if (Exists(dir)) {
+            let files = fs.readdirSync(dir)
 
-        // Walk through the current directory and get all files
-        for (var i = 0; i < files.length; i++) {
-            if (fs.statSync(path.join(dir, files[i])).isFile()) {
-                // perform whatever action on the discovered file
-                callback(path.join(dir, files[i]))
-            } else {
-                // check whether we are in an excluded folder
-                if (excludes.includes(files[i]
-                    .slice(
-                        files[i].lastIndexOf('/') + 1,
-                        files[i].length
-                    )
-                )) {
-                    // If so then we simply increment the counter;
-                    // ... move on
-                    i += 1
+            // Walk through the current directory and get all files
+            for (var i = 0; i < files.length; i++) {
+                if (fs.statSync(path.join(dir, files[i])).isFile()) {
+                    // perform whatever action on the discovered file
+                    callback(path.join(dir, files[i]))
                 } else {
-                    // restart the file fetch process in the new directory
-                    this.walkTree(path.join(dir, files[i]), callback, excludes)
+                    // check whether we are in an excluded folder
+                    if (excludes.includes(files[i]
+                        .slice(
+                            files[i].lastIndexOf('/') + 1,
+                            files[i].length
+                        )
+                    )) {
+                        // If so then we simply increment the counter;
+                        // ... move on
+                        i += 1
+                    } else {
+                        // restart the file fetch process in the new directory
+                        this.walkTree(path.join(dir, files[i]), callback, excludes)
+                    }
                 }
             }
         }

@@ -31,6 +31,23 @@
         <!-- On MacOS we use the 'hiddenInset' option on the titleBar, so we fake the behaviour -->
         <div class="hidden-title-bar-region"></div>
 
+        <!-- App About Panel -->
+        <div id="about-panel">
+            <div class="split-flex" id="about-content">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="62 53.912 120 118.176" width="160pt" height="158.176pt">
+                    <path d=" M 80.918 162.865 L 62 172.088 L 62.284 113 L 62.568 53.912 L 122.284 83.75 L 182 113.588 L 122 142.838 L 103.962 151.631 L 103.962 132.8 L 143.6 113.588 L 80.918 83.539 L 80.918 162.865 Z " fill-rule="evenodd" fill="rgb(255,255,255)"/>
+                </svg>
+                <div class="info-flex">
+                    <h1 class="title">Soundplay</h1>
+                    <p id="version"></p> <!-- Injected from view -->
+                    <p class="credits">Thanks to the users/devs that continue to contribute, test, and provide feedback.</p>
+                    <p class="rights">© 2018-20 Zero1729.<br>All rights reserved. </p>
+                </div>
+            </div>
+            <button id="about-button">OK</button>
+        </div>
+
+        <!-- Main Renderer View -->
         <div id="app"></div>
         <!-- Set `__static` path to static files in production -->
         <% if (!htmlWebpackPlugin.options.process.browser) { %>

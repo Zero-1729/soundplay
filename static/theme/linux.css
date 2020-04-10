@@ -11,7 +11,7 @@ p.info {
     margin-top: 4px !important;
 }
 
-input#search-input, input#search-input::placeholder {
+input#search-input {
     font-size: 11px !important;
 }
 

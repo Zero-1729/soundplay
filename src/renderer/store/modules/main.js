@@ -11,9 +11,6 @@ const {
         add,
         remove }               = require('./../../utils/list')
 
-const { TagName,
-        TagNameSingle }        = require('./../../utils/htmlQuery')
-
 // Helper for quickly getting the appropriate checker fn for relic tracks
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
@@ -41,7 +38,8 @@ const state = {
                 isOn: false,
                 am: 6,
                 pm: 6
-            }
+            },
+            sleepBlocker: true
         },
         audio: {
             playback_behaviour: 'reset', // Defaults to reset
@@ -267,12 +265,12 @@ const mutations = {
     },
 
     UNFAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
         state.music[index].favourite = false
     },
 
     TOGGLE_FAVOURITE_TRACK (state, track) {
-        let index = state.music.indexOf(track)
+        let index = getIndexFromKey(state.music, 'id', track.id)
 
         if (state.music[index].favourite) {
             state.music[index].favourite = false
@@ -387,6 +385,10 @@ const mutations = {
 
     DISPLAY_NOTIF (state, arg) {
         state.settings.ui.displayNotif = arg
+    },
+
+    SET_SLEEP_BLOCKER (state, value) {
+        state.settings.ui.sleepBlocker = value
     },
 
     // Audio
@@ -583,6 +585,10 @@ const actions = {
         commit('DISPLAY_NOTIF', arg)
     },
 
+    setSleepBlocker: ({ commit }, arg) => {
+        commit('SET_SLEEP_BLOCKER', arg)
+    },
+
     // Audio
     setAudioPlaybackBehaviour: ({ commit }, arg) => {
         commit("SET_AUDIO_PLAYBACK_BEHAVIOUR", arg)
@@ -694,6 +700,10 @@ const getters = {
         return state.settings.ui.displayNotif
     },
 
+    sleepBlocker (state) {
+        return state.settings.ui.sleepBlocker
+    },
+
     settingsOpen (state) {
         return state.settings.isOpen
     },
@@ -705,7 +715,7 @@ const getters = {
 
     appAudioEQ (state) {
         return state.settings.audio.eq
-    },
+    }
 }
 
 export default {

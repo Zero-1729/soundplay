@@ -48,22 +48,27 @@ The few features mentioned below were designed to meet this goal.
 
 - Cross-platform 
 - formats supported: mp3, mp4, m4a/aac, flac, wav, ogg, 3gpp
-- App Themes
-- Auto Night Mode
-- Night Theme change
+- Sleep Blocker (can be toggled on/off in settings)
+- Persisted app player state (player state is held even after machine slept)
+- App Themes (light/night/dark)
+- Auto Night Mode (night/dark)
+- Night Theme change (night/dark)
 - Player EQ
 - Track/Folder importing
+- Drag'n'Drop track and or folders (with tracks)
 - Playlists
 - Auto track categorization
 - Intuitive UI
+- ReplayGain [Experimental]
 - Player Looping (Single and All) and [(True) Shuffle](./docs/Dev%20Handbook#shuffle)
+- Persisted play history (aids True shuffle)
 - Album art support
 - Playback rate control
 - Sleep mode blocker
 - Minimize to tray
-- Support for media keys
+- Support for media keys (prev/play/pause/next)
 - Flexible 'Music' folder syncing
-- Play on fresh launch, with shuffle support. (Check commit `541d2c`)
+- Play on fresh launch. (Check commit `541d2c`)
 - Imported tracks added to currently playing playlist (as of commit `3e7144` v0.2.0-alpha)
 
 

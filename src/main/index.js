@@ -6,10 +6,11 @@ import {
         Menu,
         shell,
         ipcMain,
-        autoUpdater
+        powerSaveBlocker
     } from 'electron'
 
 const WindowManager = require('./utils/windowManager').default
+const PowerManager   = require('./utils/powerMonitor').default
 
 const { add, removePattern } = require('./../renderer/utils/list')
 
@@ -49,6 +50,12 @@ var startup_args = process.env.NODE_ENV != 'development' ?
 
 var mainWindow = null
 
+// Power blocker id
+var psb_id = null
+
+// Vue App data state
+var vue_state = null
+
 // Instantiate window manager state
 const windowState = WindowManager.init(app.getPath('userData'))
 
@@ -81,7 +88,7 @@ app.on('open-file', (event, arg) => {
     }
 })
 
-function createWindow () {
+const createWindow = () => {
     /**
     * Initial window options
     */
@@ -157,21 +164,42 @@ function createWindow () {
     })
 
     if (!(mpp || mp || mn)) { console.log('Media keys registration failed') }
+
+    // Power monitor fns
+    // Save window info before machine suspended to sleep
+    PowerManager.on('suspend', () => {
+        // Request vue state from renderer
+        mainWindow.send('send-vue-state')
+    })
+
+    // Restore Vue data
+    // When computer resumed
+    PowerManager.on('resume', () => {
+        mainWindow.send('inject-vue-state', vue_state)
+    })
+
+    // Save Vue state
+    ipcMain.on('save-vue-data', (event, arg) => {
+        vue_state = arg
+    })
+
+    // Clear vue data
+    ipcMain.on('clear-vue-data', (event, arg) => {
+        vue_state = null
+    })
+
+    // Sleep blocker fns
+    ipcMain.on('turn-on-sleep-blocker', (event, arg) => {
+        psb_id = powerSaveBlocker.start('prevent-display-sleep')
+    })
+
+    ipcMain.on('turn-off-sleep-blocker', (event, arg) => {
+        // The ids are initially launched with '0', then get incremented with each subsequent call
+	    powerSaveBlocker.stop(psb_id ? psb_id : 0)
+    })
 }
 
 app.on('ready', createWindow)
-
-// About panel info
-app.setAboutPanelOptions({
-    applicationName: "Soundplay",
-    applicationVersion: app.getVersion(),
-    copyright: "Copyright © 2020 Zero-1729",
-    version: "Alpha",
-    credits: "Special thanks to all users/devs that continue contribute, test, and provide feedback",
-    authors: 'Zero-1729',
-    website: "https://github.com/Zero-1729/soundplay",
-    iconPath: path.join(logosPath, 'icon_256x256.png')
-})
 
 app.on('window-all-closed', () => {
     // This ensures the state is always saved after each window is closed
@@ -216,18 +244,12 @@ const template = [
             {
                 label: 'About ' + app.name,
                 click() {
-                    app.showAboutPanel()
+                    mainWindow.send('show-about-panel')
                 }
             },
             {
                 label: `Version ${app.getVersion()} (64-bit)`,
                 enabled: false
-            },
-            {
-                label: 'Check for Updates...',
-                click() {
-                    // autoUpdater.checkForUpdates()
-                }
             },
             {
                 type: 'separator'
@@ -406,15 +428,6 @@ const template = [
         label: 'View',
         submenu: [
             {
-                role: 'reload'
-            },
-            {
-                role: 'forcereload'
-            },
-            {
-                type: 'separator'
-            },
-            {
                 label: 'Search',
                 accelerator: 'CmdOrCtrl+F',
                 click() {
@@ -423,6 +436,13 @@ const template = [
             },
             {
                 type: 'separator'
+            },
+            {
+                label: 'Show Playing Track',
+                accelerator: 'Shift+CmdOrCtrl+S',
+                click() {
+                    mainWindow.webContents.send('focus-playing-track')
+                }
             },
             {
                 type: 'separator'
@@ -439,6 +459,15 @@ const template = [
     {
         label: 'Window',
         submenu: [
+            {
+                role: 'reload'
+            },
+            {
+                role: 'forcereload'
+            },
+            {
+                type: 'separator'
+            },
             {
                 role: 'togglefullscreen'
             },
@@ -490,7 +519,6 @@ if (process.platform == 'darwin') {
                 template[0].submenu[0],
                 template[0].submenu[1],
                 template[0].submenu[2],
-                template[0].submenu[3],
                 {
                     label: 'Preferences',
                     click() {
@@ -545,7 +573,7 @@ if (process.platform == 'darwin') {
     )
 
     // Clear redundant entries
-    template[1].submenu = template[1].submenu.slice(4, 8)
+    template[1].submenu = template[1].submenu.slice(3, 8)
 
     // Edit the last menu entry 'Help'
     template[template.length - 1].submenu = [
@@ -579,22 +607,3 @@ if (process.platform == 'darwin') {
     
 const menu = Menu.buildFromTemplate(template)
 Menu.setApplicationMenu(menu)
-
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-
-autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */

@@ -5,16 +5,23 @@ const state = {
     loopSingle: false,
     loopAll: false,
     shuffle: false,
-    playbackRate: 1
+    playbackRate: 1,
+    persistedHistory: true
 }
 
 const mutations = {
     RESTORE_VOLUME (state) {
         state.volume = state.lastVolume
     },
+
     SET_VOLUME (state, val) {
         state.volume = val
     },
+
+    SET_PERSISTED_HISTORY (state, val) {
+        state.persistedHistory = val
+    },
+
     UPDATE_VOLUME (state, val) {
         state.volume = val
         state.lastVolume = val
@@ -68,6 +75,10 @@ const actions = {
         commit("SET_VOLUME", val)
     },
 
+    setPersistedHistory: ({ commit }, val) => {
+        commit("SET_PERSISTED_HISTORY", val)
+    },
+
     updateVolume: ({ commit }, val) => {
         commit("UPDATE_VOLUME", val)
     },
@@ -98,7 +109,8 @@ const getters = {
             loopSingle: state.loopSingle,
             loopAll: state.loopAll,
             shuffle: state.shuffle,
-            playbackRate: state.playbackRate
+            playbackRate: state.playbackRate,
+            persistedHistory: state.persistedHistory
         }
     }
 }

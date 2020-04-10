@@ -340,9 +340,9 @@
 
     .vertical-div-holder
         position absolute
-        top 112px
+        top 116px
         width 180px
-        height 256px
+        height 254px
         overflow-y auto
         transition height 0.3s ease
         transition-delay 0.3s

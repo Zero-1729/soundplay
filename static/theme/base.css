@@ -1,5 +1,78 @@
 /* General App colors */
 
+/* About Panel */
+#about-panel {
+    height: 0;
+    width: 640px;
+    transition: height 0.6s ease;
+    color: white;
+    visibility: hidden;
+    position: absolute;
+    right: 30px;
+    bottom: 32px;
+}
+
+#about-panel.show-panel {
+    height: 300px;
+    visibility: visible;
+    z-index: 9999999999;
+}
+
+#about-panel .split-flex {
+    display: flex;
+    flex-flow: row;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#about-panel .split-flex.show-content {
+    opacity: 1;
+}
+
+#about-panel svg {
+    margin-left: 70px;
+    margin-top: 45px;
+}
+
+#about-panel .info-flex {
+    padding-top: 40px;
+    padding-left: 50px;
+    padding-right: 40px;
+}
+
+#about-panel h1 {
+    font-size: 32px;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+#about-panel p#version {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
+
+#about-panel p.credits {
+    font-size: 14px;
+}
+
+#about-panel p.rights {
+    font-size: 10px;
+    margin-top: 40px;
+}
+
+#about-panel button#about-button {
+    position: absolute;
+    right: 30px;
+    bottom: 25px;
+    width: 80px;
+}
+
+#about-panel button#about-button:hover {
+    cursor: pointer;
+}
+
 /* Player */
 .middle .controls .shuffle-icon.on path.stroked {
     stroke: dodgerblue;
@@ -125,7 +198,7 @@ tbody tr:hover span {
     background: transparent;
 }
 
-.playlist-input-focus {
+input.playlist-input:focus {
     border-color: dodgerblue;
 }
 
@@ -172,8 +245,8 @@ tbody tr div.fav-bar.fav, tbody tr:hover div.fav-bar.fav {
     fill: white;
 }
 
-input#settings-input:focus {
-    border-bottom-color: dodgerblue;
+.option-item .flex input#settings-input:focus {
+    border-color: dodgerblue;
 }
 
 .flex .dialog-button-alt {

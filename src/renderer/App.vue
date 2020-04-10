@@ -59,6 +59,7 @@
                     @clearJobsFn="clearJobsFn"
                     @setJobsFn="setJobsFn"
                     @syncFiles="syncFiles"
+                    @handle_sleep_blocker="handle_sleep_blocker"
                     
                     :class="{'fade-pane': vars.appIsLoading}">
                 </router-view>
@@ -168,7 +169,7 @@
 
     const { getIndexFromKey }   = require('./utils/object')
 
-    const { isFile }            = require('./utils/file')
+    const { isFile, Exists }    = require('./utils/file')
 
     const { remote,
             dialog,
@@ -209,9 +210,11 @@
                 imported_non_sound_files: false, // To handle overloaded non sound
                 player: null,
                 pool: [],
+                dataRehydrated: false,
                 vars: {
                     index: -1,
                     currentPos: '-',
+                    playedPercent: 0,
                     currentTrack: null,
                     playingTarget: null,
                     playingCriteria: null,
@@ -297,10 +300,23 @@
                 }
             })
 
+            // About panel button event 
+            Id('about-button').addEventListener('click', () => {
+                Id('about-panel').classList.remove('show-panel')
+                Id('about-content').classList.remove('show-content')
+            })
+
             // Watch for window resizing to ensure thead's ths aligns properly with the tbody's tds
             // Lets resisze it if the scrollbars are visible on landing
             // and ellipses should be visible aswell
             window.addEventListener('resize', this.handle_window_resize)
+
+            // Turn on sleep blocker if enabled
+            if (this.sleepBlocker) {
+                ipcRenderer.send('turn-on-sleep-blocker')
+            } else {
+                ipcRenderer.send('turn-off-sleep-blocker')
+            }
 
             // Or use 'fullscreen' from window event listener
             ipcRenderer.on('enter-full-screen', () => {
@@ -323,9 +339,14 @@
                 if (arg.startup_args.length > 0 || arg.trigger_files.length > 0) {
                     // Catch in imports hook
                     // ... and when we check for duplicate tracks
-                    this.vars.autoplay = true
+                    let args_list = arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files
 
-                    this.addFiles(arg.startup_args.length > 0 ? arg.startup_args : arg.trigger_files)
+                    // Check if the first item is an actual track before setting autoplay
+                    if (Exists(args_list[0])) {
+                        this.vars.autoplay = true
+                    }
+
+                    this.addFiles(args_list)
                 }
 
                 ipcRenderer.send('clear-open-files', null)
@@ -334,6 +355,8 @@
             // Handle events thrown from main renderer (App Menu)
             // Single sound files import
             ipcRenderer.on('import-tracks', (event, arg) => {
+                let vm = this
+
                 remote.dialog.showOpenDialog({
                     buttonLabel: 'Import',
                     properties: ['openFile', 'multiSelections', 'showHiddenFiles'],
@@ -379,6 +402,21 @@
                 this.toggleAudioEQVisibility()
             })
 
+            // Display current playing track
+            ipcRenderer.on('focus-playing-track', (event, arg) => {
+                if (ClassNameSingle('playingTrack')) {
+                    ClassNameSingle('playingTrack').scrollIntoView({ behaviour: 'smooth' })
+                }
+            })
+
+            // Show about panel
+            ipcRenderer.on('show-about-panel', () => {
+                // reveal and inject version info
+                Id('about-panel').classList.add('show-panel')
+                Id('version').textContent = 'v' + remote.app.getVersion() + ' (Beta)'
+                Id('about-content').classList.add('show-content')
+            })
+
             // Resume last route
             if (this.appRoutes.mainRoute == '/settings') {
                 this.$router.push(this.appRoutes.childRoute)
@@ -386,46 +424,8 @@
                 this.$router.push(this.appRoutes.mainRoute)
             }
 
-            // Create autoNightMode scheduler
-            let vm = this
-
-            // Check whether in night mode time
-            if (this.appAutoNightMode) {
-                let {am, pm} = this.appAutoNightModeTime
-
-                let [hrs, min, sec] = getCurrentTime()
-
-                // Reschedule here
-                this.setJobsFn({
-                    start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
-                        if (vm.appAutoNightMode) {
-                            if (!vm.appNightMode) {
-                                vm.setNightMode(true)
-                            }
-                        }
-                    }),
-                    end: schedule.scheduleJob({hour: am, minute: 0}, function () {
-                        if (vm.appAutoNightMode) {
-                            if (vm.appNightMode) {
-                                vm.setNightMode(false)
-                            }
-                        }
-                    })
-                })
-
-                // Check if autoNightMode is set
-                if (isNightTime(hrs, formatTo24Hours(pm), am)) {
-                    // check whether we are in the night and adjust theme accordingly
-                    if (!this.appNightMode) {
-                        this.setNightMode(true)
-                    }
-                } else {
-                    if (this.appNightMode) {
-                        // Otherwise we turn it off
-                        this.setNightMode(false)
-                    }
-                }
-            }
+            // Check whether in night mode time and set if true
+            this.checkAndSetAutoNM()
 
             // Search
             ipcRenderer.on('focus-search', (event, arg) => {
@@ -488,17 +488,20 @@
                 volume: this.appAudioPrefs.volume,
                 loop: this.appAudioPrefs.loop,
                 mute: this.appAudioPrefs.mute,
-                shuffle: this.appAudioPrefs.shuffle,
                 progressColor: waveColors[this.appTheme].progressColor,
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor,
-                playbackRate: this.appAudioPrefs.playbackRate
+                playbackRate: this.appAudioPrefs.playbackRate,
+                normalize: true
             })
 
             // If EQ was enabled in last session, continue with it
             if (this.appAudioEQ.enabled) {
                 this.player.initEQ(this.appAudioEQ.channels)
             }
+
+            // Init gain nodes
+            this.player.initGainNodes()
 
             // If launched we fill the view with the appropriately filtered
             // ... set of tracks
@@ -514,33 +517,38 @@
                 // We set the loading flag here
                 this.vars.loadingTrack = false
 
-                if (!this.player.activated) {
-                    this.player.activate(this.vars.currentTrack, this.filteredPool)
-                }
-
-                new jsm.Reader(this.vars.currentTrack.source).setTagsToRead(['picture']).read({
-                    onSuccess: (tag) => {
-                        if (tag.tags.picture) {
-                            Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
-
-                            this.vars.foundArt = true
-                        } else {
-                            this.vars.foundArt = false
-                        }
-
-                         // Pass to scrobbler
-                        this.scrobbleData()
-                    },
-                    onError: (err) => {
-                        // If the metas can't be read then we know it has no album art
-                        this.vars.foundArt = false
-
-                        // If the tag is problematic, we just continue
-                        if (err.type == "tagFormat") {
-                            this.scrobbleData()
-                        }
+                if (!this.dataRehydrated) {
+                    if (!this.player.activated) {
+                        this.player.activate(this.vars.currentTrack, this.filteredPool)
                     }
-                })
+
+                    new jsm.Reader(this.vars.currentTrack.source).setTagsToRead(['picture']).read({
+                        onSuccess: (tag) => {
+                            if (tag.tags.picture) {
+                                Id('album-art').src = "data:image;base64," + Buffer(tag.tags.picture.data).base64Slice()
+
+                                this.vars.foundArt = true
+                            } else {
+                                this.vars.foundArt = false
+                            }
+
+                            // Pass to scrobbler
+                            this.scrobbleData()
+                        },
+                        onError: (err) => {
+                            // If the metas can't be read then we know it has no album art
+                            this.vars.foundArt = false
+
+                            // If the tag is problematic, we just continue
+                            if (err.type == "tagFormat") {
+                                this.scrobbleData()
+                            }
+                        }
+                    })
+                } else {
+                    this.player.device.seekAndCenter(this.vars.playedPercent)
+                    this.dataRehydrated = false
+                }
             })
 
             this.player.device.on('audioprocess', () => {
@@ -622,6 +630,16 @@
                     }
                 }
 
+                // Fill playhistory
+                // If persisted disabled then we can only refill in shuffle mode 
+                if (this.appAudioPrefs.persistedHistory) {
+                    this.player.fillHistory(this.filteredPool, oindex)
+                } else {
+                    if (this.appAudioPrefs.shuffle) {
+                        this.player.fillHistory(this.filteredPool, oindex)
+                    }
+                }
+
                 let shouldPlayNext = (this.filteredPool.length > 0) &&
                                     (cindex < this.filteredPool.length)
                                     && (!onLoop) && (!EOSP)
@@ -635,6 +653,58 @@
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
                 }
+            })
+
+            // Send vue data
+            ipcRenderer.on('send-vue-state', (event, arg) => {
+                ipcRenderer.send('save-vue-data', {
+                    pool: this.$data.pool,
+                    imports: this.$data.imports,
+                    player: {
+                        activated: this.$data.player.activated,
+                        cleared: this.$data.player.cleared,
+                        currentTrack: this.$data.player.currentTrack,
+                        playHistory: this.$data.player.playHistory,
+                        tmpPlayHistory: this.$data.player.tmpPlayHistory,
+                        randoms: this.$data.player.randoms,
+                        device: {
+                            backend: {
+                                startPosition: this.$data.player.device.backend.startPosition,
+                                lastPlay: this.$data.player.device.backend.lastPlay
+                            }
+                        }
+                    },
+                    currentPos: this.player.getCurrentPos(),
+                    playedPercent: this.player.device.backend.getPlayedPercents(),
+                    vars: {
+                        index: this.vars.index,
+                        currentPos: this.vars.currentPos,
+                        currentTrack: this.vars.currentTrack,
+                        playingTarget: this.vars.playingTarget,
+                        playingCriteria: this.vars.playingCriteria,
+                        skippedCurrentTrack: this.vars.skippedCurrentTrack,
+                        reset_current_track: this.vars.reset_current_track,
+                        searchText: this.vars.searchText,
+                        loadingTrack: this.vars.loadingTrack,
+                        appIsLoading: this.vars.appIsLoading,
+                        autoplay: this.vars.autoplay,
+                        lock: this.vars.lock,
+                        playlistFocus: this.vars.playlistFocus,
+                        modals: this.vars.modals,
+                        jobs: this.vars.jobs,
+                        reporter: this.vars.reporter,
+                        foundArt: this.vars.foundArt
+                    },
+                    art: Id('album-art').src
+                })
+            })
+
+            // Restore vue data
+            ipcRenderer.on('inject-vue-state', (event, arg) => {
+                // replace current data
+                this.restoreVueState(arg)
+
+                ipcRenderer.send('clear-vue-data')
             })
         },
         watch: {
@@ -683,78 +753,77 @@
             },
 
             'vars.currentTrack' (cur, old) {
-                // Reset flag
-                if (this.reset_current_track) {
-                    this.reset_current_track = false
-                }
+                if (!this.dataRehydrated) {
+                    // Reset flag
+                    if (this.reset_current_track) {
+                        this.reset_current_track = false
+                    }
 
-                if (cur) {
-                    // Loading state init
-                    this.vars.loadingTrack = true
+                    if (cur) {
+                        // Loading state init
+                        this.vars.loadingTrack = true
 
-                    let ret = this.player.playNew(cur.source)
+                        let ret = this.player.playNew(cur.source)
 
-                    if (!ret) {
-                        // Means it was from an external source (like a hard drive or something)
-                        // If track has been renamed or deleted on the machine or tracks are locked
-                        // ... We proceed to skip it
-                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
-                        let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
+                        if (!ret) {
+                            // Means it was from an external source (like a hard drive or something)
+                            // If track has been renamed or deleted on the machine or tracks are locked
+                            // ... We proceed to skip it
+                            let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                            let oindex = old ? getIndexFromKey(this.filteredPool, 'id', old.id) : -1
 
-                        // First, we remove it from `randoms` if in shuffle mode
-                        if (this.appAudioPrefs.shuffle) {
-                            // We only need to rid the playhistory of it
-                            // ... as it was not played
-                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (0)
-                            this.vars.skippedCurrentTrack = true
-                        }
-
-                        // If the initial path is on the host machine
-                        // ... we can delete the track
-                        if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
-                            // We assume the track was deleted off the fs or moved to another location
-                            this.deleteTrack(cur)
-
-                            // Lets clear the wave DOM that might be created as well
-                            // That's if it was the last track
-                            // TODO: in the future, if loopAll triggers playing from top again
-                            // ... we must ensure the behaviour below does not get in the way
-                            if (cindex == this.filteredPool.length - 1) {
-                                // reset index
-                                this.vars.index = -1
-                                // reset current
-                                this.vars.reset_current_track = true
-
-                                // Avoids trying to trigger playback
-                                return
+                            // First, we remove it from `randoms` if in shuffle mode
+                            if (this.appAudioPrefs.shuffle) {
+                                // We only need to rid the playhistory of it
+                                // ... as it was not played
+                                this.vars.skippedCurrentTrack = true
                             }
-                        } else {
-                            // Dim track if from external drive
-                            if (TagName('tr').length > 0) {
-                                TagName('tr')[cindex + 1].classList.add('dim-track')
-                            }
-                        }
 
-                        // Then seek to next playable track, if its ahead of previously playing track
-                        if ((oindex < cindex) || this.appAudioPrefs.shuffle) {
-                            // [WIP] watch to see if it is appropriately called and if it solves the double play problem (1)
+                            // If the initial path is on the host machine
+                            // ... we can delete the track
+                            if (cur.source.slice(0, hostHomeDir.length) == hostHomeDir) {
+                                // We assume the track was deleted off the fs or moved to another location
+                                this.deleteTrack(cur)
+
+                                // Lets clear the wave DOM that might be created as well
+                                // That's if it was the last track
+                                // TODO: in the future, if loopAll triggers playing from top again
+                                // ... we must ensure the behaviour below does not get in the way
+                                if (cindex == this.filteredPool.length - 1) {
+                                    // reset index
+                                    this.vars.index = -1
+                                    // reset current
+                                    this.vars.reset_current_track = true
+
+                                    // Avoids trying to trigger playback
+                                    return
+                                }
+                            } else {
+                                // Dim track if from external drive
+                                if (TagName('tr').length > 0) {
+                                    TagName('tr')[cindex + 1].classList.add('dim-track')
+                                }
+                            }
+
+                            // Then seek to next playable track, if its ahead of previously playing track
                             // This is also triggered automatically in shuffle
                             // ... Remember the previous track is form the `playHistory` Array
                             // ... and this Array does not store unplayable tracks
                             // ... So we just keep moving on as the track essentially does not exist
                             this.nextTrack()
                         } else {
-                            this.prevTrack()
-                        }
-                    } else {
-                        // Not skipped
-                        this.vars.skippedCurrentTrack = false
+                            // Not skipped
+                            this.vars.skippedCurrentTrack = false
 
-                        let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
+                            let cindex = getIndexFromKey(this.filteredPool, 'id', cur.id)
 
-                        // Undim track 
-                        if (TagName('tr').length > 0) {
-                            TagName('tr')[cindex + 1].classList.remove('dim-track')
+                            // Undim track 
+                            if (TagName('tr').length > 0) {
+                                TagName('tr')[cindex + 1].classList.remove('dim-track')
+                            }
+
+                            // Clear album art
+                            this.vars.foundArt = false
                         }
                     }
                 }
@@ -840,7 +909,6 @@
                     }
 
                     // Overwrite success message with errors
-                    // [wip] wonky
                     if (this.error_imports.length > 0) {
                         // Then issues with non sound files
                         this.updateFailMessage({
@@ -851,7 +919,6 @@
                     }
 
                     // In case duplicated files are droped
-                    // [wip] wonky
                     if (this.failed_imports.length > 0) {
                         this.updateFailMessage({
                             heading: 'Detected potential sound file(s) duplication',
@@ -861,7 +928,6 @@
                     }
 
                     // Report warning
-                    // [wip] Works
                     if (this.warn_imports.length > 0) {
                         // Metas warning report
                         this.updateWarnMessage({
@@ -925,6 +991,80 @@
                 'toggleAudioEQVisibility'
             ]),
 
+            restoreVueState(data) {
+                this.dataRehydrated = true
+
+                this.pool = data.pool
+                this.vars = data.vars
+                this.imports = data.imports
+
+                // restore player state
+                this.player.activated = data.player.activated
+                this.player.bands = data.player.bands
+                this.player.cleared = data.player.cleared
+                this.player.currentTrack = data.player.currentTrack
+                this.player.playHistory = data.player.playHistory
+                this.player.randoms = data.player.randoms
+                this.player.tmpPlayHistory = data.player.tmpPlayHistory
+
+                if (data.vars.currentTrack) {
+                    this.player.playNew(data.vars.currentTrack.source)
+
+                    // Restore last player pos
+                    this.vars.playedPercent = data.playedPercent
+
+                    // Restore wave
+                    this.vars.currentPos = data.currentPos
+
+                    // Restore album art
+                    Id('album-art').src = data.art
+                }
+
+                this.checkAndSetAutoNM()
+            },
+
+            checkAndSetAutoNM() {
+                if (this.appAutoNightMode) {
+                    let {am, pm} = this.appAutoNightModeTime
+
+                    let [hrs, min, sec] = getCurrentTime()
+
+                    // Define vm
+                    let vm = this
+
+                    // Reschedule here
+                    this.setJobsFn({
+                        start: schedule.scheduleJob({hour: formatTo24Hours(pm), minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (!vm.appNightMode) {
+                                    vm.setNightMode(true)
+                                }
+                            }
+                        }),
+                        end: schedule.scheduleJob({hour: am, minute: 0}, function () {
+                            if (vm.appAutoNightMode) {
+                                if (vm.appNightMode) {
+                                    vm.setNightMode(false)
+                                }
+                            }
+                        })
+                    })
+
+                    // Check if autoNightMode is set
+                    if (isNightTime(hrs, formatTo24Hours(pm), am)) {
+                        // check whether we are in the night and adjust theme accordingly
+                        if (!this.appNightMode) {
+                            this.setNightMode(true)
+                        }
+                    } else {
+                        if (this.appNightMode) {
+                            // Otherwise we turn it off
+                            this.setNightMode(false)
+                        }
+                    }
+                }
+            },
+
             loadTheme() {
                 let head = TagNameSingle('head')
                 let linkExists = TagName('link').length > 0
@@ -959,7 +1099,7 @@
                     // Display album art only if found
                     icon: this.vars.foundArt ? 
                             Id('album-art').src :
-                            path.join(__static, 'icons', 'unknown.png')
+                            path.join(__static, 'icons', 'unkown-notif.png')
                 })
             },
 
@@ -976,6 +1116,11 @@
                         value: this.player.getDuration()
                     })
                 }
+
+                // We update the playGain before we play the audio
+                // Still experimental!
+                // If it is stable enough it would ship with the first official release
+                this.player.updatePlayGain()
 
                 // We immediately play track
                 this.player.device.play()
@@ -1300,6 +1445,14 @@
                 }
             },
 
+            handle_sleep_blocker(val) {
+                if (val) {
+                    ipcRenderer.send('turn-on-sleep-blocker')
+                } else {
+                    ipcRenderer.send('turn-off-sleep-blocker')
+                }
+            },
+
             setAppLoading(val) {
                 this.vars.appIsLoading = val
             },
@@ -1443,11 +1596,11 @@
                 this.imports -= 1
 
                 // We extract the 'tags' and 'filepath'
-                var tags = obj.tags
-                var fp = obj.track_name
+                let tags = obj.tags
+                let fp = obj.track_name
 
                 // We build our track template here
-                var meta = {
+                let meta = {
                     title: null,
                     artist: null,
                     album: null,
@@ -1499,6 +1652,13 @@
 
                     this.updateCurrentTrack(this.filteredPool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
+
+                    // Take it out of the randoms array
+                    if (this.appAudioPrefs.shuffle) {
+                        let cindex = getIndexFromKey(this.filteredPool, 'id', this.currentTrack.id)
+
+                        this.player.freeRandTrack(cindex)
+                    }
 
                     // Done with catch
                     this.vars.autoplay = false
@@ -1686,7 +1846,9 @@
                 'appAudioPrefs',
                 'appAudioPlaybackBehaviour',
                 'appRoutes',
-                'appNotifs'
+                'appNotifs',
+                'sleepBlocker',
+                'enableReplayGain'
             ]),
 
             filteredPool () {

@@ -23,9 +23,9 @@
         <div class="eq-inner-container" :class="{'disabled': appAudioEQ.enabled == false, 'enabled': appAudioEQ.enabled == true}">
             <div class="eq">
                 <div class="preamp-container">
-                    <input type="range" class="preamp" v-model="Preamp" :disabled="appAudioEQ.enabled == false">
+                    <input type="range" class="preamp" v-model="preamp" :disabled="appAudioEQ.enabled == false">
                     <div class="etches">
-                        <!-- I know its not the best solution -->
+                        <!-- I know it's not the best solution -->
                         <p>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+20 dB</p>
                         <p>-</p>
                         <p>-</p>
@@ -91,27 +91,7 @@
         ],
         data() {
             return {
-                presets: [
-                    'Flat',
-                    'Headphones',
-                    'Bass Boost',
-                    'Treble Boost',
-                    'Bass + Treble Boost',
-                    'Pop',
-                    'Rock',
-                    'Soft Rock',
-                    'Dance',
-                    'Techno',
-                    'Reggae',
-                    'Ska',
-                    'Soft',
-                    'Classical',
-                    'Large Hall',
-                    'Live',
-                    'Party',
-                    'Club'
-                ],
-                channelMutex: true
+                presets: Object.keys(presetEQs)
             }
         },
 
@@ -127,7 +107,8 @@
             ...mapActions([
                 'toggleAudioEQ',
                 'setAudioEQLevel',
-                'setAllAudioEQChannels'
+                'setAllAudioEQChannels',
+                'setChanMutex'
             ]),
 
             handler_toggleAudioEQ() {
@@ -135,26 +116,45 @@
             },
 
             resetChannels() {
-                this.channelMutex = true
+                this.setChanMutex(true)
+                // this.channelMutex = true
 
                 this.setEQ(TagNameSingle('select').value)
             },
 
+            setPreampLevel(value) {
+                let val = this.translateValue(value)
+
+                this.setAudioEQLevel({
+                    channel: 'preamp',
+                    value: val
+                })
+
+                // Update state of playerd preamp
+                this.player.updateEQChannel('preamp', val)
+
+                this.setChanMutex(false)
+                // this.channelMutex = false
+            },
+
             setEQLevel(range, channel, value) {
                 let val = this.translateValue(value)
+
                 // We need to sanitize the value for the player
                 let freq = range == 'KHz' ? channel + '000' : channel
 
                 // For individual EQ channel setting
                 this.setAudioEQLevel({
-                    channel: channel != null ? range + '_' + channel : range,
+                    channel: range + '_' + channel,
                     value: val
                 })
 
+                // Update player EQ Channel
                 this.player.updateEQChannel(freq, val)
 
                 // Unlock mutex
-                this.channelMutex = false
+                this.setChanMutex(false)
+                // this.channelMutex = false
             },
 
             setEQ(value) {
@@ -165,6 +165,12 @@
 
                 // Also sync setting with player
                 this.player.initEQ(presetEQs[preset])
+            },
+
+            getPreamp(val) {
+                // Translates and normalizes the preamp value 
+                // ... to a percentage on a scale of 80 (|-40| + 40, i.e. |min| + max)
+                return (this.translateValue(val) + 20) / 80
             },
 
             flipValue(val) {
@@ -185,16 +191,17 @@
         },
         computed: {
             ...mapGetters([
-                'appAudioEQ'
+                'appAudioEQ',
+                'channelMutex'
             ]),
 
             // EQ channels
-            Preamp: {
+            preamp: {
                 get() {
                     return this.reverseValue(this.appAudioEQ.channels.preamp)
                 },
                 set (value) {
-                    this.setEQLevel('preamp', null, value)
+                    this.setPreampLevel(value)
                 }
             },
 
@@ -302,6 +309,8 @@
         height 250px
         font-size 11px
         border-radius 2.5px
+        input:hover
+            cursor pointer
         h4
             user-select none
         .preset-container
