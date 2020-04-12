@@ -1096,6 +1096,7 @@
                 new Notification(this.vars.currentTrack.title, {
                     body: this.vars.currentTrack.artist,
                     silent: true,
+                    timeout: 2,
                     // Display album art only if found
                     icon: this.vars.foundArt ? 
                             Id('album-art').src :
