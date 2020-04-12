@@ -15,7 +15,7 @@ Please check the [contributing docs](./docs/CONTRIBUTING.md)
 
 ## Installation :computer:
 
-> **Note**: After the v.0.2.2 (Aplha) release, prebuilt binaries would be available for MacOS, Linux and Windows [here](https://github.com/Zero-1729/soundplay/releases)
+> **Note**: After the v.0.3.0 release, prebuilt binaries would be available for MacOS, Linux and Windows [here](https://github.com/Zero-1729/soundplay/releases)
 
 At the moment no prebuilt binaries are available, however, you can follow the build instructions below to manually package it.
 
