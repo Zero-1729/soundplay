@@ -14,7 +14,7 @@ export default class Player {
         this.playedIDs   = [] // For storing IDs of played tracks in shuffle mode
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
-        this.preampGain = 0 // We keep track of the preamp's current value
+        this.preampGain = 1 // We keep track of the preamp's current value
         this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
         this.replayGainNode = null // the gain value is updated each time we recalc the replayGain (-1 <= x <= 1)
         this.bands = {
@@ -438,10 +438,16 @@ export default class Player {
         avgs.sort((a,b) => {return a - b})
 
         // Final calculated gain
-        let avgedVal = 1.0 / avgs[Math.floor(avgs.length * 0.95)]
+        // let avgedVal = 1.0 / avgs[Math.floor(avgs.length * 0.95)]
+        let normalizedAvg = 1.0 / avgs[Math.floor(avgs.length * 0.5)]
+
+        this.prevGain = this.replayGainNode.gain.value
+
+        // console.log(`raw avg: ${avgedVal}, raw normalized: ${normalizedAvg}, adj. avg: ${Math.E * (avgedVal / 10)} adj. normalized: ${Math.E * (normalizedAvg / 10)}, prevGain: ${this.prevGain}, delta: ${Math.E * (normalizedAvg / 10) - this.prevGain / this.prevGain}`)
 
         // Return the normalized
         // Note: gain is a val between 0 and 1 inclusive
-        return (avgedVal / 10)
+        // Flatten value over Euler's Num
+        return Math.E * (normalizedAvg / 10)
     }
 }
