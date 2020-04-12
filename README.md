@@ -47,4 +47,4 @@ $ npm run dev
 
 ---
 
-MIT &copy; 2020 Zero-1729
+MIT &copy; 2018-present Zero-1729
