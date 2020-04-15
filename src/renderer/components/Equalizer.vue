@@ -117,7 +117,6 @@
 
             resetChannels() {
                 this.setChanMutex(true)
-                // this.channelMutex = true
 
                 this.setEQ(TagNameSingle('select').value)
             },
@@ -134,7 +133,6 @@
                 this.player.updateEQChannel('preamp', val)
 
                 this.setChanMutex(false)
-                // this.channelMutex = false
             },
 
             setEQLevel(range, channel, value) {
@@ -154,7 +152,6 @@
 
                 // Unlock mutex
                 this.setChanMutex(false)
-                // this.channelMutex = false
             },
 
             setEQ(value) {
