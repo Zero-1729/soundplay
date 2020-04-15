@@ -152,19 +152,21 @@ While the EQ currently lets the user select some presets, it is also possible to
 
 > Note: The preamp would be connected to the player in the comming Beta release.
 
-## Player EQ and ReplayGain integration
+## Player EQ integration
 
-We connect our backend's gainNode to the preamp and replaygain to our audioContext destination linearly.
+> ReplayGain has been removed until a proper implementation is ready.
+
+We connect our backend's gainNode to the preamp (gainNode) and finally to our audioContext destination linearly, as shown below:
 
 ```
- ------------      -------------------      -----------------------      ----------------
-|  gainNode  | -> | preamp (gainNode) | -> | ReplayGain (gainNode) | -> | ac destination |
- ------------      -------------------      -----------------------      ----------------
+ -------------------------      -------------------      ----------------
+|  (default ac) gainNode  | -> | preamp (gainNode) | -> | ac destination |
+ -------------------------      -------------------      ----------------
 
 * ac - (WebAudio) AudioContext
 ```
 
-Updating the values of the preamp or the replay gain triggers an update in the values of their gainNode values.
+Updating the values of the preamp updates its gainNode gain value.
 
 ---
 
