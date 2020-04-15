@@ -492,7 +492,7 @@
                 cursorColor:  waveColors[this.appTheme].cursorColor,
                 waveColor:  waveColors[this.appTheme].waveColor,
                 playbackRate: this.appAudioPrefs.playbackRate,
-                normalize: true
+                normalize: true // normalizes displayed waveforms
             })
 
             // If EQ was enabled in last session, continue with it
