@@ -16,7 +16,6 @@ export default class Player {
         this.randoms = [] // Shuffled indexes array
         this.preampGain = 1 // We keep track of the preamp's current value
         this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
-        this.replayGainNode = null // the gain value is updated each time we recalc the replayGain (-1 <= x <= 1)
         this.bands = {
             'preamp': "preamp",
             60: "Hz_60",
@@ -291,7 +290,7 @@ export default class Player {
             f: 16000,
             type: 'highshelf',
             value: temp[this.bands[16000]]
-        }], true)
+        }])
     }
 
     updateEQChannel(channel, val) {
@@ -299,7 +298,6 @@ export default class Player {
             // Update preamp
             this.preampGain = val / 40
 
-            this.updatePlayGain()
         } else {
             // update specific band channel
             let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
@@ -383,71 +381,16 @@ export default class Player {
 
         // Connect filters to wavesurfer
         this.device.backend.setFilters(filters)
-
-        // Add gains
-        if (this.device.backend.buffer) {
-            // Only update the gain if a track has been loaded
-            this.updatePlayGain(false)
-        }
     }
 
-    initGainNodes() {
-        let replaygain = this.device.backend.buffer ? this.decodeGain(this.device.backend.buffer) : 1
-
+    initPreampGainNode() {
         // Create new preamp gainNode
         this.preampNode     = this.device.backend.ac.createGain()
-        this.replayGainNode = this.device.backend.ac.createGain()
-
         this.device.backend.gainNode.gain.value = 0.5 // Set it low cause we amp it up with the gains below
         this.preampNode.gain.value = this.preampGain // limit it to -1 <-> 1
-        this.replayGainNode.gain.value = replaygain
 
         // Serial connect gains
         this.device.backend.gainNode.connect(this.preampNode)
-                                    .connect(this.replayGainNode)
                                     .connect(this.device.backend.ac.destination)
-    }
-
-    updatePlayGain(updateReplayGain=true) {
-        // Wavesurfer gives us access to the gainNode and audioContext in the backend
-        // It looks like wavesurfer connects/disconnects the node from the source/destination
-        // ... so we won't need to implement that'
-        this.preampNode.gain.value = this.preampGain
-        this.replayGainNode.gain.value = updateReplayGain ? this.decodeGain(this.device.backend.buffer) : this.replayGainNode.gain.value 
-    }
-
-    decodeGain(data) {
-        // Rough implementation of playGain
-        // Adapted from "https://github.com/est31/js-audio-normalizer"
-        let decodedBuffer = data.getChannelData(0)
-        let sliceLen = Math.floor(data.sampleRate * 0.05)
-        let avgs = []
-        let sum = 0.0
-            
-        for (var i = 0;i < decodedBuffer.length;i++) {
-            sum += decodedBuffer[i] ** 2
-
-            if (i % sliceLen === 0) {
-                sum = Math.sqrt(sum / sliceLen)
-                avgs.push(sum)
-                sum = 0
-            }
-        }
-
-        // Sort out the averages
-        avgs.sort((a,b) => {return a - b})
-
-        // Final calculated gain
-        // let avgedVal = 1.0 / avgs[Math.floor(avgs.length * 0.95)]
-        let normalizedAvg = 1.0 / avgs[Math.floor(avgs.length * 0.5)]
-
-        this.prevGain = this.replayGainNode.gain.value
-
-        // console.log(`raw avg: ${avgedVal}, raw normalized: ${normalizedAvg}, adj. avg: ${Math.E * (avgedVal / 10)} adj. normalized: ${Math.E * (normalizedAvg / 10)}, prevGain: ${this.prevGain}, delta: ${Math.E * (normalizedAvg / 10) - this.prevGain / this.prevGain}`)
-
-        // Return the normalized
-        // Note: gain is a val between 0 and 1 inclusive
-        // Flatten value over Euler's Num
-        return Math.E * (normalizedAvg / 10)
     }
 }
