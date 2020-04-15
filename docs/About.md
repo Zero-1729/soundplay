@@ -67,7 +67,7 @@ The few features mentioned below were designed to meet this goal.
 - Minimize to tray
 - Support for media keys (prev/play/pause/next)
 - Flexible 'Music' folder syncing
-- Play on fresh launch. (Check commit `541d2c`)
+- Play tracks by pressing the space key on a fresh launch. (Check commit `541d2c`)
 - Imported tracks added to currently playing playlist (as of commit `3e7144` v0.2.0-alpha)
 
 
