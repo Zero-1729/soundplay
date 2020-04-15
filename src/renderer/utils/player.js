@@ -14,7 +14,7 @@ export default class Player {
         this.playedIDs   = [] // For storing IDs of played tracks in shuffle mode
         this.tmpPlayHistory = [] // Stores the last 10 played tracks
         this.randoms = [] // Shuffled indexes array
-        this.preampGain = 1 // We keep track of the preamp's current value
+        this.preampGain = 0 // We keep track of the preamp's current value
         this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
         this.bands = {
             'preamp': "preamp",
@@ -296,8 +296,10 @@ export default class Player {
     updateEQChannel(channel, val) {
         if (channel == 'preamp') {
             // Update preamp
-            this.preampGain = val / 40
+            this.preampGain = val / 20
 
+            // Mutate preampGainNode value
+            this.preampNode.gain.value = this.preampGain
         } else {
             // update specific band channel
             let index = getIndexFromKey(this.device.backend.filters, 'frequency.value', channel)
@@ -308,7 +310,7 @@ export default class Player {
     }
 
     resetEQ() {
-        this.connectEQ(12 / 40, [{
+        this.connectEQ(0, [{
             f: 60,
             type: 'lowshelf',
             value: 0
@@ -362,7 +364,9 @@ export default class Player {
 
     connectEQ(preamp_value, eq) {
         // Update preamp
-        this.preampGain = preamp_value / 40
+        // If the amp is off 
+        this.preampGain = preamp_value / 20
+        this.preampNode.gain.value = preamp_value
 
         // Create filters
         let filters = []
@@ -386,7 +390,6 @@ export default class Player {
     initPreampGainNode() {
         // Create new preamp gainNode
         this.preampNode     = this.device.backend.ac.createGain()
-        this.device.backend.gainNode.gain.value = 0.5 // Set it low cause we amp it up with the gains below
         this.preampNode.gain.value = this.preampGain // limit it to -1 <-> 1
 
         // Serial connect gains
