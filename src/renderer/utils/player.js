@@ -186,10 +186,13 @@ export default class Player {
             this.playHistory.push(index)
 
             // Store ID
-            this.playedIDs.push(pool[index].id)
+            if (pool[index]) this.playedIDs.push(pool[index].id)
         } else {
             this.playHistory = [index]
-            this.playedIDs   = [pool[index].id]
+
+            if (pool[index]) {
+                this.playedIDs   = [pool[index].id]
+            }
         }
     }
 
