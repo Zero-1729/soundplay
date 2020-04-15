@@ -495,6 +495,9 @@
                 normalize: true // normalizes displayed waveforms
             })
 
+            // Init preamp gain node
+            this.player.initPreampGainNode()
+
             // If EQ was enabled in last session, continue with it
             if (this.appAudioEQ.enabled) {
                 this.player.initEQ(this.appAudioEQ.channels)
