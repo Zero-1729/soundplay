@@ -7,8 +7,6 @@ The Next Gen Minimalist Cross-Platform Sound Player
 
 ## Contributing
 
-> **Note**: The contributing guidlines would be strictly followed after the official v0.2.x release.
-
 Please check the [contributing docs](./docs/CONTRIBUTING.md)
 
 ---
