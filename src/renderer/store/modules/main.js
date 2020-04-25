@@ -11,6 +11,9 @@ const {
         add,
         remove }               = require('./../../utils/list')
 
+const FlatEQPreset  = require('./../../data/preset_eqs.json')['Flat']
+
+
 // Helper for quickly getting the appropriate checker fn for relic tracks
 const relicFnCehcks = {
     '80s': (n) => { return n >= 1980 && n <= 1989 },
@@ -48,17 +51,17 @@ const state = {
                 preset: 'Flat',
                 channels: {
                     // Flat preset is the default
-                    preamp: 12,
-                    Hz_60: 0,
-                    Hz_170: 0,
-                    Hz_310: 0,
-                    Hz_600: 0,
-                    KHz_1: 0,
-                    KHz_3: 0,
-                    KHz_6: 0,
-                    KHz_12: 0,
-                    KHz_14: 0,
-                    KHz_16: 0
+                    preamp: FlatEQPreset.preamp,
+                    Hz_60: FlatEQPreset.Hz_60,
+                    Hz_170: FlatEQPreset.Hz_170,
+                    Hz_310: FlatEQPreset.Hz_310,
+                    Hz_600: FlatEQPreset.Hz_600,
+                    KHz_1: FlatEQPreset.KHz_1,
+                    KHz_3: FlatEQPreset.KHz_3,
+                    KHz_6: FlatEQPreset.KHz_6,
+                    KHz_12: FlatEQPreset.KHz_12,
+                    KHz_14: FlatEQPreset.KHz_14,
+                    KHz_16: FlatEQPreset.KHz_16
                 },
 
                 // Variable to assert whether the EQ is 'on' or 'off'
