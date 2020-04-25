@@ -10,10 +10,9 @@ export default class Player {
         this.currentTrack = track
         this.activated = false // Flag for state of player. i.e. newly launched
         this.cleared = false // Flag for detecting whether current playing track was just deleted
-        this.playHistory = [] // For storing all previously played tracks in shuffle mode (before reaching the end of playback)
-        this.playedIDs   = [] // For storing IDs of played tracks in shuffle mode
-        this.tmpPlayHistory = [] // Stores the last 10 played tracks
-        this.randoms = [] // Shuffled indexes array
+        this.playedIDs   = [] // For storing IDs of previously played tracks in shuffle mode (before reaching the end of playback)
+        this.tmpPlayedIDs = [] // Stores the last 10 played tracks
+        this.randoms = [] // Shuffled array of IDs for shuffle mode
         this.preampGain = 0 // We keep track of the preamp's current value
         this.preampNode = null // We create this once and adjust the gain value when preamp value changed (-1 <= x <= 1)
         this.bands = {
@@ -156,16 +155,16 @@ export default class Player {
     }
 
     getNextRandom(currentTrack, pool, exclude=false) {
-        let index = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
+        let id = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
-        if (!exclude && (index != -1)) {
-            if (this.tmpPlayHistory.length <= 10) {
-                this.tmpPlayHistory.push(index)
+        if (!exclude && (id != -1)) {
+            if (this.tmpPlayedIDs.length <= 10) {
+                this.tmpPlayedIDs.push(id)
             } else {
-                this.tmpPlayHistory = [index]
+                this.tmpPlayedIDs = [id]
             }
         }
 
@@ -182,15 +181,11 @@ export default class Player {
 
     fillHistory(pool, index) {
         // All indexes are pushed until the floor is reached
-        if (!(pool.length == this.playHistory.length)) {
-            this.playHistory.push(index)
-
-            // Store ID
-            if (pool[index]) this.playedIDs.push(pool[index].id)
-        } else {
-            this.playHistory = [index]
-
-            if (pool[index]) {
+        if (pool[index]) {
+            if (!(pool.length == this.playedIDs.length)) {
+                // Store ID
+                this.playedIDs.push(pool[index].id)
+            } else {
                 this.playedIDs   = [pool[index].id]
             }
         }
@@ -212,17 +207,16 @@ export default class Player {
         }
 
         // Fill randoms with newly created (in place) shuffled indexes
-        this.randoms = tmpPool.map((item) => { return pool.indexOf(item) })
+        // Use indexes instead of indexes to circumvent locality issues
+        this.randoms = tmpPool.map((item) => { return item.id })
 
         // Remove alreaady played tracks
         // Only triggered if playing target resumed to avoid collisions
         // ... since the randoms is refilled each time its updated
         if (excludePlayed) {
-            for (var x = 0;x < this.playHistory.length;x++) {
-                this.randoms = remove(this.randoms, this.playHistory[x])
-
+            for (var x = 0;x < this.playedIDs.length;x++) {
                 // Also removed played tracks using IDs
-                this.randoms = remove(this.randoms, getIndexFromKey(pool, 'id', this.playedIDs[x]))
+                this.randoms = remove(this.randoms, this.playedIDs[x])
             }
         }
     }
@@ -230,16 +224,16 @@ export default class Player {
     // We don't want indexes from previous 'pools' to persist
     emptyRandoms() { this.randoms = [] }
 
-    freeRandTrack (index) {
+    freeRandTrack (id) {
         // Fn should be invoked oonly when a track has been deleted or added
         // ... as randoms is popped, so this has no effect
         // Removes a track from the set of `this.randoms` to avoid potential double play
-        this.randoms = remove(this.randoms, index)
+        this.randoms = remove(this.randoms, id)
     }
 
     clearHistory () {
-        this.playHistory = []
-        this.tmpPlayHistory = []
+        this.playedIDs    = []
+        this.tmpPlayedIDs = []
     }
 
     initEQ(temp) {
