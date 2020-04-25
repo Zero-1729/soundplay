@@ -411,9 +411,11 @@
 
             // Show about panel
             ipcRenderer.on('show-about-panel', () => {
+                let ver = remote.app.getVersion()
+
                 // reveal and inject version info
                 Id('about-panel').classList.add('show-panel')
-                Id('version').textContent = 'v' + remote.app.getVersion() + ' (Beta)'
+                Id('version').textContent = 'v' + ver + (ver.includes('-b') ? ' (Beta)' : (ver.includes('-a') ? 'Alpha' : ''))
                 Id('about-content').classList.add('show-content')
             })
 
