@@ -299,7 +299,7 @@ export default class Player {
     updateEQChannel(channel, val) {
         if (channel == 'preamp') {
             // Update preamp
-            this.preampGain = val / 20
+            this.preampGain = val
 
             // Mutate preampGainNode value
             this.preampNode.gain.value = this.preampGain
@@ -368,7 +368,7 @@ export default class Player {
     connectEQ(preamp_value, eq) {
         // Update preamp
         // If the amp is off 
-        this.preampGain = preamp_value / 20
+        this.preampGain = preamp_value
         this.preampNode.gain.value = preamp_value
 
         // Create filters

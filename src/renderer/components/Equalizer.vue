@@ -122,7 +122,7 @@
             },
 
             setPreampLevel(value) {
-                let val = this.translateValue(value)
+                let val = this.normalizePreamp(this.translateValue(value))
 
                 this.setAudioEQLevel({
                     channel: 'preamp',
@@ -156,17 +156,22 @@
 
             setEQ(value) {
                 // Setting preset for EQ
-                let preset = !value ? event.target.value : value
+                let preset_name = !value ? event.target.value : value
+                let preset      = presetEQs[preset_name]
 
-                this.setAllAudioEQChannels({preset: preset, channels: presetEQs[preset]})
+                // normalize Preamp
+                preset.preamp = this.normalizePreamp(preset.preamp)
+
+                this.setAllAudioEQChannels({preset: preset_name, channels: preset})
 
                 // Also sync setting with player
-                this.player.initEQ(presetEQs[preset])
+                this.player.initEQ(preset)
             },
 
             getPreamp(val) {
                 // Translates and normalizes the preamp value 
                 // ... to a percentage on a scale of 40 (|-20| + 20, i.e. |min| + max)
+                // REM: return as a percentage of 20db
                 return (this.translateValue(val) + 20) / 40
             },
 
@@ -184,6 +189,11 @@
 
             reverseValue(val) {
                 return this.flipValue(((val + 20) * 5) / 2)
+            },
+
+            normalizePreamp(v) {
+                // Preamp is a (negative/positive) percentage between -20db - 20db
+                return v / 20
             }
         },
         computed: {
