@@ -1200,9 +1200,9 @@
                 // If in shuffle, we need to remove it from the `randoms` set
                 // ... we don't want it to later be played
                 if (this.appAudioPrefs.shuffle && track) {
-                    let cindex = getIndexFromKey(this.filteredPool, 'id', track.id)
+                    let cid = getIndexFromKey(this.filteredPool, 'id', track.id)
 
-                    this.player.freeRandTrack(cindex)
+                    this.player.freeRandTrack(cid)
                 }
             },
 
@@ -1646,16 +1646,20 @@
                 // If new track and autoplay triggered
                 // We automatically play it
                 if (this.vars.autoplay) {
-                    let cindex = getIndexFromKey(this.filteredPool, 'source', meta.source)
+                    // This means it we would play tracks that are even outside the current context
+                    let cindex = getIndexFromKey(this.pool, 'source', meta.source)
 
-                    this.updateCurrentTrack(this.filteredPool[cindex])
+                    this.updateCurrentTrack(this.pool[cindex])
                     this.player.playNew(this.vars.currentTrack.source)
+
+                    // Record in hisroty as played
+                    this.player.fillHistory(this.pool, cindex)
 
                     // Take it out of the randoms array
                     if (this.appAudioPrefs.shuffle) {
-                        let cindex = getIndexFromKey(this.filteredPool, 'id', this.currentTrack.id)
+                        let cid = getIndexFromKey(this.pool, 'id', this.currentTrack.id)
 
-                        this.player.freeRandTrack(cindex)
+                        this.player.freeRandTrack(cid)
                     }
 
                     // Done with catch
