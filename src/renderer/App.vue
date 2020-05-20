@@ -1647,18 +1647,20 @@
                 // We automatically play it
                 if (this.vars.autoplay) {
                     // This means it we would play tracks that are even outside the current context
-                    let cindex = getIndexFromKey(this.pool, 'source', meta.source)
+                    let cindex = getIndexFromKey(this.allTracks, 'source', meta.source)
 
-                    this.updateCurrentTrack(this.pool[cindex])
+                    this.updateCurrentTrack(this.allTracks[cindex])
+
+                    // Grab ID for shuffle del
+                    let cid = getIndexFromKey(this.allTracks, 'id', this.vars.currentTrack.id)
+
                     this.player.playNew(this.vars.currentTrack.source)
 
                     // Record in hisroty as played
-                    this.player.fillHistory(this.pool, cindex)
+                    this.player.fillHistory(this.allTracks, cindex)
 
                     // Take it out of the randoms array
                     if (this.appAudioPrefs.shuffle) {
-                        let cid = getIndexFromKey(this.pool, 'id', this.currentTrack.id)
-
                         this.player.freeRandTrack(cid)
                     }
 
