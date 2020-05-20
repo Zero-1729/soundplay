@@ -948,7 +948,7 @@
 
                     // Add new tracks to randoms
                     if (this.appAudioPrefs.shuffle) {
-                        this.player.fillRandoms(this.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
+                        this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
                     }
                 }
             },
