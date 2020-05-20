@@ -571,7 +571,11 @@
                 this.incrementPlayCount(this.vars.currentTrack)
 
                 // Store index of currentTrack
+                // NOTE: If we were playing an autoplayed track the 'oindex' would be -1
+                // ... so it would play the first track next instead unless it is on single loop
+                // ... in which case it would just loop the current track
                 let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+
                 let cindex = oindex + 1 // Defaults to next track
                 let onLoop = this.appAudioPrefs.loopAll || this.appAudioPrefs.loopSingle
                 let hasFloor = (oindex == this.filteredPool.length - 1) &&
@@ -585,9 +589,10 @@
                 // ... only used when not in a loop
                 let EOSP = this.appAudioPrefs.shuffle ? this.player.randoms.length == 0 && (!hasFloor) && (!onLoop) : false
 
-                // If shuffle mode on, then we get the index to next track
+                // If shuffle mode on then we get the index to next track
                 // ... only if we haven't hit EOSP
-                if (this.appAudioPrefs.shuffle && (!EOSP)) {
+                // The current index must be in the view, if not it's likely an autoplayed track with an index from allTracks 
+                if (this.appAudioPrefs.shuffle && (!EOSP) && (oindex != -1)) {
                     cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
                 }
 
