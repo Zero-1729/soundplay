@@ -1693,7 +1693,7 @@
                 }).then(obj => {
                     // Here we simply obtain the JS Object containing the scanned tags and filepath
                     this.handle_new_track(obj)
-                }).catch(track_path => {
+                }).catch(err => {
                     // freeze data
                     // To be used to disallow reporting duplicate & bad meta messages
                     let autoplay = this.vars.autoplay
@@ -1710,14 +1710,14 @@
                             genre: null,
                             year: null
                         },
-                        track_name: track_path
+                        track_name: track
                     })
 
                     // Do not log error if autoplayed
                     // We don't need to bother the user with unecessary messages
                     if (!autoplay) {
                         // We just warn the user, but still go ahead and import it
-                        this.handle_new_track_warn(track_path)
+                        this.handle_new_track_warn(track)
                     }
                 })
             },
