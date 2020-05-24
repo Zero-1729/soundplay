@@ -1375,7 +1375,8 @@
                 // ... since the loop single does not move on, no need
                 if (this.appAudioPrefs.shuffle) {
                     // If shuffled, then grab next random index to play
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                    let cid = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                    cindex = getIndexFromKey(this.filteredPool, 'id', cid)
                 } else {
                     // Set to normal next track index from current track
                     cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
