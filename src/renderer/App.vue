@@ -736,7 +736,7 @@
                     // Refills with exclusion if we are in the playing Target
                     // ... we are assuming the user is triggering on/off
                     // ... to make playback consistent we ensure history is repected
-                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
+                    this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.appAudioPrefs.persistedHistory || this.appAudioPrefs.shuffle)
                 } else {
                     this.player.emptyRandoms()
                 }
@@ -875,7 +875,7 @@
                     // REM: current pool view is the queue
                     // When we refill we need to ensure that the already played tracks are excluded
                     // ... if the user is re-entered the playing target
-                    this.player.fillRandoms(this.vars.currentTrack, cur, this.currentTarget == this.vars.playingTarget)
+                    this.player.fillRandoms(this.vars.currentTrack, cur, this.appAudioPrefs.persistedHistory || this.appAudioPrefs.shuffle)
                 }
             },
 
@@ -948,7 +948,7 @@
 
                     // Add new tracks to randoms
                     if (this.appAudioPrefs.shuffle) {
-                        this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.currentTarget == this.vars.playingTarget)
+                        this.player.fillRandoms(this.vars.currentTrack, this.filteredPool, this.appAudioPrefs.persistedHistory || this.appAudioPrefs.shuffle)
                     }
                 }
             },
