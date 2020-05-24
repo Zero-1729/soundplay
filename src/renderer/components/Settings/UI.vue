@@ -92,6 +92,22 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
+                        Media controls
+                    </h3>
+                    <label class="switch media" :class="{checked: showMediaControls}">
+                        <input type="checkbox" v-model="showMediaControls"/>
+                        <span class="slider" :class="{checked: showMediaControls}"></span>
+                    </label>
+                </div>
+                <p class="info">
+                    Display media controls on album art.
+                </p>
+            </div>
+        </div>
+        <div class="option">
+            <div class="option-item">
+                <div class="flex">
+                    <h3>
                         Turn on sleep blocker
                     </h3>
                     <label class="switch tsb-red" :class="{checked: lowPowerBlocker}">
@@ -168,7 +184,8 @@
                 'setAutoNightModePm',
                 'setNightMode',
                 'displayNotif',
-                'setSleepBlocker'
+                'setSleepBlocker',
+                'setDisplayMediaControls'
             ]),
 
             reschedule() {
@@ -241,7 +258,8 @@
                 'appAutoNightMode',
                 'appAutoNightModeTime',
                 'appNotifs',
-                'sleepBlocker'
+                'sleepBlocker',
+                'displayMediaControls'
             ]),
 
             currentTheme: {
@@ -322,6 +340,14 @@
                 },
                 set(value) {
                     this.displayNotif(value)
+                }
+            },
+            showMediaControls: {
+                get() {
+                    return this.displayMediaControls
+                },
+                set(value) {
+                    this.setDisplayMediaControls(value)
                 }
             },
             lowPowerBlocker: {

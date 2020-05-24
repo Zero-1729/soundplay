@@ -4,13 +4,13 @@
             <div class="image-holder" :class="{darken: loading}">
                 <!-- nouveau controls -->
                 <!-- prev/play/next -->
-                <svg @click="trigger_prev" :class="{moved: showArt}" class="prev" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt"><polygon points="20,25,20,0,0,12.5" fill="rgb(116,116,116)"/><polygon points="25,25,25,0,5,12.5" fill="rgb(116,116,116)"/></svg>
+                <svg @click="trigger_prev" :class="{moved: showArt}" class="prev" v-if="displayMediaControls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt"><polygon points="20,25,20,0,0,12.5" fill="rgb(116,116,116)"/><polygon points="25,25,25,0,5,12.5" fill="rgb(116,116,116)"/></svg>
 
-                <svg @click="trigger_playpause" :class="{moved: showArt}" class="play" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
+                <svg @click="trigger_playpause" :class="{moved: showArt}" class="play" v-if="displayMediaControls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
                     <polygon points="0,25,0,0,25,12.5" fill="rgb(116,116,116)"/>
                 </svg>
 
-                <svg @click="trigger_next" class="next" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
+                <svg @click="trigger_next" class="next" v-if="displayMediaControls" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
                     <polygon points="5,25,5,0,25,12.5" fill="rgb(116,116,116)"/><polygon points="0,25,0,0,20,12.5" fill="rgb(116,116,116)"/>
                 </svg>
 
@@ -142,7 +142,8 @@
         },
         computed: {
             ...mapGetters([
-                'appAudioPrefs'
+                'appAudioPrefs',
+                'displayMediaControls'
             ]),
 
             currentTrack() {

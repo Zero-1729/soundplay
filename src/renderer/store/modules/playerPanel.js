@@ -6,7 +6,8 @@ const state = {
     loopAll: false,
     shuffle: false,
     playbackRate: 1,
-    persistedHistory: true
+    persistedHistory: true,
+    displayMediaControls: true // discuss the default with testers
 }
 
 const mutations = {
@@ -60,6 +61,10 @@ const mutations = {
         state.playbackRate = value
     },
 
+    SET_DISPLAY_MEDIA_CONTROLS (state, value) {
+        state.displayMediaControls = value
+    },
+
     TOGGLE_SHUFFLE (state) {
         state.shuffle = !state.shuffle
     }
@@ -95,6 +100,10 @@ const actions = {
         commit("SET_PLAYBACK_RATE", value)
     },
 
+    setDisplayMediaControls: ({ commit }, value) => {
+        commit("SET_DISPLAY_MEDIA_CONTROLS", value)
+    },
+
     toggleShuffle: ({ commit }) => {
         commit("TOGGLE_SHUFFLE")
     }
@@ -112,6 +121,9 @@ const getters = {
             playbackRate: state.playbackRate,
             persistedHistory: state.persistedHistory
         }
+    },
+    displayMediaControls(state) {
+        return state.displayMediaControls
     }
 }
 
