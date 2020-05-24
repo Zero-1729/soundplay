@@ -6,11 +6,20 @@
 */
 
 // Fn for Adding unique items to arrays
-const add = (list, item, basic=true, prop='id') => {
+const add = (list, item, basic=true, prop='id', checkTrack=false) => {
     for (var i = 0;i < list.length;i++) {
     	if (!basic) {
-            if (list[i][prop] == item[prop]) {
-                return list
+            if (checkTrack) {
+                // For a track to be considered a duplicate it must either have the same source or
+                // ... have the same title, album, and artist
+                if ((list[i][prop] == item[prop]) || 
+                    ((list[i]['title'] == item[prop]) && (list[i]['artist'] == item[prop]) && (list[i]['album'] == item[prop]))
+                )
+                    return list
+            } else {
+                if (list[i][prop] == item[prop]) {
+                    return list
+                }
             }
         } else {
             if (list[i] == item) {

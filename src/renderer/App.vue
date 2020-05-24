@@ -1629,7 +1629,8 @@
                 meta.activePlaylist = this.currentCriteria == 'playlist' ? this.currentTarget : null
 
                 // Only add the track if its not a duplicate
-                let result = add(this.allTracks, meta, false, 'source')
+                // Perform track dup check
+                let result = add(this.allTracks, meta, false, 'source', true)
 
                 // Lets check length instead
                 if (result.length > this.allTracks.length) {
