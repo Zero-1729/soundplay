@@ -665,8 +665,8 @@
                         activated: this.$data.player.activated,
                         cleared: this.$data.player.cleared,
                         currentTrack: this.$data.player.currentTrack,
-                        playHistory: this.$data.player.playHistory,
-                        tmpPlayHistory: this.$data.player.tmpPlayHistory,
+                        playedIDs: this.$data.player.playedIDs,
+                        tmpPlayedIDs: this.$data.player.tmpPlayedIDs,
                         randoms: this.$data.player.randoms,
                         device: {
                             backend: {
@@ -775,7 +775,7 @@
 
                             // First, we remove it from `randoms` if in shuffle mode
                             if (this.appAudioPrefs.shuffle) {
-                                // We only need to rid the playhistory of it
+                                // We only need to rid the playedIDs of it
                                 // ... as it was not played
                                 this.vars.skippedCurrentTrack = true
                             }
@@ -808,7 +808,7 @@
 
                             // Then seek to next playable track, if its ahead of previously playing track
                             // This is also triggered automatically in shuffle
-                            // ... Remember the previous track is form the `playHistory` Array
+                            // ... Remember the previous track is form the `playedIDs` Array
                             // ... and this Array does not store unplayable tracks
                             // ... So we just keep moving on as the track essentially does not exist
                             this.nextTrack()
@@ -1004,9 +1004,9 @@
                 this.player.bands = data.player.bands
                 this.player.cleared = data.player.cleared
                 this.player.currentTrack = data.player.currentTrack
-                this.player.playHistory = data.player.playHistory
+                this.player.playedIDs = data.player.playedIDs
                 this.player.randoms = data.player.randoms
-                this.player.tmpPlayHistory = data.player.tmpPlayHistory
+                this.player.tmpPlayedIDs = data.player.tmpPlayedIDs
 
                 if (data.vars.currentTrack) {
                     this.player.playNew(data.vars.currentTrack.source)
