@@ -619,7 +619,6 @@
                             this.vars.loadingTrack = true
 
                             this.updateCurrentTrack(this.filteredPool[0])
-                            this.player.playNew(this.vars.currentTrack.source)
 
                             // Player only needs to know we triggered play already
                             onLoop = true
@@ -637,14 +636,10 @@
                     }
                 }
 
-                // Fill playhistory
+                // Fill playedIDs
                 // If persisted disabled then we can only refill in shuffle mode 
-                if (this.appAudioPrefs.persistedHistory) {
+                if (this.appAudioPrefs.persistedHistory || this.appAudioPrefs.shuffle) {
                     this.player.fillHistory(this.filteredPool, oindex)
-                } else {
-                    if (this.appAudioPrefs.shuffle) {
-                        this.player.fillHistory(this.filteredPool, oindex)
-                    }
                 }
 
                 let shouldPlayNext = (this.filteredPool.length > 0) &&
@@ -658,7 +653,6 @@
                     this.vars.loadingTrack = true
 
                     this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
                 }
             })
 
@@ -1327,7 +1321,6 @@
                             this.vars.loadingTrack = true
 
                             this.updateCurrentTrack(this.filteredPool[index])
-                            this.player.playNew(this.vars.currentTrack.source)
                         } 
                     } else {
                         // We only attempt to play a new track if it does exist
@@ -1336,7 +1329,6 @@
 
                             // If not we play the track currently active (indexed)
                             this.updateCurrentTrack(this.filteredPool[this.vars.index])
-                            this.player.playNew(this.vars.currentTrack.source)
                         }
                     }
                 }
@@ -1365,7 +1357,6 @@
                     } else { cindex = cindex - 1 }
 
                     this.updateCurrentTrack(this.filteredPool[cindex])
-                    this.player.playNew(this.vars.currentTrack.source)
                 }
             },
 
@@ -1395,7 +1386,6 @@
 
                         // If true, we just play it!
                         this.updateCurrentTrack(this.filteredPool[cindex])
-                        this.player.playNew(this.vars.currentTrack.source)
                     }
                 }
             },
