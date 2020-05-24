@@ -593,7 +593,8 @@
                 // ... only if we haven't hit EOSP
                 // The current index must be in the view, if not it's likely an autoplayed track with an index from allTracks 
                 if (this.appAudioPrefs.shuffle && (!EOSP) && (oindex != -1)) {
-                    cindex = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                    let cid = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                    cindex = getIndexFromKey(this.filteredPool, 'id', cid)
                 }
 
                 // Loop code
@@ -1312,7 +1313,8 @@
                             // ... even if newly activated shuffle, this is handled as well
 
                             // then reset index
-                            index = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                            let cid = this.player.getNextRandom(this.vars.currentTrack, this.filteredPool, this.vars.skippedCurrentTrack)
+                            index = getIndexFromKey(this.filteredPool, 'id', cid)
                         }
           
                         // Only if there are indeed tracks to play
@@ -1350,10 +1352,12 @@
 
             prevTrack() {
                 let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+                let idx = this.filteredPool[this.player.tmpPlayedIDs.pop()]
 
-                if (cindex > 0) {
+                // Only trigger if a previous track exists
+                if ((cindex > 0) && idx) {
                     if (this.appAudioPrefs.shuffle) {
-                        cindex = this.player.tmpPlayHistory.pop()
+                        cindex = idx ? idx : cindex
                     } else { cindex = cindex - 1 }
 
                     this.updateCurrentTrack(this.filteredPool[cindex])
