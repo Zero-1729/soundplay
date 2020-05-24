@@ -2,7 +2,22 @@
     <div class="player-container">
         <div class="panel-holder">
             <div class="image-holder" :class="{darken: loading}">
+                <!-- nouveau controls -->
+                <!-- prev/play/next -->
+                <svg @click="trigger_prev" :class="{moved: showArt}" class="prev" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt"><polygon points="20,25,20,0,0,12.5" fill="rgb(116,116,116)"/><polygon points="25,25,25,0,5,12.5" fill="rgb(116,116,116)"/></svg>
+
+                <svg @click="trigger_playpause" :class="{moved: showArt}" class="play" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
+                    <polygon points="0,25,0,0,25,12.5" fill="rgb(116,116,116)"/>
+                </svg>
+
+                <svg @click="trigger_next" class="next" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 25 25" width="25pt" height="25pt">
+                    <polygon points="5,25,5,0,25,12.5" fill="rgb(116,116,116)"/><polygon points="0,25,0,0,20,12.5" fill="rgb(116,116,116)"/>
+                </svg>
+
+                <!-- ART -->
                 <img id="album-art" :class="{show: showArt}">
+
+                <!-- default ART -->
                 <svg class="default-album-art" :class="{show: !showArt, hide: showArt}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="56 56 400 400" width="82.5pt" height="82.5pt">
                     <path d=" M 56 256 C 56 145.617 145.617 56 256 56 C 366.383 56 456 145.617 456 256 C 456 366.383 366.383 456 256 456 C 145.617 456 56 366.383 56 256 Z  M 206 256 C 206 228.404 228.404 206 256 206 C 283.596 206 306 228.404 306 256 C 306 283.596 283.596 306 256 306 C 228.404 306 206 283.596 206 256 Z " fill-rule="evenodd" fill="none"/>
                 </svg>
@@ -94,6 +109,20 @@
                 'updateVolume'
             ]),
 
+            // Controls
+            // Prev, Play/Pause, Next
+            trigger_prev() {
+                this.$emit("prev")
+            },
+
+            trigger_playpause() {
+                this.$emit("playpause")
+            },
+
+            trigger_next() {
+                this.$emit("next")
+            },
+
             handleMute(ev) {
                 this.toggleMute()
             },
@@ -160,6 +189,8 @@
                 height 110px
                 margin-right 10px
                 display flex
+                position relative
+                z-index 9999
                 #album-art.show
                     opacity 1
                 #album-art
@@ -173,6 +204,30 @@
                     position absolute
                     height 80px
                     padding 15px 5px
+                svg.prev, svg.play, svg.next
+                    position absolute
+                    opacity 0
+                    transition all 0.4s ease
+                    z-index 99999
+                svg.prev:hover, svg.play:hover, svg.next:hover
+                    opacity 1
+                    cursor pointer
+                svg.prev, svg.play, svg.next
+                    align-self center
+                svg.prev, svg.next
+                    height 15px
+                svg.prev
+                    left 15px
+                svg.prev.moved
+                    left 0px
+                svg.next
+                    right 0px
+                svg.play
+                    left 48px
+                    height 30px
+                svg.play.moved
+                    left 40px
+                    height 25px
             .center-panel
                 display flex
                 flex-flow column

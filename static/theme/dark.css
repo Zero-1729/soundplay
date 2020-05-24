@@ -25,6 +25,12 @@ svg path.filled {
     fill: #525252;
 }
 
+.player-container .panel-holder .image-holder svg.prev polygon,
+.player-container .panel-holder .image-holder svg.play polygon,
+.player-container .panel-holder .image-holder svg.next polygon {
+    fill: #c7c7c7;
+}
+
 input[type="range"].slider {
     background: #525252;
 }

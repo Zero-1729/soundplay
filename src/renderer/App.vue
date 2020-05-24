@@ -5,7 +5,11 @@
             :pos="vars.currentPos"
             :player="player"
             :loading="vars.loadingTrack"
-            :foundArt="vars.foundArt">
+            :foundArt="vars.foundArt"
+            
+            @prev="prevTrack"
+            @playpause="triggerPlay"
+            @next="nextTrack">
         </Panel>
         <Search
             :searchText="vars.searchText"
