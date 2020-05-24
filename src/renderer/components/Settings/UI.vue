@@ -379,6 +379,9 @@
     label.switch.further
         margin-left 272px
 
+    label.switch.media
+        margin-left 286px
+
     .flex .switch.shorter
         margin-left 304px
 
@@ -386,7 +389,7 @@
         margin-bottom 6px
 
     .switch.tsb-red
-        margin-left 246px
+        margin-left 248px
 
     .info-input-field-nm
         width 12px
