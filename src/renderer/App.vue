@@ -1351,16 +1351,18 @@
             },
 
             prevTrack() {
-                let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
-                let idx = this.filteredPool[this.player.tmpPlayedIDs.pop()]
+                if (this.vars.currentTrack) {
+                    let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
+                    let idx = this.filteredPool[this.player.tmpPlayedIDs.pop()]
 
-                // Only trigger if a previous track exists
-                if ((cindex > 0) && idx) {
-                    if (this.appAudioPrefs.shuffle) {
-                        cindex = idx ? idx : cindex
-                    } else { cindex = cindex - 1 }
+                    // Only trigger if a previous track exists
+                    if ((cindex > 0) && idx) {
+                        if (this.appAudioPrefs.shuffle) {
+                            cindex = idx ? idx : cindex
+                        } else { cindex = cindex - 1 }
 
-                    this.updateCurrentTrack(this.filteredPool[cindex])
+                        this.updateCurrentTrack(this.filteredPool[cindex])
+                    }
                 }
             },
 
