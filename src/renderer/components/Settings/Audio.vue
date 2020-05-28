@@ -4,7 +4,7 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
-                        Audio Playback rate
+                        Audio playback rate
                     </h3>
 
                     <p class="pushed">{{ playbackRate }}</p>
@@ -21,7 +21,7 @@
              <div class="option-item">
                 <div class="flex">
                     <h3>
-                        End of playback behavior
+                        Playback behavior
                     </h3>
 
                     <select class="further" v-model="currentBehaviour">
@@ -38,7 +38,7 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
-                        Persisted Play History
+                        Persisted play history
                     </h3>
                     <label class="switch further" :class="{checked: persistedHistory}">
                         <input type="checkbox" v-model="persistedHistory"/>

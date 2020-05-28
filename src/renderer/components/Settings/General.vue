@@ -4,7 +4,7 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
-                        Clear Sounds
+                        Clear sounds
                     </h3>
                     <button class="shorter" @click="handle_delete_all_tracks">
                         Delete
@@ -19,7 +19,7 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
-                        Music Folder
+                        Music folder
                     </h3>
                     <button class="dialog-button f" @click="handle_open_dialog">
                         <p class="button-p">Open</p>
@@ -56,7 +56,7 @@
             <div class="option-item">
                 <div class="flex">
                     <h3>
-                        Excluded Folder(s)
+                        Excluded folder(s)
                     </h3>
                     <input id="settings-input" placeholder="Enter Folder name..." v-model="newFolder" @focus="focusedInput" @blur="unFocusedInput" @keydown.enter="handle_new_excluded_folder">
 

@@ -54,7 +54,7 @@
             <div class="option-item anm-red">
                 <div class="flex">
                     <h3>
-                        Auto Night mode
+                        Auto night mode
                     </h3>
                     <label class="switch further" :class="{checked: currentAutoNightMode}">
                         <input type="checkbox" v-model="currentAutoNightMode"/>
