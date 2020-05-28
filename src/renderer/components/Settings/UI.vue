@@ -371,25 +371,25 @@
         border none
 
     .flex .furthest
-        margin-left 308px
+        margin-left 340px
 
     .flex .further
-        margin-left 236px
+        margin-left 268px
 
     label.switch.further
-        margin-left 272px
+        margin-left 312px
 
     label.switch.media
-        margin-left 286px
+        margin-left 326px
 
     .flex .switch.shorter
-        margin-left 304px
+        margin-left 344px
 
     .option-item.anm-red
         margin-bottom 6px
 
     .switch.tsb-red
-        margin-left 248px
+        margin-left 288px
 
     .info-input-field-nm
         width 12px

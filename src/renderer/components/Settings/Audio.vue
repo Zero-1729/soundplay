@@ -127,7 +127,7 @@
         margin-left 300px
 
     .flex .switch.further
-        margin-left 318px
+        margin-left 328px
         .slider
             transition left .4s
 

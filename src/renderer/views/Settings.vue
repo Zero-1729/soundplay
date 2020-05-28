@@ -153,16 +153,17 @@
     .flex .switch
         position relative
         display inline-block
-        width 44px
-        height 20px
+        width 34px
+        height 14px
         border-radius 34px
         margin-top 12px
-        margin-left 298px
+        margin-left 338px
 
     .flex .slider
         position absolute
-        width 20px
-        top 0
+        width 18px
+        height 18px
+        top -2px
         left 0
         right 0
         bottom 0
