@@ -227,7 +227,7 @@ tbody tr:nth-child(odd) {
 }
 
 .flex .slider.checked {
-    background: #1068bfb0;
+    background: #065baf;
 }
 
 .flex select, select.preset-select {
