@@ -61,6 +61,17 @@ export default class Player {
         // ... If not, even if the user toggles the shuffle mode,
         // ... the 'fillRandoms' fn is called in 'App.vue'
         // ... Meaning, we essentially don't need the call aswell
+
+        // Nevertheless, we need to remove the current first track from the randoms array
+        // If not, it would be repeated at some point in the playback before all randoms are exhausted.
+
+        // We assume the track is always in the pool that was passed
+        // ... but just in case we still check
+        if (pool.includes(currentTrack)) {
+            // Get the id of the track and remove it from the array
+            // The track is added to the played IDs only after its done playing; after playback
+            this.randoms = remove(this.randoms, currentTrack.id)
+        }
     }
 
     setProgressColor(color) {
