@@ -157,21 +157,21 @@
         height 14px
         border-radius 34px
         margin-top 12px
-        margin-left 338px
+        margin-left 337px
 
     .flex .slider
         position absolute
         width 18px
         height 18px
         top -2px
-        left 0
+        left -2px
         right 0
         bottom 0
         border-radius 34px
         transition .4s
 
     .flex .slider.checked
-        left 25px
+        left 18px
 
     .flex .switch input
         opacity 0

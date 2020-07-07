@@ -118,7 +118,7 @@
 
 <style lang='stylus' scoped>
     select.further
-        margin-left 282px
+        margin-left 324px
         width 62px
         margin-top 14px
         height 24px
