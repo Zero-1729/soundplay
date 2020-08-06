@@ -1,5 +1,5 @@
 <template>
-    <div class="main-panel">
+    <div class="main-panel" :class="{collapsed: collapsePane}">
         <!-- Switches between settings (child) routes -->
         <transition :name="transition" mode="out-in">
             <router-view
@@ -20,6 +20,8 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex'
+
     export default {
         inheritAttrs: false,
         props: ['appIsLoading'],
@@ -80,6 +82,11 @@
             unlockHotKey(val) {
                 this.$emit('unlockHotKey', val)
             }
+        },
+        computed: {
+            ...mapGetters([
+                'collapsePane'
+            ])
         }
     }
 </script>
@@ -94,12 +101,25 @@
         width 100%
         user-select none
 
+    div.main-panel.collapsed
+        left 78px
+
+    div.main-panel.collapsed
+        div.tight-main
+            left 0
+            padding-left 28px
+            padding-top 12px
+            padding-bottom 12px
+            top 15.8vh
+
     .tight-main
         position absolute
-        width 100%
-        height 100%
-        left 30px
-        top 18vh
+        width calc(100% - 108px)
+        height calc(100% - 112px)
+        padding-top 8px
+        padding-left 22px
+        left 16px
+        top 15.8vh
 
     .main-panel .headings h4
         margin-top 0
@@ -156,7 +176,7 @@
         width 34px
         height 14px
         border-radius 34px
-        margin-top 12px
+        margin-top 18px
         margin-left 337px
 
     .flex .slider

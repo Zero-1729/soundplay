@@ -1,5 +1,5 @@
 <template>
-    <div class="vertical-div">
+    <div class="vertical-div" :class="{collapsed: collapsePane}">
         <div class="vertical-div-holder">
             <div v-for="item in currentOptions" class="entity" @click="handle_item_click(item)" :class="{activeTarget: isActiveItem(item), greyedText: parseItem(item) == parseItem(playingTarget)}">
                 <p
@@ -268,7 +268,8 @@
                 'allArtists',
                 'allAlbums',
                 'allGenres',
-                'allPlaylists'
+                'allPlaylists',
+                'collapsePane'
             ]),
 
             playlist() {
@@ -313,18 +314,23 @@
 </script>
 
 <style lang="stylus" scoped>
+    div.vertical-div.collapsed
+        display none
+
     .vertical-div
         position absolute
         top 0
         left 0
-        width 180px
+        width 182px
         height 100%
-        padding-left 60px
+        padding-left 74px
         padding-right 10px
-        z-index -999
+        z-index -99999
         .entity
             p
-                margin 18px
+                margin-left 10px
+                margin-bottom 18px
+                margin-right 18px
                 cursor pointer
                 user-select none
                 text-overflow ellipsis
@@ -341,8 +347,9 @@
     .vertical-div-holder
         position absolute
         top 116px
-        width 180px
+        width 168px
         height 254px
+        margin-left 12px
         overflow-y auto
         transition height 0.3s ease
         transition-delay 0.3s

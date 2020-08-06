@@ -42,7 +42,8 @@ const state = {
                 am: 6,
                 pm: 6
             },
-            sleepBlocker: true
+            sleepBlocker: true,
+            collapsePane: false
         },
         audio: {
             playback_behaviour: 'reset', // Defaults to reset
@@ -394,6 +395,10 @@ const mutations = {
         state.settings.ui.sleepBlocker = value
     },
 
+    TOGGLE_COLLAPSE_PANE (state) {
+        state.settings.ui.collapsePane = !state.settings.ui.collapsePane
+    },
+
     // Audio
     SET_AUDIO_PLAYBACK_BEHAVIOUR (state, arg) {
         state.settings.audio.playback_behaviour = arg
@@ -592,6 +597,10 @@ const actions = {
         commit('SET_SLEEP_BLOCKER', arg)
     },
 
+    toggleCollapsePane: ({ commit }) => {
+        commit('TOGGLE_COLLAPSE_PANE')
+    },
+
     // Audio
     setAudioPlaybackBehaviour: ({ commit }, arg) => {
         commit("SET_AUDIO_PLAYBACK_BEHAVIOUR", arg)
@@ -705,6 +714,10 @@ const getters = {
 
     sleepBlocker (state) {
         return state.settings.ui.sleepBlocker
+    },
+
+    collapsePane (state) {
+        return state.settings.ui.collapsePane
     },
 
     settingsOpen (state) {

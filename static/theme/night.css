@@ -122,7 +122,7 @@ input[type="range"].slider {
 
 
 /* Toolset Component colors */
-.main-toolset-container, .main-toolset-container-alt {
+.main-toolset-container {
     box-shadow: 0px 4px 15px 0px #091c2b;
     background: #0e2c42;
 }

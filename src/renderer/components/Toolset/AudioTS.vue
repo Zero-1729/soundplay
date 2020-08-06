@@ -1,5 +1,9 @@
 <template>
     <div class="main-toolset-container">
+        <svg class="search-icon" @click="focus" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="13.563 66.209 15.018 15.018" width="17" height="17">
+            <path d=" M 19.105 77.099 C 20.086 77.798 21.286 78.209 22.581 78.209 C 25.893 78.209 28.581 75.521 28.581 72.209 C 28.581 68.898 25.893 66.209 22.581 66.209 C 19.27 66.209 16.581 68.898 16.581 72.209 L 16.581 72.209 C 16.581 73.504 16.992 74.704 17.691 75.685 L 13.873 79.504 C 13.469 79.907 13.459 80.551 13.849 80.942 L 13.849 80.942 C 14.239 81.332 14.883 81.321 15.287 80.918 L 19.105 77.099 Z  M 18.381 72.209 C 18.381 69.891 20.263 68.009 22.581 68.009 C 24.899 68.009 26.781 69.891 26.781 72.209 C 26.781 74.527 24.899 76.409 22.581 76.409 C 20.263 76.409 18.381 74.527 18.381 72.209 L 18.381 72.209 Z " fill-rule="evenodd" />
+        </svg>
+
         <div id="music-icon" class="item" :class="{activeIcon: currentCriteria == 'music'}">
             <div class="bar music" :class="{greyBar: playingCriteria == 'music' && currentCriteria != 'music'}" v-if="currentCriteria == 'music' || playingCriteria == 'music'"></div>
             <svg class="icon" :class="{greyedIcon: playingCriteria == 'music' && currentCriteria != 'music'}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="12.531 148.128 13 14.303" width="13" height="14.303" @click="handle_criteria('music')">
@@ -64,6 +68,11 @@
                 'setSettings'
             ]),
 
+            focus() {
+                Id('search-input').focus()
+                this.highlight()
+            },
+
             handle_criteria(criteria) {
                 if (this.settingsOpen) {
                     this.setSettings(false)
@@ -77,7 +86,8 @@
         computed: {
             ...mapGetters([
                 'currentCriteria',
-                'settingsOpen'
+                'settingsOpen',
+                'collapsePane'
             ])
         }
     }
@@ -86,12 +96,20 @@
 <style lang="stylus" scoped>
     .main-toolset-container
         position absolute
-        top 110px
+        border none
+        top 0
         left 0
-        width 50px
-        height 254px
-        border-top-right-radius 5px
-        border-bottom-right-radius 5px
+        padding-top 42px
+        width 76px
+        height 100%
+        display flex
+        flex-flow column
+        align-items center
+
+    div.divider
+        width 78px
+        height 0.5px
+        margin-top 22px
 
     .item
         padding 15px
@@ -104,6 +122,15 @@
 
         svg:active
             transform scale(0.9)
+
+    .search-icon
+        height 36px
+        margin-bottom 22px
+        cursor pointer
+
+    .search-icon
+        path
+            transition fill 0.15s ease-in
 
     #album-icon
         svg
@@ -134,10 +161,10 @@
 
     .bar
         position absolute
-        left 0
-        height 25px
+        left -13px
+        height 32px
         width 3px
-        margin-right 2px
+        margin-top -3px
 
     .icon
         cursor pointer

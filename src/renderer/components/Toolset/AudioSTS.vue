@@ -57,10 +57,10 @@
         position absolute
         top 410px
         left 0
-        width 50px
-        height 100px
-        border-top-right-radius 5px
-        border-bottom-right-radius 5px
+        width 76px
+        display flex
+        flex-flow column
+        align-items center
 
     .item
         padding 15px

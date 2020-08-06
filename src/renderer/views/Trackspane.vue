@@ -1,6 +1,6 @@
 <template>
-    <table class="tracklist" v-hotkey="keymap" @click="clearAllHovering">
-        <thead>
+    <table class="tracklist" :class="{collapsed: collapsePane}" v-hotkey="keymap" @click="clearAllHovering">
+        <thead :class="{collapsed: collapsePane}">
             <tr>
                 <th @click="sort('title')">
                     <p :class="{'default-cursor': filteredPool.length == 0}">Title</p>
@@ -723,7 +723,8 @@
                 'currentCriteria',
                 'sortBy',
                 'currentDirec',
-                'appAudioPrefs'
+                'appAudioPrefs',
+                'collapsePane'
             ]),
 
             keymap() {
@@ -759,8 +760,13 @@
     .tracklist
         position absolute
         top 110px
-        left 250px
-        width calc(100vw - 250px)
+        left 266px
+        width calc(100vw - 266px)
+
+    table.tracklist.collapsed
+        left 76px
+        width calc(100vw - 78px)
+        z-index -999999999
 
     tbody
         height calc(100vh - 135px)
@@ -802,6 +808,9 @@
     thead
         display table
         width calc(100vw - 250px)
+
+    thead.collapsed
+        width 100%
 
     th
         padding-bottom 20px

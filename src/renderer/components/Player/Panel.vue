@@ -1,5 +1,5 @@
 <template>
-    <div class="player-container">
+    <div class="player-container" :class="{collapsed: collapsePane}">
         <div class="panel-holder">
             <div class="image-holder" :class="{darken: loading}">
                 <!-- nouveau controls -->
@@ -143,7 +143,8 @@
         computed: {
             ...mapGetters([
                 'appAudioPrefs',
-                'displayMediaControls'
+                'displayMediaControls',
+                'collapsePane'
             ]),
 
             currentTrack() {
@@ -173,12 +174,16 @@
     .darken
         opacity 0.2
 
+    div.player-container.collapsed
+        width calc(100% - 76px)
+        left 76px
+
     .player-container
-        width calc(100% - 250px)
+        width calc(100% - 266px)
         height 110px
         position absolute
         top 0
-        left 250px
+        left 266px
         display flex
         .panel-holder
             position relative
