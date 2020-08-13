@@ -366,7 +366,7 @@
     .flex select
         height 25px
         margin-top auto
-        margin-bottom 4px
+        margin-bottom -4px
         width 70px
         border none
 
