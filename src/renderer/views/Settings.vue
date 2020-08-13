@@ -96,13 +96,14 @@
         position absolute
         height 100%
         top 0
-        left 250px
+        left 274px
         z-index -99999
-        width 100%
+        width: calc(100% - 274px)
         user-select none
 
     div.main-panel.collapsed
         left 78px
+        width calc(100% - 80px)
 
     div.main-panel.collapsed
         div.tight-main
@@ -114,11 +115,11 @@
 
     .tight-main
         position absolute
-        width calc(100% - 108px)
+        width calc(100% - 24px)
         height calc(100% - 112px)
         padding-top 8px
         padding-left 22px
-        left 16px
+        left 0
         top 15.8vh
 
     .main-panel .headings h4
