@@ -760,12 +760,12 @@
     .tracklist
         position absolute
         top 110px
-        left 266px
-        width calc(100vw - 266px)
+        left 274px
+        width calc(100vw - 274px)
 
     table.tracklist.collapsed
         left 76px
-        width calc(100vw - 78px)
+        width calc(100vw - 76px)
         z-index -999999999
 
     tbody
@@ -807,7 +807,7 @@
 
     thead
         display table
-        width calc(100vw - 250px)
+        width calc(100vw - 274px)
 
     thead.collapsed
         width 100%
