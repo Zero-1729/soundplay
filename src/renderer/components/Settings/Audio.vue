@@ -133,12 +133,13 @@
 
     p.pushed
         margin-left 292px
-        margin-bottom 10px
+        margin-bottom 2px
         align-self flex-end
 
     .arrow-btns
         display flex
         margin-left 15px
+        margin-top 14px
         button
             height 20px
             border none
