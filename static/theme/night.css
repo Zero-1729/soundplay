@@ -222,6 +222,10 @@ tbody tr:hover td, tbody tr:hover div {
     color: #cecece;
 }
 
+div.main-panel div.tight-main {
+    border-top: 1px solid #1e4058;
+}
+
 /* General */
 .option-item input  {
     border-bottom: 2px solid #bbbbbb;

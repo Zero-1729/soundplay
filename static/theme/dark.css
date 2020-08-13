@@ -215,6 +215,10 @@ tr:nth-child(odd) {
     color: #cecece;
 }
 
+div.main-panel div.tight-main {
+    border-top: 1px solid #4e4e4e;
+}
+
 /* General */
 .option-item input  {
     border-bottom: 2px solid grey;
