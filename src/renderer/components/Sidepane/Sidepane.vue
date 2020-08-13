@@ -321,7 +321,7 @@
         position absolute
         top 0
         left 0
-        width 182px
+        width 192px
         height 100%
         padding-left 74px
         padding-right 10px
@@ -347,7 +347,7 @@
     .vertical-div-holder
         position absolute
         top 116px
-        width 168px
+        width 176px
         height 254px
         margin-left 12px
         overflow-y auto
