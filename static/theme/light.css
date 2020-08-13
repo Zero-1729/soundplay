@@ -140,6 +140,10 @@ div.main-toolset-container.collapsed {
     fill: #a0a0a0;
 }
 
+/* Divider */
+div.divider {
+    background: #dadada;
+}
 
 /* Audio / settings Toolset */
 .bar.greyBar {

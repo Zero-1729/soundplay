@@ -131,6 +131,10 @@ input[type="range"].slider {
     fill: #cecece;
 }
 
+/* Divider */
+div.divider {
+    background: #1e4058;
+}
 
 /* Audio / settings Toolset */
 .bar.greyBar {
