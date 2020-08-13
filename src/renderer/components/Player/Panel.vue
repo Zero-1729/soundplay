@@ -179,11 +179,11 @@
         left 76px
 
     .player-container
-        width calc(100% - 266px)
+        width calc(100% - 274px)
         height 110px
         position absolute
         top 0
-        left 266px
+        left 274px
         display flex
         .panel-holder
             position relative
