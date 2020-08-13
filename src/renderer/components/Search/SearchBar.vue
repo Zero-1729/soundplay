@@ -50,12 +50,12 @@
 
     input
         height 20px
-        width 144px
+        width 146px
         font-size 10px
         padding 6px
         padding-left 16px
         margin-top 8px
-        margin-left 88px
+        margin-left 92px
         border-radius 5px
         border none
         z-index 99999
