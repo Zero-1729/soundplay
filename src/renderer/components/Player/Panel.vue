@@ -191,7 +191,7 @@
             height 100%
             display flex
             .image-holder
-                width 120px
+                width 135px
                 height 110px
                 margin-right 10px
                 overflow hidden
