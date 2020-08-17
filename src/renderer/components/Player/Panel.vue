@@ -194,6 +194,7 @@
                 width 120px
                 height 110px
                 margin-right 10px
+                overflow hidden
                 display flex
                 position relative
                 z-index 9999
