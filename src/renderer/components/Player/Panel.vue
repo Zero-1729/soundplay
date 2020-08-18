@@ -193,7 +193,7 @@
             .image-holder
                 width 135px
                 height 110px
-                margin-right 10px
+                margin-right 2px
                 overflow hidden
                 display flex
                 position relative
@@ -224,16 +224,16 @@
                 svg.prev, svg.next
                     height 15px
                 svg.prev
-                    left 15px
+                    left 16px
                 svg.prev.moved
                     left 0px
                 svg.next
-                    right 0px
+                    right 15px
                 svg.play
-                    left 48px
-                    height 30px
+                    left 45px
+                    height 22px
                 svg.play.moved
-                    left 40px
+                    left 46px
                     height 25px
             .center-panel
                 display flex
