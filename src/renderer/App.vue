@@ -1,5 +1,5 @@
 <template>
-    <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals">
+    <div id="app" @dragover.prevent @drop.prevent="addFiles" @click="closeModals" v-hotkey="keymap">
         <Panel
             :track="vars.currentTrack"
             :pos="vars.currentPos"
@@ -171,7 +171,8 @@
             getCurrentTime,
             formatTo24Hours }   = require('./utils/time')
 
-    const { getIndexFromKey }   = require('./utils/object')
+    const { buildMap,
+            getIndexFromKey } = require('./utils/object')
 
     const { isFile, Exists }    = require('./utils/file')
 
@@ -994,7 +995,8 @@
                 'setLoop',
                 'cacheMainRoute',
                 'cacheChildRoute',
-                'toggleAudioEQVisibility'
+                'toggleAudioEQVisibility',
+                'toggleCollapsePane'
             ]),
 
             restoreVueState(data) {
@@ -1838,6 +1840,14 @@
                         }
                     }
                 }
+            },
+
+            handle_toggleCollapsePane(ev) {
+                // Meta key matched for Mac OS then trigger
+                // ... else trigger when ctrl and non Mac OS (i.e. Linux & Win)
+                if (((platform == 'darwin') && (ev.metaKey == true)) || ((platform != 'darwin') && (ev.ctrlKey == true))) {
+                    this.toggleCollapsePane()
+                }
             }
         },
         computed: {
@@ -1859,8 +1869,19 @@
                 'appRoutes',
                 'appNotifs',
                 'sleepBlocker',
-                'enableReplayGain'
+                'enableReplayGain',
+                'collapsePane'
             ]),
+
+            keymap() {
+                return buildMap([
+                    'ctrl+b',
+                    'meta+b'
+                ], [
+                    this.handle_toggleCollapsePane,
+                    this.handle_toggleCollapsePane
+                ])
+            },
 
             filteredPool () {
                 var tmp = this.pool.slice(0)
