@@ -1469,29 +1469,10 @@
 
             handle_window_resize() {
                 if (this.$route.path == '/') {
-                    this.resizeThead()
                     this.redrawEllipses()
                 }
 
                 this.redrawWaveform()
-            },
-
-            resizeThead() {
-                var thead = QuerySelectorAll('thead')[0]
-                var tbody = QuerySelectorAll('tbody')[0]
-
-                // Tired of seeing the error
-                if (tbody) {
-                    if (tbody.scrollHeight > tbody.clientHeight) {
-                        // We use the static width of the window not the table
-                        // ... To avoid mutating both thead and tbody
-                        thead.style.width = String(window.innerWidth - 250 - 1.5) + "px"
-                    } else {
-                        // If no scollbars are detected the width is automatically
-                        // ... the window's minus the sidpane's width
-                        thead.style.width = String(window.innerWidth - 250) + "px"
-                    }
-                }
             },
 
             redrawEllipses() {
