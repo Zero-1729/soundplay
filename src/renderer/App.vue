@@ -874,7 +874,7 @@
             },
 
             filteredPool (cur, prev) {
-                if (this.vars.currentTrack && this.appAudioPrefs.shuffle) {
+                if (this.appAudioPrefs.shuffle) {
                     // Recalc randoms when current currentTarget updated
                     // REM: current pool view is the queue
                     // When we refill we need to ensure that the already played tracks are excluded
