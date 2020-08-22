@@ -1,6 +1,6 @@
 <template>
     <table class="tracklist" :class="{collapsed: collapsePane}" v-hotkey="keymap" @click="clearAllHovering">
-        <thead :class="{collapsed: collapsePane}">
+        <thead>
             <tr>
                 <th @click="sort('title')">
                     <p :class="{'default-cursor': filteredPool.length == 0}">Title</p>
@@ -807,9 +807,6 @@
 
     thead
         display table
-        width calc(100vw - 274px)
-
-    thead.collapsed
         width 100%
 
     th
