@@ -1357,11 +1357,12 @@
             prevTrack() {
                 if (this.vars.currentTrack) {
                     let cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
-                    let idx = this.filteredPool.indexOf(this.player.tmpPlayedIDs.pop())
+                    let idx = getIndexFromKey(this.filteredPool, 'id', this.player.tmpPlayedIDs.pop())
 
                     // Only trigger if a previous track exists
-                    if ((cindex > 0) && idx) {
-                        if (this.appAudioPrefs.shuffle) {
+                    if ((cindex > 0)) {
+                        // Only use the previously played track index if in shuffle mode
+                        if (this.appAudioPrefs.shuffle && (idx != -1)) {
                             cindex = idx ? idx : cindex
                         } else { cindex = cindex - 1 }
 
