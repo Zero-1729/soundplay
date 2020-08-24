@@ -1372,7 +1372,8 @@
             },
 
             nextTrack() {
-                // Get index of current playing track
+                // Get index of current & next playing track
+                let oindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id)
                 let cindex
 
                 // Only invoke `getNextRandom` if not in loop single
@@ -1385,6 +1386,14 @@
                 } else {
                     // Set to normal next track index from current track
                     cindex = getIndexFromKey(this.filteredPool, 'id', this.vars.currentTrack.id) + 1
+                }
+
+                // Skipped tracks should be treated as being played already
+                // ... this way we can play the previous tracks
+                // It does not depend on the `persistedHistory` since we need to pop the prev tracks
+                // ... REM: outside of the 'shuffle' mode the prev track is just `cindex - 1` 
+                if (this.appAudioPrefs.shuffle) {
+                    this.player.fillHistory(this.filteredPool, oindex)
                 }
 
                 // Loop check first since its just to repeat the track
