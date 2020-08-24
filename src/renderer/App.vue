@@ -1362,6 +1362,7 @@
                     // Only trigger if a previous track exists
                     if ((cindex > 0)) {
                         // Only use the previously played track index if in shuffle mode
+                        // fix: if the `tmpPlayedIDs` array is exhausted 'cindex - 1' is used
                         if (this.appAudioPrefs.shuffle && (idx != -1)) {
                             cindex = idx ? idx : cindex
                         } else { cindex = cindex - 1 }
