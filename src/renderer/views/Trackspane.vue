@@ -760,7 +760,7 @@
     .tracklist
         position absolute
         top 110px
-        left 274px
+        left 276px
         width calc(100vw - 274px)
 
     table.tracklist.collapsed
