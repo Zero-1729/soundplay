@@ -780,30 +780,24 @@
 
     tr th:first-child, tr td:first-child
         width 40%
-        padding-left 10px
 
-    tr th:nth-child(2)
+    tr th:nth-child(2), tr td:nth-child(2)
         width 20%
 
-    tr th:nth-child(3)
+    tr th:nth-child(3), tr td:nth-child(3)
         width 24%
 
-    tr th:last-child
-        padding-left 4px
+    tr th:last-child, tr td:last-child
         width 16%
 
-    tr td:nth-child(2)
-        width 20%
-        padding-left 12px
-
-    tr td:nth-child(3)
-        width 25%
+    tr th:first-child p, tr td:first-child span
         padding-left 10px
 
-    tr td:last-child
-        width 15%
+    tr td:nth-child(2) span
+        padding-left 2px
+
+    tr td:nth-child(3) span, tr td:last-child span
         padding-left 4px
-        padding-right 12px
 
     thead
         display table
@@ -829,9 +823,6 @@
 
     .hover *
         cursor pointer
-
-    td:first-child, th:first-child
-        padding-left 10px
 
     td, th
         user-select none
