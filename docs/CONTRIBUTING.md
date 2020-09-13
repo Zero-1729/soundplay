@@ -117,7 +117,7 @@ To make contributing as smooth as possible, PRs and issues should be prefixed wi
 - `utils`: Any change that affects the modules in the utilities folders: `src/renderer/utils` or `src/main/utils`.
 - `docs`: Any change that affects the App's Documentation. E.g. `README.md`, `docs/CONTRIBUTING.md`, etc.
 - `player`: Any code that affects the App's Player or EQ.
-- `minor` : for comments and other uncategorizable trivial changes.
+- `misc` : for comments and other uncategorizable trivial changes.
 - `webpack` / `wp` : Webpack related code.
 - `electron-builder` / `eb` : electron builder related configs.
 - `tests`: Any test related code.

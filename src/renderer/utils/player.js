@@ -166,16 +166,16 @@ export default class Player {
     }
 
     getNextRandom(currentTrack, pool, exclude=false) {
-        let id = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
+        let idx = currentTrack ? getIndexFromKey(pool, 'id', currentTrack.id) : -1
 
         // Register track in history
         // History is limited to last ten tracks (~30 mins playtime)
         // ... assuming each track is ~3 mins long
-        if (!exclude && (id != -1)) {
+        if (!exclude && (idx != -1)) {
             if (this.tmpPlayedIDs.length <= 10) {
-                this.tmpPlayedIDs.push(id)
+                this.tmpPlayedIDs.push(pool[idx].id)
             } else {
-                this.tmpPlayedIDs = [id]
+                this.tmpPlayedIDs = [pool[idx].id]
             }
         }
 
